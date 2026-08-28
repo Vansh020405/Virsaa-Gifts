@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import ProductCard from '../../components/ProductCard';
+import ProductDetailModal from '../../components/ProductDetailModal';
 import EnquiryModal from '../../components/EnquiryModal';
 import AuthModal from '../../components/AuthModal';
 import { dbService } from '../../lib/supabase/db-service';
@@ -21,7 +22,8 @@ import {
   Layers,
   Leaf,
   Clock,
-  Shield
+  Shield,
+  PackageCheck
 } from 'lucide-react';
 
 export default function CataloguePage() {
@@ -37,18 +39,19 @@ export default function CataloguePage() {
   const [selectedTier, setSelectedTier] = useState('all');
   const [selectedSpeed, setSelectedSpeed] = useState('all');
   const [selectedCollection, setSelectedCollection] = useState('all');
-  const [priceRange, setPriceRange] = useState<number>(6000);
+  const [priceRange, setPriceRange] = useState<number>(5000);
   const [sortBy, setSortBy] = useState<'featured' | 'price_asc' | 'price_desc' | 'name_asc'>('featured');
 
   // Mobile Filter Drawer
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
-  // Enquiry Modal
+  // Modals
+  const [selectedProductForDetail, setSelectedProductForDetail] = useState<Product | null>(null);
   const [isEnquiryOpen, setIsEnquiryOpen] = useState(false);
   const [selectedProductForEnquiry, setSelectedProductForEnquiry] = useState<Product | null>(null);
 
   // Pagination / Load More
-  const [visibleCount, setVisibleCount] = useState(6);
+  const [visibleCount, setVisibleCount] = useState(16);
 
   useEffect(() => {
     async function loadData() {
@@ -81,14 +84,25 @@ export default function CataloguePage() {
     setSelectedTier('all');
     setSelectedSpeed('all');
     setSelectedCollection('all');
-    setPriceRange(6000);
+    setPriceRange(5000);
     setSortBy('featured');
-    setVisibleCount(6);
+    setVisibleCount(16);
   };
 
-  const materialsList = ['Wood', 'Bamboo', 'Cork', 'MDF', 'Moss', 'Brass'];
-  const tiersList = ['Signature', 'Executive', 'Artisan Luxe', 'Eco Essentials'];
-  const speedList = ['Ready to Ship', '3-5 Days', '7-10 Days', 'Custom Made (14 Days)'];
+  // Derive unique materials from products
+  const materialsList = useMemo(() => {
+    const set = new Set<string>();
+    products.forEach((p) => {
+      p.material_tags?.forEach((m) => {
+        if (m && m.trim()) set.add(m.trim());
+      });
+    });
+    const popular = ['Cork', 'Seed Paper', 'Recycled Paper', 'Bamboo', 'MDF', 'Wax', 'Preserved Botanicals', 'Metal', 'Seeds', 'Coir', 'Glass', 'Moss', 'Wood'];
+    return popular.filter(m => set.has(m)).concat(Array.from(set).filter(m => !popular.includes(m)));
+  }, [products]);
+
+  const tiersList = ['Essential', 'Premium', 'Signature', 'Luxury'];
+  const speedList = ['Ready to Ship', '3-5 Days', '7-10 Days'];
 
   // Filtered & Sorted Products
   const filteredProducts = useMemo(() => {
@@ -102,7 +116,7 @@ export default function CataloguePage() {
           p.description.toLowerCase().includes(q) ||
           p.sku.toLowerCase().includes(q) ||
           p.subcategory.toLowerCase().includes(q) ||
-          p.material_tags.some((m) => m.toLowerCase().includes(q))
+          p.material_tags?.some((m) => m.toLowerCase().includes(q))
       );
     }
 
@@ -110,12 +124,13 @@ export default function CataloguePage() {
       list = list.filter(
         (p) =>
           p.category_id === selectedCategory ||
-          p.category_name?.toLowerCase() === selectedCategory.toLowerCase()
+          p.category_name?.toLowerCase() === selectedCategory.toLowerCase() ||
+          categories.find(c => c.slug === selectedCategory)?.name.toLowerCase() === p.category_name?.toLowerCase()
       );
     }
 
     if (selectedMaterial !== 'all') {
-      list = list.filter((p) => p.material_tags.includes(selectedMaterial));
+      list = list.filter((p) => p.material_tags?.includes(selectedMaterial));
     }
 
     if (selectedTier !== 'all') {
@@ -141,29 +156,33 @@ export default function CataloguePage() {
     } else if (sortBy === 'name_asc') {
       list.sort((a, b) => a.name.localeCompare(b.name));
     } else {
-      // featured
-      list.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
+      // featured: high tiers and catalog items first
+      list.sort((a, b) => {
+        if (a.featured && !b.featured) return -1;
+        if (!a.featured && b.featured) return 1;
+        return 0;
+      });
     }
 
     return list;
-  }, [
-    products,
-    searchQuery,
-    selectedCategory,
-    selectedMaterial,
-    selectedTier,
-    selectedSpeed,
-    selectedCollection,
-    priceRange,
-    sortBy,
-  ]);
+  }, [products, categories, searchQuery, selectedCategory, selectedMaterial, selectedTier, selectedSpeed, selectedCollection, priceRange, sortBy]);
 
-  const displayedProducts = filteredProducts.slice(0, visibleCount);
-  const hasMore = visibleCount < filteredProducts.length;
+  const activeFiltersCount = useMemo(() => {
+    let count = 0;
+    if (selectedCategory !== 'all') count++;
+    if (selectedMaterial !== 'all') count++;
+    if (selectedTier !== 'all') count++;
+    if (selectedSpeed !== 'all') count++;
+    if (selectedCollection !== 'all') count++;
+    if (priceRange < 5000) count++;
+    if (searchQuery.trim()) count++;
+    return count;
+  }, [selectedCategory, selectedMaterial, selectedTier, selectedSpeed, selectedCollection, priceRange, searchQuery]);
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF8F5]">
       <Navbar onOpenEnquiry={() => handleOpenEnquiry()} />
+
       <AuthModal />
       <EnquiryModal
         isOpen={isEnquiryOpen}
@@ -171,417 +190,478 @@ export default function CataloguePage() {
         selectedProduct={selectedProductForEnquiry}
       />
 
-      {/* Catalogue Header */}
-      <div className="pt-28 pb-10 bg-gradient-to-b from-[#1F332B] to-[#12211B] text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 text-xs uppercase tracking-widest font-semibold text-[#E4B58A] mb-3">
+      {/* Product Quick-View Modal */}
+      <ProductDetailModal
+        product={selectedProductForDetail}
+        isOpen={!!selectedProductForDetail}
+        onClose={() => setSelectedProductForDetail(null)}
+        onEnquire={(p) => handleOpenEnquiry(p)}
+      />
+
+      {/* Page Header Banner */}
+      <div className="pt-28 pb-12 bg-[#12211B] text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(200,139,86,0.15),transparent_70%)]" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="max-w-3xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-[#E4B58A] text-xs font-semibold uppercase tracking-widest mb-3">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Direct Artisan Sourcing & Bespoke B2B Curation</span>
+              <span>Full Artisanal Catalogue ({products.length} Products)</span>
             </div>
             <h1 className="font-serif-luxury text-3xl sm:text-5xl font-bold tracking-tight text-white mb-3">
-              The Sustainable Gifting Catalogue
+              Sustainable Corporate Gifts & Keepsakes
             </h1>
-            <p className="text-sm sm:text-base text-stone-300">
-              Browse our curated creations across natural wood, cork, bamboo and moss décor. Request custom quantities and branding options with instant B2B quotations.
+            <p className="text-stone-300 text-sm sm:text-base leading-relaxed">
+              Explore authentic eco-conscious gifts made with cork, seed paper, bamboo, reclaimed timber and preserved botanicals. Click any product to view its complete specifications and photo gallery.
             </p>
           </div>
         </div>
       </div>
 
       {/* Main Catalogue Area */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 flex-1 w-full">
-        {/* Search & Top Action Bar */}
-        <div className="bg-white rounded-2xl p-4 border border-[#E8DFC8] shadow-xs mb-8 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        
+        {/* Top Search & Filter Bar */}
+        <div className="bg-white rounded-2xl p-4 mb-8 border border-[#EBE4D8] shadow-xs flex flex-col md:flex-row items-center justify-between gap-4">
+          
           {/* Search Input */}
           <div className="relative w-full md:w-96">
-            <Search className="w-4 h-4 absolute left-3.5 top-3 text-stone-400" />
+            <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
+              placeholder="Search by product name, SKU (e.g. 4ck03), material..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by product name, SKU, material, or keyword..."
-              className="w-full pl-10 pr-4 py-2 bg-[#FAF8F5] border border-[#DCD1C4] rounded-xl text-sm text-[#1F332B] placeholder-stone-400 focus:outline-hidden focus:border-[#C88B56]"
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#DCD1C4] focus:outline-none focus:ring-2 focus:ring-[#C88B56] text-xs sm:text-sm bg-[#FAF8F5]"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-2.5 text-stone-400 hover:text-stone-600"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600"
               >
                 <X className="w-4 h-4" />
               </button>
             )}
           </div>
 
-          {/* Right Controls: Sort & Mobile Filter Trigger */}
-          <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end">
-            {/* Mobile Filter Button */}
+          {/* Sort & Mobile Filter Toggle */}
+          <div className="flex items-center justify-between w-full md:w-auto gap-3">
             <button
               onClick={() => setMobileFiltersOpen(true)}
-              className="lg:hidden px-4 py-2 rounded-xl bg-[#1F332B] text-white text-xs font-semibold flex items-center gap-2"
+              className="lg:hidden flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[#DCD1C4] bg-[#FAF8F5] text-xs font-semibold text-[#1F332B]"
             >
-              <Filter className="w-3.5 h-3.5 text-[#E4B58A]" />
-              <span>Filters ({filteredProducts.length})</span>
+              <SlidersHorizontal className="w-4 h-4 text-[#C88B56]" />
+              <span>Filters {activeFiltersCount > 0 && `(${activeFiltersCount})`}</span>
             </button>
 
-            {/* Sort Dropdown */}
-            <div className="flex items-center gap-2 text-xs">
-              <span className="text-stone-500 hidden sm:inline">Sort by:</span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-stone-500 font-medium hidden sm:inline">Sort:</span>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
-                className="bg-[#FAF8F5] border border-[#DCD1C4] rounded-xl px-3 py-2 text-xs font-semibold text-[#1F332B] focus:outline-hidden focus:border-[#C88B56]"
+                className="px-3 py-2.5 rounded-xl border border-[#DCD1C4] bg-white text-xs font-semibold text-[#1F332B] focus:outline-none focus:ring-2 focus:ring-[#C88B56]"
               >
-                <option value="featured">Featured / Best Matches</option>
+                <option value="featured">Featured / Curated</option>
                 <option value="price_asc">Price: Low to High</option>
                 <option value="price_desc">Price: High to Low</option>
                 <option value="name_asc">Name: A to Z</option>
               </select>
             </div>
-
-            {/* Total count badge */}
-            <span className="text-xs text-stone-500 font-medium hidden lg:inline">
-              Showing <strong className="text-[#1F332B]">{filteredProducts.length}</strong> creations
-            </span>
           </div>
         </div>
 
-        {/* 2-Column Grid: Sidebar on Left, Products on Right */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Layout Grid: Sidebar Filters + Products List */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
           {/* ========================================================================= */}
-          {/* DESKTOP FILTER SIDEBAR */}
+          {/* DESKTOP SIDEBAR FILTERS */}
           {/* ========================================================================= */}
-          <aside className="hidden lg:block lg:col-span-3 space-y-6">
-            <div className="bg-white rounded-2xl p-6 border border-[#E8DFC8] shadow-xs space-y-6 sticky top-24">
-              <div className="flex items-center justify-between pb-4 border-b border-[#F0EAE1]">
-                <div className="flex items-center gap-2">
-                  <SlidersHorizontal className="w-4 h-4 text-[#C88B56]" />
-                  <h3 className="font-serif-luxury font-bold text-base text-[#1F332B]">Refine Catalogue</h3>
-                </div>
+          <aside className="hidden lg:block lg:col-span-3 bg-white rounded-2xl p-6 border border-[#EBE4D8] shadow-xs space-y-6 sticky top-28 max-h-[85vh] overflow-y-auto">
+            
+            <div className="flex items-center justify-between pb-4 border-b border-[#EBE4D8]">
+              <div className="flex items-center gap-2">
+                <Filter className="w-4 h-4 text-[#C88B56]" />
+                <h3 className="font-serif-luxury font-bold text-sm text-[#1F332B]">Filter Catalogue</h3>
+              </div>
+              {activeFiltersCount > 0 && (
                 <button
                   onClick={handleResetFilters}
-                  className="text-[11px] text-[#C88B56] hover:underline font-semibold flex items-center gap-1"
+                  className="text-[11px] font-semibold text-[#C88B56] hover:underline flex items-center gap-1"
                 >
                   <RotateCcw className="w-3 h-3" />
-                  Reset All
+                  <span>Reset ({activeFiltersCount})</span>
                 </button>
-              </div>
+              )}
+            </div>
 
-              {/* 1. Category */}
-              <div>
-                <label className="block text-xs font-bold text-[#1F332B] uppercase tracking-wider mb-2.5">
-                  Category
-                </label>
-                <div className="space-y-1.5">
-                  <button
-                    onClick={() => setSelectedCategory('all')}
-                    className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center justify-between ${
-                      selectedCategory === 'all'
-                        ? 'bg-[#1F332B] text-white font-bold'
-                        : 'text-stone-600 hover:bg-[#FAF8F5]'
-                    }`}
-                  >
-                    <span>All Categories</span>
-                  </button>
-                  {categories.map((cat) => (
+            {/* Category Filter */}
+            <div>
+              <label className="text-xs uppercase font-bold text-stone-500 tracking-wider block mb-3">
+                Categories
+              </label>
+              <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                <button
+                  onClick={() => setSelectedCategory('all')}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition ${
+                    selectedCategory === 'all'
+                      ? 'bg-[#1F332B] text-white font-bold'
+                      : 'text-stone-700 hover:bg-[#FAF8F5]'
+                  }`}
+                >
+                  <span>All Categories</span>
+                  <span className="text-[10px] opacity-75">{products.length}</span>
+                </button>
+
+                {categories.map((cat) => {
+                  const count = products.filter(
+                    (p) => p.category_id === cat.id || p.category_name?.toLowerCase() === cat.name.toLowerCase()
+                  ).length;
+                  return (
                     <button
                       key={cat.id}
-                      onClick={() => setSelectedCategory(cat.id)}
-                      className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-medium transition flex items-center justify-between ${
-                        selectedCategory === cat.id
+                      onClick={() => setSelectedCategory(cat.slug)}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition ${
+                        selectedCategory === cat.slug
                           ? 'bg-[#1F332B] text-white font-bold'
-                          : 'text-stone-600 hover:bg-[#FAF8F5]'
+                          : 'text-stone-700 hover:bg-[#FAF8F5]'
                       }`}
                     >
                       <span className="truncate">{cat.name}</span>
+                      <span className="text-[10px] opacity-75">{count}</span>
                     </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* 2. Material */}
-              <div className="pt-4 border-t border-[#F0EAE1]">
-                <label className="block text-xs font-bold text-[#1F332B] uppercase tracking-wider mb-2.5">
-                  Material
-                </label>
-                <div className="flex flex-wrap gap-1.5">
-                  <button
-                    onClick={() => setSelectedMaterial('all')}
-                    className={`text-xs px-2.5 py-1 rounded-full border transition ${
-                      selectedMaterial === 'all'
-                        ? 'bg-[#C88B56] text-white border-[#C88B56] font-semibold'
-                        : 'bg-[#FAF8F5] text-stone-600 border-[#DCD1C4] hover:bg-[#EFE9DE]'
-                    }`}
-                  >
-                    All
-                  </button>
-                  {materialsList.map((m) => (
-                    <button
-                      key={m}
-                      onClick={() => setSelectedMaterial(m)}
-                      className={`text-xs px-2.5 py-1 rounded-full border transition ${
-                        selectedMaterial === m
-                          ? 'bg-[#C88B56] text-white border-[#C88B56] font-semibold'
-                          : 'bg-[#FAF8F5] text-stone-600 border-[#DCD1C4] hover:bg-[#EFE9DE]'
-                      }`}
-                    >
-                      {m}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* 3. Price Range Slider */}
-              <div className="pt-4 border-t border-[#F0EAE1]">
-                <div className="flex items-center justify-between mb-2">
-                  <label className="text-xs font-bold text-[#1F332B] uppercase tracking-wider">
-                    Max Price
-                  </label>
-                  <span className="text-xs font-bold text-[#C88B56]">
-                    ₹{priceRange.toLocaleString('en-IN')}
-                  </span>
-                </div>
-                <input
-                  type="range"
-                  min="500"
-                  max="6000"
-                  step="250"
-                  value={priceRange}
-                  onChange={(e) => setPriceRange(Number(e.target.value))}
-                  className="w-full accent-[#C88B56] cursor-pointer"
-                />
-                <div className="flex justify-between text-[10px] text-stone-400 mt-1">
-                  <span>₹500</span>
-                  <span>₹6,000+</span>
-                </div>
-              </div>
-
-              {/* 4. Tier */}
-              <div className="pt-4 border-t border-[#F0EAE1]">
-                <label className="block text-xs font-bold text-[#1F332B] uppercase tracking-wider mb-2.5">
-                  Tier
-                </label>
-                <div className="space-y-1.5">
-                  <button
-                    onClick={() => setSelectedTier('all')}
-                    className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-medium transition ${
-                      selectedTier === 'all'
-                        ? 'bg-[#1F332B] text-white font-bold'
-                        : 'text-stone-600 hover:bg-[#FAF8F5]'
-                    }`}
-                  >
-                    All Tiers
-                  </button>
-                  {tiersList.map((tier) => (
-                    <button
-                      key={tier}
-                      onClick={() => setSelectedTier(tier)}
-                      className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-medium transition ${
-                        selectedTier === tier
-                          ? 'bg-[#1F332B] text-white font-bold'
-                          : 'text-stone-600 hover:bg-[#FAF8F5]'
-                      }`}
-                    >
-                      {tier}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* 5. Speed / Lead Time */}
-              <div className="pt-4 border-t border-[#F0EAE1]">
-                <label className="block text-xs font-bold text-[#1F332B] uppercase tracking-wider mb-2.5">
-                  Lead Time / Speed
-                </label>
-                <div className="space-y-1.5">
-                  <button
-                    onClick={() => setSelectedSpeed('all')}
-                    className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-medium transition ${
-                      selectedSpeed === 'all'
-                        ? 'bg-[#1F332B] text-white font-bold'
-                        : 'text-stone-600 hover:bg-[#FAF8F5]'
-                    }`}
-                  >
-                    Any Speed
-                  </button>
-                  {speedList.map((speed) => (
-                    <button
-                      key={speed}
-                      onClick={() => setSelectedSpeed(speed)}
-                      className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-medium transition ${
-                        selectedSpeed === speed
-                          ? 'bg-[#1F332B] text-white font-bold'
-                          : 'text-stone-600 hover:bg-[#FAF8F5]'
-                      }`}
-                    >
-                      {speed}
-                    </button>
-                  ))}
-                </div>
+                  );
+                })}
               </div>
             </div>
+
+            {/* Material Filter */}
+            <div className="pt-4 border-t border-[#EBE4D8]">
+              <label className="text-xs uppercase font-bold text-stone-500 tracking-wider block mb-3 flex items-center gap-1">
+                <Leaf className="w-3.5 h-3.5 text-[#2D4A3E]" />
+                <span>Materials</span>
+              </label>
+              <div className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto pr-1">
+                <button
+                  onClick={() => setSelectedMaterial('all')}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-medium transition ${
+                    selectedMaterial === 'all'
+                      ? 'bg-[#C88B56] text-white font-bold'
+                      : 'bg-[#FAF8F5] text-stone-700 border border-[#EBE4D8] hover:border-stone-400'
+                  }`}
+                >
+                  All
+                </button>
+                {materialsList.map((m) => (
+                  <button
+                    key={m}
+                    onClick={() => setSelectedMaterial(m)}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-medium transition ${
+                      selectedMaterial === m
+                        ? 'bg-[#C88B56] text-white font-bold'
+                        : 'bg-[#FAF8F5] text-stone-700 border border-[#EBE4D8] hover:border-stone-400'
+                    }`}
+                  >
+                    {m}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Tier Filter */}
+            <div className="pt-4 border-t border-[#EBE4D8]">
+              <label className="text-xs uppercase font-bold text-stone-500 tracking-wider block mb-3">
+                Product Tier
+              </label>
+              <div className="grid grid-cols-2 gap-1.5">
+                <button
+                  onClick={() => setSelectedTier('all')}
+                  className={`px-2.5 py-1.5 rounded-lg text-xs font-medium text-center transition ${
+                    selectedTier === 'all'
+                      ? 'bg-[#1F332B] text-white font-bold'
+                      : 'bg-[#FAF8F5] text-stone-700 border border-[#EBE4D8] hover:border-stone-400'
+                  }`}
+                >
+                  All Tiers
+                </button>
+                {tiersList.map((t) => (
+                  <button
+                    key={t}
+                    onClick={() => setSelectedTier(t)}
+                    className={`px-2.5 py-1.5 rounded-lg text-xs font-medium text-center transition ${
+                      selectedTier === t
+                        ? 'bg-[#1F332B] text-white font-bold'
+                        : 'bg-[#FAF8F5] text-stone-700 border border-[#EBE4D8] hover:border-stone-400'
+                    }`}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Speed / Lead Time */}
+            <div className="pt-4 border-t border-[#EBE4D8]">
+              <label className="text-xs uppercase font-bold text-stone-500 tracking-wider block mb-3 flex items-center gap-1">
+                <Clock className="w-3.5 h-3.5 text-[#E4B58A]" />
+                <span>Turnaround Time</span>
+              </label>
+              <div className="space-y-1">
+                <button
+                  onClick={() => setSelectedSpeed('all')}
+                  className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-medium transition ${
+                    selectedSpeed === 'all' ? 'bg-[#FAF8F5] text-[#1F332B] font-bold' : 'text-stone-600 hover:text-black'
+                  }`}
+                >
+                  All Timelines
+                </button>
+                {speedList.map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => setSelectedSpeed(s)}
+                    className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-medium transition ${
+                      selectedSpeed === s ? 'bg-[#FAF8F5] text-[#C88B56] font-bold' : 'text-stone-600 hover:text-black'
+                    }`}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Price Filter */}
+            <div className="pt-4 border-t border-[#EBE4D8]">
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-xs uppercase font-bold text-stone-500 tracking-wider">
+                  Max Unit Price
+                </label>
+                <span className="text-xs font-bold text-[#1F332B]">₹{priceRange}</span>
+              </div>
+              <input
+                type="range"
+                min="50"
+                max="5000"
+                step="50"
+                value={priceRange}
+                onChange={(e) => setPriceRange(Number(e.target.value))}
+                className="w-full accent-[#C88B56] cursor-pointer"
+              />
+              <div className="flex justify-between text-[10px] text-stone-400 mt-1">
+                <span>₹50</span>
+                <span>₹5,000+</span>
+              </div>
+            </div>
+
           </aside>
 
           {/* ========================================================================= */}
-          {/* PRODUCT GRID ON RIGHT */}
+          {/* PRODUCTS GRID */}
           {/* ========================================================================= */}
-          <main className="lg:col-span-9">
+          <main className="lg:col-span-9 space-y-6">
+            
+            {/* Active Filter Pills Bar */}
+            {activeFiltersCount > 0 && (
+              <div className="flex flex-wrap items-center gap-2 bg-white p-3.5 rounded-2xl border border-[#EBE4D8]">
+                <span className="text-xs text-stone-400 font-medium">Active filters:</span>
+                {searchQuery && (
+                  <span className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-lg bg-[#FAF8F5] border border-[#DCD1C4] text-stone-700">
+                    &quot;{searchQuery}&quot;
+                    <X className="w-3 h-3 cursor-pointer" onClick={() => setSearchQuery('')} />
+                  </span>
+                )}
+                {selectedCategory !== 'all' && (
+                  <span className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-lg bg-[#FAF8F5] border border-[#DCD1C4] text-stone-700">
+                    Category: {categories.find(c => c.slug === selectedCategory)?.name || selectedCategory}
+                    <X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedCategory('all')} />
+                  </span>
+                )}
+                {selectedMaterial !== 'all' && (
+                  <span className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-lg bg-[#FAF8F5] border border-[#DCD1C4] text-stone-700">
+                    Material: {selectedMaterial}
+                    <X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedMaterial('all')} />
+                  </span>
+                )}
+                {selectedTier !== 'all' && (
+                  <span className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-lg bg-[#FAF8F5] border border-[#DCD1C4] text-stone-700">
+                    Tier: {selectedTier}
+                    <X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedTier('all')} />
+                  </span>
+                )}
+                {selectedSpeed !== 'all' && (
+                  <span className="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-lg bg-[#FAF8F5] border border-[#DCD1C4] text-stone-700">
+                    Speed: {selectedSpeed}
+                    <X className="w-3 h-3 cursor-pointer" onClick={() => setSelectedSpeed('all')} />
+                  </span>
+                )}
+                <button
+                  onClick={handleResetFilters}
+                  className="text-xs text-[#C88B56] font-bold hover:underline ml-auto"
+                >
+                  Clear All
+                </button>
+              </div>
+            )}
+
+            {/* Results Count Header */}
+            <div className="flex items-center justify-between">
+              <p className="text-xs sm:text-sm text-stone-600 font-medium">
+                Showing <strong className="text-[#1F332B]">{Math.min(visibleCount, filteredProducts.length)}</strong> of <strong className="text-[#1F332B]">{filteredProducts.length}</strong> matching products
+              </p>
+              <div className="text-[11px] text-stone-400 hidden sm:block">
+                ✨ Click any product card for photo gallery & details
+              </div>
+            </div>
+
+            {/* Loading Skeleton */}
             {loading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
                 {[1, 2, 3, 4, 5, 6].map((n) => (
-                  <div key={n} className="bg-white rounded-2xl h-80 animate-pulse border border-[#E8DFC8]" />
+                  <div key={n} className="bg-white rounded-2xl h-96 border border-[#EBE4D8] animate-pulse p-4 space-y-4">
+                    <div className="bg-stone-200 aspect-4/3 rounded-xl" />
+                    <div className="h-4 bg-stone-200 rounded w-2/3" />
+                    <div className="h-3 bg-stone-200 rounded w-full" />
+                    <div className="h-8 bg-stone-200 rounded mt-auto" />
+                  </div>
                 ))}
               </div>
-            ) : displayedProducts.length === 0 ? (
-              <div className="bg-white rounded-3xl p-12 text-center border border-[#E8DFC8]">
-                <div className="w-16 h-16 rounded-full bg-[#FAF8F5] border border-[#E8DFC8] flex items-center justify-center mx-auto mb-4 text-[#C88B56]">
-                  <Search className="w-8 h-8" />
+            ) : filteredProducts.length === 0 ? (
+              <div className="bg-white rounded-3xl p-12 text-center border border-[#EBE4D8] shadow-xs">
+                <div className="w-16 h-16 rounded-full bg-[#FAF8F5] flex items-center justify-center mx-auto mb-4 text-[#C88B56]">
+                  <PackageCheck className="w-8 h-8" />
                 </div>
-                <h3 className="font-serif-luxury text-xl font-bold text-[#1F332B]">No gifts matched your criteria</h3>
-                <p className="text-stone-500 text-xs sm:text-sm max-w-sm mx-auto mt-2 mb-6">
-                  Try adjusting your material tags, expanding price limits or clearing your search keywords.
+                <h3 className="font-serif-luxury text-xl font-bold text-[#1F332B] mb-2">
+                  No Products Match Your Criteria
+                </h3>
+                <p className="text-stone-500 text-xs sm:text-sm max-w-md mx-auto mb-6">
+                  Try adjusting your filters, clearing search keywords, or exploring our broader categories.
                 </p>
                 <button
                   onClick={handleResetFilters}
-                  className="px-6 py-2.5 rounded-full bg-[#1F332B] text-white text-xs font-bold"
+                  className="px-6 py-2.5 rounded-xl bg-[#1F332B] text-white text-xs font-bold shadow hover:bg-[#2D4A3E] transition"
                 >
-                  Clear All Filters
+                  Reset All Filters
                 </button>
               </div>
             ) : (
               <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {displayedProducts.map((product) => (
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {filteredProducts.slice(0, visibleCount).map((product) => (
                     <ProductCard
-                      key={product.id}
+                      key={product.id || product.sku}
                       product={product}
+                      onSelectProduct={(prod) => setSelectedProductForDetail(prod)}
                       onEnquire={(prod) => handleOpenEnquiry(prod)}
                     />
                   ))}
                 </div>
 
-                {/* Pagination / Load More */}
-                {hasMore && (
-                  <div className="text-center mt-12">
+                {/* Load More Button */}
+                {visibleCount < filteredProducts.length && (
+                  <div className="pt-8 text-center">
                     <button
-                      onClick={() => setVisibleCount((prev) => prev + 6)}
-                      className="px-8 py-3.5 rounded-full bg-white hover:bg-[#FAF8F5] text-[#1F332B] font-bold text-xs sm:text-sm border border-[#DCD1C4] shadow-xs hover:shadow transition"
+                      onClick={() => setVisibleCount((prev) => prev + 18)}
+                      className="px-8 py-3.5 rounded-full bg-white border border-[#DCD1C4] hover:bg-[#FAF8F5] text-[#1F332B] text-xs font-bold shadow-xs hover:shadow transition-all inline-flex items-center gap-2"
                     >
-                      Load More Products ({filteredProducts.length - visibleCount} remaining)
+                      <span>Load More Products ({filteredProducts.length - visibleCount} remaining)</span>
+                      <ChevronDown className="w-4 h-4 text-[#C88B56]" />
                     </button>
                   </div>
                 )}
               </>
             )}
+
           </main>
         </div>
       </div>
 
       {/* ========================================================================= */}
-      {/* MOBILE FILTER DRAWER */}
+      {/* MOBILE FILTERS DRAWER MODAL */}
       {/* ========================================================================= */}
       {mobileFiltersOpen && (
-        <div className="fixed inset-0 z-50 flex lg:hidden bg-black/60 backdrop-blur-xs">
-          <div className="w-full max-w-sm bg-[#FAF8F5] h-full ml-auto flex flex-col p-6 overflow-y-auto shadow-2xl">
-            <div className="flex items-center justify-between pb-4 border-b border-[#E8DFC8]">
-              <h3 className="font-serif-luxury font-bold text-lg text-[#1F332B]">Filters</h3>
-              <button
-                onClick={() => setMobileFiltersOpen(false)}
-                className="p-1 rounded-lg text-stone-500"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
+        <div className="fixed inset-0 z-50 lg:hidden flex justify-end">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-xs" onClick={() => setMobileFiltersOpen(false)} />
+          <div className="relative w-full max-w-xs bg-white h-full p-6 overflow-y-auto shadow-2xl flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between pb-4 border-b border-[#EBE4D8] mb-6">
+                <h3 className="font-serif-luxury text-lg font-bold text-[#1F332B]">Filters</h3>
+                <button onClick={() => setMobileFiltersOpen(false)}>
+                  <X className="w-5 h-5 text-stone-500" />
+                </button>
+              </div>
 
-            <div className="space-y-6 py-6 flex-1">
               {/* Category */}
-              <div>
-                <label className="block text-xs font-bold text-[#1F332B] uppercase tracking-wider mb-2">
-                  Category
-                </label>
+              <div className="mb-6">
+                <label className="text-xs uppercase font-bold text-stone-500 block mb-2">Category</label>
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="w-full p-2.5 rounded-xl bg-white border border-[#DCD1C4] text-xs font-medium"
+                  className="w-full p-2.5 rounded-xl border border-[#DCD1C4] text-xs"
                 >
                   <option value="all">All Categories</option>
                   {categories.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
+                    <option key={c.id} value={c.slug}>{c.name}</option>
                   ))}
                 </select>
               </div>
 
               {/* Material */}
-              <div>
-                <label className="block text-xs font-bold text-[#1F332B] uppercase tracking-wider mb-2">
-                  Material
-                </label>
+              <div className="mb-6">
+                <label className="text-xs uppercase font-bold text-stone-500 block mb-2">Material</label>
                 <select
                   value={selectedMaterial}
                   onChange={(e) => setSelectedMaterial(e.target.value)}
-                  className="w-full p-2.5 rounded-xl bg-white border border-[#DCD1C4] text-xs font-medium"
+                  className="w-full p-2.5 rounded-xl border border-[#DCD1C4] text-xs"
                 >
                   <option value="all">All Materials</option>
                   {materialsList.map((m) => (
-                    <option key={m} value={m}>
-                      {m}
-                    </option>
+                    <option key={m} value={m}>{m}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Tier */}
+              <div className="mb-6">
+                <label className="text-xs uppercase font-bold text-stone-500 block mb-2">Tier</label>
+                <select
+                  value={selectedTier}
+                  onChange={(e) => setSelectedTier(e.target.value)}
+                  className="w-full p-2.5 rounded-xl border border-[#DCD1C4] text-xs"
+                >
+                  <option value="all">All Tiers</option>
+                  {tiersList.map((t) => (
+                    <option key={t} value={t}>{t}</option>
                   ))}
                 </select>
               </div>
 
               {/* Price */}
-              <div>
-                <div className="flex justify-between text-xs font-bold mb-1">
-                  <span>Max Price:</span>
+              <div className="mb-6">
+                <div className="flex justify-between text-xs font-bold mb-2">
+                  <span>Max Unit Price</span>
                   <span className="text-[#C88B56]">₹{priceRange}</span>
                 </div>
                 <input
                   type="range"
-                  min="500"
-                  max="6000"
-                  step="250"
+                  min="50"
+                  max="5000"
+                  step="50"
                   value={priceRange}
                   onChange={(e) => setPriceRange(Number(e.target.value))}
                   className="w-full accent-[#C88B56]"
                 />
               </div>
-
-              {/* Tier */}
-              <div>
-                <label className="block text-xs font-bold text-[#1F332B] uppercase tracking-wider mb-2">
-                  Tier
-                </label>
-                <select
-                  value={selectedTier}
-                  onChange={(e) => setSelectedTier(e.target.value)}
-                  className="w-full p-2.5 rounded-xl bg-white border border-[#DCD1C4] text-xs font-medium"
-                >
-                  <option value="all">All Tiers</option>
-                  {tiersList.map((t) => (
-                    <option key={t} value={t}>
-                      {t}
-                    </option>
-                  ))}
-                </select>
-              </div>
             </div>
 
-            {/* Bottom Actions */}
-            <div className="pt-4 border-t border-[#E8DFC8] flex gap-3">
-              <button
-                onClick={handleResetFilters}
-                className="py-3 px-4 rounded-xl border border-[#DCD1C4] text-xs font-medium text-stone-700 w-1/3"
-              >
-                Reset
-              </button>
+            <div className="pt-4 border-t border-[#EBE4D8] space-y-2">
               <button
                 onClick={() => setMobileFiltersOpen(false)}
-                className="py-3 px-4 rounded-xl bg-[#1F332B] text-white text-xs font-bold w-2/3"
+                className="w-full py-3 rounded-xl bg-[#1F332B] text-white text-xs font-bold"
               >
-                View ({filteredProducts.length}) Results
+                Apply Filters ({filteredProducts.length} Results)
+              </button>
+              <button
+                onClick={handleResetFilters}
+                className="w-full py-2.5 rounded-xl border border-stone-300 text-stone-700 text-xs font-semibold"
+              >
+                Reset All
               </button>
             </div>
           </div>

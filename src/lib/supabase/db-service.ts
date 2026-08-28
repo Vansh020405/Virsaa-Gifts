@@ -3,11 +3,11 @@ import { Product, Category, Collection, Enquiry, EnquiryMessage, EnquiryStatus }
 import { INITIAL_PRODUCTS, INITIAL_CATEGORIES, INITIAL_COLLECTIONS, INITIAL_ENQUIRIES } from './mock-data';
 
 const STORAGE_KEYS = {
-  PRODUCTS: 'virsaa_products_v1',
-  CATEGORIES: 'virsaa_categories_v1',
-  COLLECTIONS: 'virsaa_collections_v1',
-  ENQUIRIES: 'virsaa_enquiries_v1',
-  NOTIFICATIONS: 'virsaa_notifications_v1',
+  PRODUCTS: 'virsaa_products_v2',
+  CATEGORIES: 'virsaa_categories_v2',
+  COLLECTIONS: 'virsaa_collections_v2',
+  ENQUIRIES: 'virsaa_enquiries_v2',
+  NOTIFICATIONS: 'virsaa_notifications_v2',
 };
 
 // Helper for Local Storage access in browser

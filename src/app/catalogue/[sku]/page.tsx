@@ -7,10 +7,12 @@ import { useParams, useRouter } from 'next/navigation';
 import Navbar from '../../../components/Navbar';
 import Footer from '../../../components/Footer';
 import ProductCard from '../../../components/ProductCard';
+import ProductDetailModal from '../../../components/ProductDetailModal';
 import EnquiryModal from '../../../components/EnquiryModal';
 import AuthModal from '../../../components/AuthModal';
 import { dbService } from '../../../lib/supabase/db-service';
 import { Product } from '../../../lib/supabase/types';
+import { getProductImageUrl } from '../../../lib/supabase/storage';
 import { 
   Sparkles, 
   ArrowLeft, 
@@ -35,6 +37,7 @@ export default function ProductDetailPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [selectedModalProduct, setSelectedModalProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Enquiry Modal
@@ -121,6 +124,15 @@ export default function ProductDetailPage() {
         onClose={() => setIsEnquiryOpen(false)}
         selectedProduct={product}
       />
+      <ProductDetailModal
+        product={selectedModalProduct}
+        isOpen={!!selectedModalProduct}
+        onClose={() => setSelectedModalProduct(null)}
+        onEnquire={(p) => {
+          setProduct(p);
+          setIsEnquiryOpen(true);
+        }}
+      />
 
       {/* Breadcrumb Bar */}
       <div className="pt-24 pb-4 border-b border-[#E8DFC8] bg-[#F4EFEA]">
@@ -156,7 +168,7 @@ export default function ProductDetailPage() {
             {/* Big Active Image */}
             <div className="relative aspect-4/3 sm:aspect-16/11 w-full rounded-3xl overflow-hidden bg-stone-100 border border-[#E8DFC8] shadow-lg">
               <Image
-                src={activeImage.storage_path}
+                src={getProductImageUrl(activeImage)}
                 alt={product.name}
                 fill
                 priority
@@ -187,7 +199,7 @@ export default function ProductDetailPage() {
                     }`}
                   >
                     <Image
-                      src={img.storage_path}
+                      src={getProductImageUrl(img)}
                       alt={`${product.name} preview ${idx + 1}`}
                       fill
                       className="object-cover"
@@ -384,8 +396,9 @@ export default function ProductDetailPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {relatedProducts.map((p) => (
                 <ProductCard
-                  key={p.id}
+                  key={p.id || p.sku}
                   product={p}
+                  onSelectProduct={(prod) => setSelectedModalProduct(prod)}
                   onEnquire={(prod) => {
                     setProduct(prod);
                     setIsEnquiryOpen(true);

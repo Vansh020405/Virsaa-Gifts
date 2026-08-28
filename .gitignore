@@ -39,3 +39,13 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Product Images & Assets (Served via Supabase Storage)
+EcoGift_Full_Images/
+public/products/
+*.webp
+*.jpg
+*.jpeg
+!public/brand-assets/**
+!public/*.svg
+!public/*.ico

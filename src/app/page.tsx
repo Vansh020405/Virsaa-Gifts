@@ -9,6 +9,7 @@ import ProductCard from '../components/ProductCard';
 import EnquiryModal from '../components/EnquiryModal';
 import AuthModal from '../components/AuthModal';
 import MaterialsShowcase from '../components/MaterialsShowcase';
+import ProductDetailModal from '../components/ProductDetailModal';
 import { dbService } from '../lib/supabase/db-service';
 import { Product } from '../lib/supabase/types';
 import { 
@@ -31,6 +32,7 @@ import {
 
 export default function HomePage() {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  const [selectedProductForDetail, setSelectedProductForDetail] = useState<Product | null>(null);
   const [isEnquiryOpen, setIsEnquiryOpen] = useState(false);
   const [selectedProductForEnquiry, setSelectedProductForEnquiry] = useState<Product | null>(null);
 
@@ -58,6 +60,14 @@ export default function HomePage() {
         isOpen={isEnquiryOpen}
         onClose={() => setIsEnquiryOpen(false)}
         selectedProduct={selectedProductForEnquiry}
+      />
+
+      {/* Product Quick-View Modal */}
+      <ProductDetailModal
+        product={selectedProductForDetail}
+        isOpen={!!selectedProductForDetail}
+        onClose={() => setSelectedProductForDetail(null)}
+        onEnquire={(prod) => handleOpenEnquiry(prod)}
       />
 
       {/* ========================================================================= */}
@@ -261,8 +271,9 @@ export default function HomePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {featuredProducts.slice(0, 6).map((product) => (
               <ProductCard
-                key={product.id}
+                key={product.id || product.sku}
                 product={product}
+                onSelectProduct={(prod) => setSelectedProductForDetail(prod)}
                 onEnquire={(prod) => handleOpenEnquiry(prod)}
               />
             ))}

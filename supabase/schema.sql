@@ -1,16 +1,35 @@
 -- =========================================================================
--- VirSaa Gifts Database Schema & Row Level Security (RLS) Policies
--- Run this in Supabase SQL Editor
+-- VirSaa Gifts Complete Database Schema & Row Level Security (RLS)
+-- Run this in Supabase Dashboard -> SQL Editor
 -- =========================================================================
 
 -- 1. EXTENSIONS
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- 2. ENUMS
-CREATE TYPE product_tier AS ENUM ('Signature', 'Executive', 'Artisan Luxe', 'Eco Essentials');
-CREATE TYPE speed_type AS ENUM ('Ready to Ship', '3-5 Days', '7-10 Days', 'Custom Made (14 Days)');
-CREATE TYPE enquiry_status AS ENUM ('New', 'In Review', 'Replied', 'Closed');
-CREATE TYPE sender_role AS ENUM ('customer', 'admin');
+DO $$ BEGIN
+  CREATE TYPE product_tier AS ENUM ('Essential', 'Premium', 'Signature', 'Luxury', 'Executive', 'Artisan Luxe', 'Eco Essentials');
+EXCEPTION
+  WHEN duplicate_object THEN null;
+END $$;
+
+DO $$ BEGIN
+  CREATE TYPE speed_type AS ENUM ('Ready to Ship', '3-5 Days', '7-10 Days', 'Custom Made (14 Days)', 'Fast', 'Medium', 'Slow');
+EXCEPTION
+  WHEN duplicate_object THEN null;
+END $$;
+
+DO $$ BEGIN
+  CREATE TYPE enquiry_status AS ENUM ('New', 'In Review', 'Replied', 'Closed');
+EXCEPTION
+  WHEN duplicate_object THEN null;
+END $$;
+
+DO $$ BEGIN
+  CREATE TYPE sender_role AS ENUM ('customer', 'admin');
+EXCEPTION
+  WHEN duplicate_object THEN null;
+END $$;
 
 -- 3. PROFILES / USERS
 CREATE TABLE IF NOT EXISTS public.profiles (
@@ -46,19 +65,19 @@ CREATE TABLE IF NOT EXISTS public.collections (
 
 -- 6. PRODUCTS
 CREATE TABLE IF NOT EXISTS public.products (
-  id TEXT PRIMARY KEY DEFAULT ('prod-' || floor(extract(epoch from now()))),
+  id TEXT PRIMARY KEY,
   sku TEXT UNIQUE NOT NULL,
   name TEXT NOT NULL,
   category_id TEXT REFERENCES public.categories(id) ON DELETE SET NULL,
   subcategory TEXT,
   price NUMERIC(10, 2) NOT NULL DEFAULT 0,
-  gst_percent NUMERIC(4, 2) DEFAULT 18,
+  gst_percent NUMERIC(4, 2) DEFAULT 5,
   description TEXT,
   specification JSONB DEFAULT '{}'::jsonb,
   primary_use_case TEXT,
   secondary_use_cases TEXT[] DEFAULT ARRAY[]::TEXT[],
   material_tags TEXT[] DEFAULT ARRAY[]::TEXT[],
-  tier product_tier DEFAULT 'Signature',
+  tier product_tier DEFAULT 'Essential',
   speed speed_type DEFAULT '3-5 Days',
   featured BOOLEAN DEFAULT false,
   min_order_qty INTEGER DEFAULT 10,
@@ -69,7 +88,7 @@ CREATE TABLE IF NOT EXISTS public.products (
 
 -- 7. PRODUCT IMAGES
 CREATE TABLE IF NOT EXISTS public.product_images (
-  id TEXT PRIMARY KEY DEFAULT ('img-' || floor(extract(epoch from now()))),
+  id TEXT PRIMARY KEY,
   product_id TEXT REFERENCES public.products(id) ON DELETE CASCADE,
   storage_path TEXT NOT NULL,
   image_type TEXT DEFAULT 'primary' CHECK (image_type IN ('primary', 'gallery', 'packaging', 'craft')),
@@ -120,10 +139,15 @@ CREATE TABLE IF NOT EXISTS public.notifications (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- =========================================================================
--- ROW LEVEL SECURITY (RLS) POLICIES
--- =========================================================================
+-- 11. INDEXES
+CREATE INDEX IF NOT EXISTS idx_products_sku ON public.products(sku);
+CREATE INDEX IF NOT EXISTS idx_products_category ON public.products(category_id);
+CREATE INDEX IF NOT EXISTS idx_products_tier ON public.products(tier);
+CREATE INDEX IF NOT EXISTS idx_product_images_product_id ON public.product_images(product_id);
+CREATE INDEX IF NOT EXISTS idx_enquiries_user_id ON public.enquiries(user_id);
+CREATE INDEX IF NOT EXISTS idx_enquiries_status ON public.enquiries(status);
 
+-- 12. ROW LEVEL SECURITY (RLS) POLICIES
 ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.collections ENABLE ROW LEVEL SECURITY;
@@ -138,22 +162,22 @@ CREATE POLICY "Public Read Categories" ON public.categories FOR SELECT USING (tr
 CREATE POLICY "Public Read Collections" ON public.collections FOR SELECT USING (true);
 CREATE POLICY "Public Read Product Images" ON public.product_images FOR SELECT USING (true);
 
--- Anyone can submit an enquiry
-CREATE POLICY "Insert Enquiry Any" ON public.enquiries FOR INSERT WITH CHECK (true);
+-- Admin CRUD policies (Service role / authenticated admins)
+CREATE POLICY "Admin All Products" ON public.products FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Admin All Product Images" ON public.product_images FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Admin All Categories" ON public.categories FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Admin All Collections" ON public.collections FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
--- Users can view their own enquiries
+-- Enquiries Policies
+CREATE POLICY "Insert Enquiry Any" ON public.enquiries FOR INSERT WITH CHECK (true);
 CREATE POLICY "Users View Own Enquiries" ON public.enquiries FOR SELECT
   USING (auth.uid() = user_id OR auth.jwt() ->> 'role' = 'service_role');
-
--- Users can view their enquiry messages
 CREATE POLICY "Users View Own Messages" ON public.enquiry_messages FOR SELECT
   USING (EXISTS (
     SELECT 1 FROM public.enquiries
     WHERE public.enquiries.id = public.enquiry_messages.enquiry_id
-    AND public.enquiries.user_id = auth.uid()
+    AND (public.enquiries.user_id = auth.uid() OR auth.jwt() ->> 'role' = 'service_role')
   ));
-
--- Users can add messages to their own enquiry
 CREATE POLICY "Users Post Own Messages" ON public.enquiry_messages FOR INSERT
   WITH CHECK (EXISTS (
     SELECT 1 FROM public.enquiries

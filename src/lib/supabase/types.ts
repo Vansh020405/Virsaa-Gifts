@@ -1,5 +1,5 @@
-export type ProductTier = 'Signature' | 'Executive' | 'Artisan Luxe' | 'Eco Essentials';
-export type SpeedType = 'Ready to Ship' | '3-5 Days' | '7-10 Days' | 'Custom Made (14 Days)';
+export type ProductTier = 'Essential' | 'Premium' | 'Signature' | 'Luxury' | 'Executive' | 'Artisan Luxe' | 'Eco Essentials';
+export type SpeedType = 'Ready to Ship' | '3-5 Days' | '7-10 Days' | 'Custom Made (14 Days)' | 'Fast' | 'Medium' | 'Slow';
 export type EnquiryStatus = 'New' | 'In Review' | 'Replied' | 'Closed';
 export type UserRole = 'customer' | 'admin';
 

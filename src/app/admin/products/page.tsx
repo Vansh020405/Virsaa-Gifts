@@ -5,6 +5,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { dbService } from '../../../lib/supabase/db-service';
 import { Product, Category, ProductTier, SpeedType } from '../../../lib/supabase/types';
+import { getProductImageUrl, uploadProductImageToStorage, deleteProductImageFromStorage } from '../../../lib/supabase/storage';
+import ProductDetailModal from '../../../components/ProductDetailModal';
 import { 
   Package, 
   Plus, 
@@ -17,9 +19,11 @@ import {
   X, 
   Upload, 
   Layers, 
-  RotateCcw,
-  Eye,
-  ExternalLink
+  RotateCcw, 
+  Eye, 
+  ExternalLink,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 
 export default function AdminProductsPage() {
@@ -31,6 +35,11 @@ export default function AdminProductsPage() {
   // Modal State for Add / Edit
   const [modalOpen, setModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [selectedPreviewProduct, setSelectedPreviewProduct] = useState<Product | null>(null);
+  
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 20;
 
   // Form fields
   const [formName, setFormName] = useState('');
@@ -178,8 +187,21 @@ export default function AdminProductsPage() {
       p.material_tags.some((m) => m.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage) || 1;
+  const paginatedProducts = filteredProducts.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   return (
     <div className="p-8 space-y-6 max-w-7xl w-full mx-auto">
+      {/* Product Detail Modal */}
+      <ProductDetailModal
+        product={selectedPreviewProduct}
+        isOpen={!!selectedPreviewProduct}
+        onClose={() => setSelectedPreviewProduct(null)}
+      />
+
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -191,7 +213,7 @@ export default function AdminProductsPage() {
             Product & Inventory Management
           </h1>
           <p className="text-xs sm:text-sm text-stone-500 mt-1">
-            Add new sustainable gift designs, adjust institutional pricing, tiers, and manage images.
+            Browse {products.length} live products, adjust institutional pricing, manage images and tiers.
           </p>
         </div>
 
@@ -204,60 +226,97 @@ export default function AdminProductsPage() {
         </button>
       </div>
 
-      {/* Search Bar */}
-      <div className="bg-white p-4 rounded-2xl border border-[#E8DFC8] shadow-xs flex items-center justify-between gap-4">
+      {/* Search Bar & Pagination Stats */}
+      <div className="bg-white p-4 rounded-2xl border border-[#E8DFC8] shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="relative w-full sm:w-96">
           <Search className="w-4 h-4 absolute left-3 top-2.5 text-stone-400" />
           <input
             type="text"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search products by title, SKU, or materials..."
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setCurrentPage(1);
+            }}
+            placeholder="Search products by title, SKU (e.g. 4ck03), or materials..."
             className="w-full pl-9 pr-3 py-1.5 bg-[#FAF8F5] border border-[#DCD1C4] rounded-xl text-xs text-[#1F332B] focus:outline-hidden focus:border-[#C88B56]"
           />
         </div>
 
-        <span className="text-xs text-stone-500 font-medium hidden sm:inline">
-          Total: <strong className="text-[#1F332B]">{filteredProducts.length}</strong> active products
-        </span>
+        <div className="flex items-center gap-4 text-xs text-stone-500 font-medium">
+          <span>Showing {paginatedProducts.length} of {filteredProducts.length} products</span>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="p-1.5 rounded-lg border border-[#DCD1C4] disabled:opacity-40 hover:bg-[#FAF8F5] transition"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <span className="font-bold text-[#1F332B]">Page {currentPage} of {totalPages}</span>
+            <button
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="p-1.5 rounded-lg border border-[#DCD1C4] disabled:opacity-40 hover:bg-[#FAF8F5] transition"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
       </div>
 
-      {/* Products Table */}
-      <div className="bg-white rounded-3xl border border-[#E8DFC8] shadow-xs overflow-hidden">
+      {/* Table Container */}
+      <div className="bg-white rounded-2xl border border-[#E8DFC8] shadow-xs overflow-hidden">
         {loading ? (
-          <div className="p-12 text-center text-xs text-stone-400">Loading catalog...</div>
+          <div className="p-12 text-center text-stone-500 animate-pulse text-xs">
+            Loading products from database...
+          </div>
         ) : filteredProducts.length === 0 ? (
-          <div className="p-12 text-center text-xs text-stone-400">No products found.</div>
+          <div className="p-12 text-center text-stone-500 text-xs">
+            No products found matching &quot;{searchQuery}&quot;.
+          </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-[#FAF8F5] text-stone-500 uppercase tracking-wider font-semibold border-b border-[#F0EAE1]">
-                <tr>
-                  <th className="py-3.5 px-6">Product & Image</th>
-                  <th className="py-3.5 px-6">Category & Materials</th>
-                  <th className="py-3.5 px-6">Price (+ GST)</th>
-                  <th className="py-3.5 px-6">Tier & Speed</th>
+            <table className="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr className="border-b border-[#E8DFC8] bg-[#FAF8F5] text-stone-500 uppercase tracking-wider font-semibold text-[10px]">
+                  <th className="py-3.5 px-6">Product & SKU</th>
+                  <th className="py-3.5 px-6">Category & Material</th>
+                  <th className="py-3.5 px-6">B2B Rate</th>
+                  <th className="py-3.5 px-6">Tier / Speed</th>
                   <th className="py-3.5 px-6 text-center">Featured</th>
                   <th className="py-3.5 px-6 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#F0EAE1]">
-                {filteredProducts.map((prod) => (
-                  <tr key={prod.id} className="hover:bg-[#FAF8F5] transition">
-                    {/* 1. Image + SKU + Name */}
+                {paginatedProducts.map((prod) => (
+                  <tr key={prod.id || prod.sku} className="hover:bg-[#FAF8F5]/80 transition">
+                    {/* 1. Product & SKU */}
                     <td className="py-4 px-6">
-                      <div className="flex items-center gap-3.5">
-                        <div className="relative w-12 h-12 rounded-xl overflow-hidden bg-stone-200 shrink-0 border border-[#E8DFC8]">
+                      <div className="flex items-center gap-3">
+                        <div 
+                          onClick={() => setSelectedPreviewProduct(prod)}
+                          className="relative w-12 h-12 rounded-xl overflow-hidden bg-stone-200 shrink-0 border border-[#E8DFC8] cursor-pointer hover:opacity-80"
+                        >
                           <Image
-                            src={prod.images?.[0]?.storage_path || 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=200&q=80'}
+                            src={prod.images?.[0] ? getProductImageUrl(prod.images[0]) : 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=200&q=80'}
                             alt={prod.name}
                             fill
                             className="object-cover"
                           />
                         </div>
                         <div className="min-w-0">
-                          <p className="font-bold text-[#1F332B] line-clamp-1 max-w-[220px]">{prod.name}</p>
-                          <span className="font-mono text-[10px] text-stone-500 font-semibold">{prod.sku}</span>
+                          <p 
+                            onClick={() => setSelectedPreviewProduct(prod)}
+                            className="font-bold text-[#1F332B] line-clamp-1 max-w-[220px] cursor-pointer hover:text-[#C88B56]"
+                          >
+                            {prod.name}
+                          </p>
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono text-[10px] text-stone-500 font-semibold">{prod.sku}</span>
+                            {prod.images && prod.images.length > 1 && (
+                              <span className="text-[9px] text-stone-400">({prod.images.length} photos)</span>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </td>
@@ -299,14 +358,13 @@ export default function AdminProductsPage() {
                     {/* 6. Action buttons */}
                     <td className="py-4 px-6 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <Link
-                          href={`/catalogue/${prod.sku}`}
-                          target="_blank"
+                        <button
+                          onClick={() => setSelectedPreviewProduct(prod)}
                           className="p-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-600"
-                          title="View on Customer Catalogue"
+                          title="Quick View Modal"
                         >
-                          <Eye className="w-3.5 h-3.5" />
-                        </Link>
+                          <Eye className="w-3.5 h-3.5 text-[#C88B56]" />
+                        </button>
 
                         <button
                           onClick={() => openEditModal(prod)}
@@ -329,6 +387,31 @@ export default function AdminProductsPage() {
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {/* Bottom Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="p-4 border-t border-[#E8DFC8] bg-[#FAF8F5] flex items-center justify-between text-xs">
+            <span className="text-stone-500">
+              Page {currentPage} of {totalPages} ({filteredProducts.length} total products)
+            </span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="px-3 py-1.5 rounded-lg bg-white border border-[#DCD1C4] disabled:opacity-40 font-semibold"
+              >
+                Previous
+              </button>
+              <button
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="px-3 py-1.5 rounded-lg bg-white border border-[#DCD1C4] disabled:opacity-40 font-semibold"
+              >
+                Next
+              </button>
+            </div>
           </div>
         )}
       </div>
