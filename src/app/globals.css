@@ -1,0 +1,86 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-heading: 'Playfair Display', serif;
+    --font-serif-accent: 'Cinzel', serif;
+    --font-sans: 'Plus Jakarta Sans', sans-serif;
+
+    --brand-forest: #1F332B;
+    --brand-forest-dark: #12211B;
+    --brand-forest-light: #2E4B3F;
+    --brand-amber: #C88B56;
+    --brand-amber-light: #E4B58A;
+    --brand-sand: #F8F5F0;
+    --brand-sand-card: #F2ECE4;
+    --brand-charcoal: #1C1917;
+    --brand-stone: #78716C;
+  }
+}
+
+body {
+  background-color: #FAF8F5;
+  color: #1C1917;
+  font-family: var(--font-sans), sans-serif;
+  overflow-x: hidden;
+}
+
+.font-serif-luxury {
+  font-family: 'Playfair Display', serif;
+}
+
+.font-cinzel {
+  font-family: 'Cinzel', serif;
+}
+
+/* Custom refined scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #F4EFEA;
+}
+::-webkit-scrollbar-thumb {
+  background: #C4B5A5;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #9D8D7C;
+}
+
+/* Glassmorphism effects */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(230, 220, 208, 0.6);
+}
+
+.glass-panel-dark {
+  background: rgba(18, 33, 27, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(200, 139, 86, 0.2);
+}
+
+.text-gold-gradient {
+  background: linear-gradient(135deg, #D4AF37 0%, #C88B56 50%, #E8C39E 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.bg-craft-pattern {
+  background-image: radial-gradient(rgba(196, 181, 165, 0.25) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.02); }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 4s ease-in-out infinite;
+}
