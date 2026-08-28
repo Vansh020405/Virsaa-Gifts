@@ -3,7 +3,7 @@ import './globals.css';
 import { AuthProvider } from '../context/AuthContext';
 
 export const metadata: Metadata = {
-  title: 'VirSaa Gifts | Sustainable & Customizable Corporate Gifting',
+  title: 'Virsaa Gifts | Sustainable & Customizable Corporate Gifting',
   description: 'Gifts That Carry Your Story. Handcrafted sustainable corporate gifts using reclaimed wood, cork, bamboo, and preserved moss art. Personalized Indian craftsmanship.',
   keywords: ['corporate gifts India', 'sustainable gifts', 'preserved moss art', 'custom wooden corporate gifts', 'cork accessories', 'bamboo stationery'],
 };

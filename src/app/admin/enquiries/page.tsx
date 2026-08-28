@@ -94,7 +94,7 @@ export default function AdminEnquiriesPage() {
       await dbService.addEnquiryMessage(
         selectedEnquiry.id,
         user?.id || 'admin-1',
-        user?.name || 'VirSaa Design Concierge',
+        user?.name || 'Virsaa Design Concierge',
         'admin',
         replyText.trim()
       );
@@ -408,7 +408,7 @@ export default function AdminEnquiriesPage() {
               {/* Admin Reply Composer */}
               <form onSubmit={handleSendAdminReply} className="space-y-3 pt-2">
                 <label className="block text-xs font-bold text-[#1F332B]">
-                  Send Official VirSaa Concierge Reply
+                  Send Official Virsaa Concierge Reply
                 </label>
                 <div className="relative">
                   <textarea

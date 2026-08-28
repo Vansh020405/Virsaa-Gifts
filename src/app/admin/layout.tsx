@@ -19,7 +19,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
           <h2 className="font-serif-luxury text-2xl font-bold mb-2">Protected Admin Area</h2>
           <p className="text-stone-300 text-xs sm:text-sm mb-6 leading-relaxed">
-            This area is restricted to VirSaa corporate curators and administrators. Click below to enter with demo master admin credentials.
+            This area is restricted to Virsaa corporate curators and administrators. Click below to enter with demo master admin credentials.
           </p>
 
           <button

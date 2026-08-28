@@ -75,7 +75,7 @@ export default function AdminDashboardPage() {
             <span>Executive Studio Dashboard</span>
           </div>
           <h1 className="font-serif-luxury text-3xl font-bold text-[#1F332B]">
-            VirSaa Corporate Command Center
+            Virsaa Corporate Command Center
           </h1>
           <p className="text-xs sm:text-sm text-stone-500 mt-1">
             Real-time tracking of sustainable corporate gifting leads, artisan catalogue & communications.

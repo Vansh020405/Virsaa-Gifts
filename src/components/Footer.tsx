@@ -41,19 +41,19 @@ export default function Footer() {
 
       {/* Main Footer Links */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
+        <div className="flex flex-col md:flex-row justify-between gap-10">
           {/* Brand Col */}
-          <div className="lg:col-span-2 space-y-4">
+          <div className="max-w-xl space-y-4">
             <Link href="/" className="flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#C88B56] to-[#1F332B] flex items-center justify-center text-white">
                 <span className="font-cinzel text-lg font-bold">V</span>
               </div>
               <span className="font-cinzel text-xl font-bold tracking-wider text-white">
-                VIRSAA <span className="text-[#C88B56] text-xs">GIFTS</span>
+                Virsaa <span className="text-[#C88B56] text-xs">GIFTS</span>
               </span>
             </Link>
             <p className="text-sm text-stone-400 max-w-sm leading-relaxed">
-              VirSaa Gifts creates premium, personalized and sustainable gifts using wood, MDF, cork, bamboo and preserved moss décor. Combining Indian artisan craftsmanship, personalization, and emotional connection.
+              Virsaa Gifts creates premium, personalized and sustainable gifts using wood, MDF, cork, bamboo and preserved moss décor. Combining Indian artisan craftsmanship, personalization, and emotional connection.
             </p>
             <p className="text-xs text-[#E4B58A] italic font-serif">
               “Gifts That Carry Your Story.”
@@ -69,73 +69,7 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div>
-            <h4 className="text-xs uppercase tracking-widest font-bold text-white mb-4">
-              Catalogue
-            </h4>
-            <ul className="space-y-2.5 text-sm">
-              <li>
-                <Link href="/catalogue" className="hover:text-[#E4B58A] transition">
-                  All Products
-                </Link>
-              </li>
-              <li>
-                <Link href="/catalogue?category=home-decor" className="hover:text-[#E4B58A] transition">
-                  Preserved Moss & Décor
-                </Link>
-              </li>
-              <li>
-                <Link href="/catalogue?category=stationery" className="hover:text-[#E4B58A] transition">
-                  Bamboo & Cork Folios
-                </Link>
-              </li>
-              <li>
-                <Link href="/catalogue?category=tableware" className="hover:text-[#E4B58A] transition">
-                  Sheesham & Brass Tableware
-                </Link>
-              </li>
-              <li>
-                <Link href="/catalogue?category=corporate-gifting" className="hover:text-[#E4B58A] transition">
-                  Luxury Heritage Hampers
-                </Link>
-              </li>
-            </ul>
-          </div>
 
-          {/* Materials */}
-          <div>
-            <h4 className="text-xs uppercase tracking-widest font-bold text-white mb-4">
-              Materials & Craft
-            </h4>
-            <ul className="space-y-2.5 text-sm">
-              <li>
-                <Link href="/catalogue?material=Wood" className="hover:text-[#E4B58A] transition">
-                  Reclaimed Sheesham & Teak
-                </Link>
-              </li>
-              <li>
-                <Link href="/catalogue?material=Moss" className="hover:text-[#E4B58A] transition">
-                  Icelandic Botanical Moss
-                </Link>
-              </li>
-              <li>
-                <Link href="/catalogue?material=Cork" className="hover:text-[#E4B58A] transition">
-                  Natural Renewable Cork
-                </Link>
-              </li>
-              <li>
-                <Link href="/catalogue?material=Bamboo" className="hover:text-[#E4B58A] transition">
-                  Organic Lidded Bamboo
-                </Link>
-              </li>
-              <li>
-                <Link href="/catalogue?material=MDF" className="hover:text-[#E4B58A] transition">
-                  Zero-Emission Eco MDF
-                </Link>
-              </li>
-            </ul>
-          </div>
 
           {/* Corporate Concierge */}
           <div>
@@ -149,7 +83,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-2.5">
                 <Mail className="w-4 h-4 text-[#C88B56] shrink-0" />
-                <span>concierge@virsaagifts.com</span>
+                <span>concierge@Virsaagifts.com</span>
               </li>
               <li className="flex items-center gap-2.5">
                 <Phone className="w-4 h-4 text-[#C88B56] shrink-0" />
@@ -161,12 +95,8 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div className="border-t border-[#233B31] mt-12 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-stone-500 gap-4">
-          <p>© {new Date().getFullYear()} VirSaa Gifts Private Limited. All rights reserved.</p>
-          <div className="flex items-center gap-6">
-            <Link href="/catalogue" className="hover:text-stone-400">Catalogue</Link>
-            <Link href="/dashboard" className="hover:text-stone-400">My Enquiries</Link>
-            <Link href="/admin" className="hover:text-[#E4B58A]">Admin Portal</Link>
-          </div>
+          <p>© {new Date().getFullYear()} Virsaa Gifts Private Limited. All rights reserved.</p>
+
         </div>
       </div>
     </footer>

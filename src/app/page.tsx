@@ -73,7 +73,7 @@ export default function HomePage() {
       {/* ========================================================================= */}
       {/* 1. HERO SECTION */}
       {/* ========================================================================= */}
-      <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden bg-[#12211B] text-white pt-24 pb-20">
+      <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden text-white mt-[73px] py-20">
         {/* Cinematic Video / Ambient Animated Background */}
         <div className="absolute inset-0 z-0">
           <video
@@ -81,76 +81,27 @@ export default function HomePage() {
             loop
             muted
             playsInline
-            poster="https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=1920&q=80"
-            className="w-full h-full object-cover opacity-35 scale-105 filter brightness-75"
+            className="w-full h-full object-cover"
           >
             <source
-              src="https://assets.mixkit.co/videos/preview/mixkit-hands-of-a-carpenter-working-with-wood-42475-large.mp4"
+              src="/bgVidVirsaa.MP4"
               type="video/mp4"
             />
           </video>
-          {/* Subtle warm luxury gradients over video */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#12211B] via-[#12211B]/60 to-[#12211B]/80" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(200,139,86,0.15),transparent_70%)]" />
+          {/* Subtle dark/forest-green overlay for readability */}
+          <div className="absolute inset-0 bg-[#12211B]/40" />
         </div>
 
         {/* Floating Brand Elements */}
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-          {/* Subtle pill tag */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-md text-[#E4B58A] text-xs font-semibold uppercase tracking-widest mb-6 animate-in fade-in duration-700">
-            <Sparkles className="w-3.5 h-3.5 text-[#E4B58A]" />
-            <span>Sustainable & Customizable Corporate Gifting</span>
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 flex flex-col items-center justify-center">
+          <div className="text-xs font-semibold uppercase tracking-[0.3em] mb-4 text-white">
+            Virsaa GIFTS
           </div>
 
-          {/* Main Headline */}
-          <h1 className="font-serif-luxury text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight text-white leading-tight mb-6">
+          <h1 className="font-serif-luxury text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight text-white leading-tight">
             Gifts That Carry <br />
             <span className="text-gold-gradient font-normal italic">Your Story.</span>
           </h1>
-
-          {/* Supporting Text */}
-          <p className="max-w-2xl mx-auto text-base sm:text-xl text-stone-200 font-light leading-relaxed mb-10">
-            Personalized, sustainable gifts crafted with purpose for moments that deserve to be remembered.
-          </p>
-
-          {/* CTAs */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link
-              href="/catalogue"
-              className="w-full sm:w-auto px-8 py-4 rounded-full bg-gradient-to-r from-[#C88B56] to-[#B3743E] hover:from-[#d59864] hover:to-[#c2814b] text-white font-bold text-base shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center gap-2.5"
-            >
-              <span>Explore Catalogue</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-
-            <button
-              onClick={() => handleOpenEnquiry()}
-              className="w-full sm:w-auto px-8 py-4 rounded-full bg-white/10 hover:bg-white/20 text-white font-semibold text-base backdrop-blur-md border border-white/30 hover:border-white/50 active:scale-95 transition-all duration-300 flex items-center justify-center gap-2"
-            >
-              <Sparkles className="w-4 h-4 text-[#E4B58A]" />
-              <span>Send an Enquiry</span>
-            </button>
-          </div>
-
-          {/* Micro Trust Stats */}
-          <div className="mt-14 pt-8 border-t border-white/10 grid grid-cols-2 md:grid-cols-4 gap-6 text-stone-300 text-xs">
-            <div className="flex flex-col items-center">
-              <span className="text-lg font-bold text-[#E4B58A]">100%</span>
-              <span className="text-stone-300">Natural & Zero Plastic</span>
-            </div>
-            <div className="flex flex-col items-center">
-              <span className="text-lg font-bold text-[#E4B58A]">500+</span>
-              <span className="text-stone-300">Indian Master Artisans</span>
-            </div>
-            <div className="flex flex-col items-center">
-              <span className="text-lg font-bold text-[#E4B58A]">Bespoke</span>
-              <span className="text-stone-300">Precision Laser & Brass</span>
-            </div>
-            <div className="flex flex-col items-center">
-              <span className="text-lg font-bold text-[#E4B58A]">3-5 Days</span>
-              <span className="text-stone-300">Fast Turnaround Ready</span>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -164,7 +115,7 @@ export default function HomePage() {
             <div className="lg:col-span-6 space-y-6">
               <div className="inline-flex items-center gap-2 text-xs uppercase tracking-widest font-bold text-[#C88B56]">
                 <Leaf className="w-4 h-4" />
-                <span>The VirSaa Philosophy</span>
+                <span>The Virsaa Philosophy</span>
               </div>
 
               <h2 className="font-serif-luxury text-3xl sm:text-4xl lg:text-5xl font-bold text-[#1F332B] leading-tight">
@@ -173,7 +124,7 @@ export default function HomePage() {
               </h2>
 
               <p className="text-stone-700 text-base sm:text-lg leading-relaxed">
-                Modern organizations are shifting away from generic plastic merchandise that ends up in landfills. VirSaa bridges conscious design with timeless emotion.
+                Modern organizations are shifting away from generic plastic merchandise that ends up in landfills. Virsaa bridges conscious design with timeless emotion.
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
@@ -216,7 +167,7 @@ export default function HomePage() {
               <div className="relative aspect-4/3 rounded-3xl overflow-hidden shadow-2xl border-4 border-white">
                 <Image
                   src="https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=1000&q=80"
-                  alt="VirSaa Artisanal Craftsmanship"
+                  alt="Virsaa Artisanal Craftsmanship"
                   fill
                   className="object-cover"
                 />
@@ -293,13 +244,13 @@ export default function HomePage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* C. WHY VIRSAA - FOUR PILLARS */}
+      {/* C. WHY Virsaa - FOUR PILLARS */}
       {/* ========================================================================= */}
-      <section id="why-virsaa" className="py-24 bg-[#FAF8F5]">
+      <section id="why-Virsaa" className="py-24 bg-[#FAF8F5]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="text-xs uppercase tracking-widest font-bold text-[#C88B56]">
-              Why Choose VirSaa
+              Why Choose Virsaa
             </span>
             <h2 className="font-serif-luxury text-3xl sm:text-4xl lg:text-5xl font-bold text-[#1F332B] mt-2 mb-4">
               Gifts Designed to Inspire Pride

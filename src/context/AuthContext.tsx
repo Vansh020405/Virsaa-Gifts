@@ -30,10 +30,10 @@ const DEMO_USER: Profile = {
 
 const DEMO_ADMIN: Profile = {
   id: 'admin-1',
-  name: 'VirSaa Master Admin',
-  email: 'concierge@virsaagifts.com',
+  name: 'Virsaa Master Admin',
+  email: 'concierge@Virsaagifts.com',
   phone: '+91 98110 00000',
-  company_name: 'VirSaa Sustainable Gifting Co.',
+  company_name: 'Virsaa Sustainable Gifting Co.',
   role: 'admin',
   created_at: new Date().toISOString(),
 };
@@ -44,7 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     // Check local storage for persisted user
-    const saved = localStorage.getItem('virsaa_user_session');
+    const saved = localStorage.getItem('Virsaa_user_session');
     if (saved) {
       try {
         setUser(JSON.parse(saved));
@@ -54,7 +54,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } else {
       // Default to demo user for a richer initial experience
       setUser(DEMO_USER);
-      localStorage.setItem('virsaa_user_session', JSON.stringify(DEMO_USER));
+      localStorage.setItem('Virsaa_user_session', JSON.stringify(DEMO_USER));
     }
 
     if (isSupabaseConfigured && supabase) {
@@ -67,7 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             role: (session.user.user_metadata?.role as 'customer' | 'admin') || 'customer',
           };
           setUser(u);
-          localStorage.setItem('virsaa_user_session', JSON.stringify(u));
+          localStorage.setItem('Virsaa_user_session', JSON.stringify(u));
         }
       });
     }
@@ -75,13 +75,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const loginAsDemoUser = () => {
     setUser(DEMO_USER);
-    localStorage.setItem('virsaa_user_session', JSON.stringify(DEMO_USER));
+    localStorage.setItem('Virsaa_user_session', JSON.stringify(DEMO_USER));
     setIsAuthModalOpen(false);
   };
 
   const loginAsDemoAdmin = () => {
     setUser(DEMO_ADMIN);
-    localStorage.setItem('virsaa_user_session', JSON.stringify(DEMO_ADMIN));
+    localStorage.setItem('Virsaa_user_session', JSON.stringify(DEMO_ADMIN));
     setIsAuthModalOpen(false);
   };
 
@@ -94,13 +94,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       created_at: new Date().toISOString(),
     };
     setUser(newUser);
-    localStorage.setItem('virsaa_user_session', JSON.stringify(newUser));
+    localStorage.setItem('Virsaa_user_session', JSON.stringify(newUser));
     setIsAuthModalOpen(false);
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('virsaa_user_session');
+    localStorage.removeItem('Virsaa_user_session');
     if (isSupabaseConfigured && supabase) {
       supabase.auth.signOut();
     }

@@ -113,7 +113,7 @@ export default function UserDashboardPage() {
                 My Enquiries & Conversations
               </h1>
               <p className="text-xs sm:text-sm text-stone-300 mt-1">
-                Direct thread with VirSaa design team for proposals, customizations & delivery updates.
+                Direct thread with Virsaa design team for proposals, customizations & delivery updates.
               </p>
             </div>
 
@@ -214,7 +214,7 @@ export default function UserDashboardPage() {
 
                     {lastMsg && (
                       <p className="text-[11px] text-stone-600 line-clamp-1 italic mt-1.5 bg-[#FAF8F5] p-1.5 rounded-lg border border-[#F0EAE1]">
-                        <strong className="text-[#1F332B] not-italic">{lastMsg.sender_type === 'admin' ? 'VirSaa Concierge: ' : 'You: '}</strong>
+                        <strong className="text-[#1F332B] not-italic">{lastMsg.sender_type === 'admin' ? 'Virsaa Concierge: ' : 'You: '}</strong>
                         {lastMsg.message}
                       </p>
                     )}
@@ -287,7 +287,7 @@ export default function UserDashboardPage() {
                             {isAdmin ? (
                               <>
                                 <ShieldCheck className="w-3.5 h-3.5 text-[#C88B56]" />
-                                <span className="font-bold text-[#1F332B]">{msg.sender_name || 'VirSaa Design Concierge'}</span>
+                                <span className="font-bold text-[#1F332B]">{msg.sender_name || 'Virsaa Design Concierge'}</span>
                               </>
                             ) : (
                               <span className="font-semibold text-stone-700">{msg.sender_name || 'You'}</span>

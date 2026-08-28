@@ -41,7 +41,7 @@ export default function AdminSidebar() {
           </div>
           <div>
             <span className="font-cinzel text-lg font-bold text-white tracking-wider">
-              VIRSAA <span className="text-[#C88B56] text-[10px]">ADMIN</span>
+              Virsaa <span className="text-[#C88B56] text-[10px]">ADMIN</span>
             </span>
             <p className="text-[10px] text-stone-400">Master Management Console</p>
           </div>

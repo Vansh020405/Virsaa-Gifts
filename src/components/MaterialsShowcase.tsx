@@ -19,58 +19,58 @@ interface MaterialItem {
 
 const MATERIALS_DATA: MaterialItem[] = [
   {
-    id: 'moss',
-    name: 'Preserved Botanical Moss',
-    subtitle: 'Zero-maintenance living green art',
-    description: 'Harvested ethically from Arctic and Nilgiri flora, naturally preserved with vegetable glycerin to stay evergreen for 7+ years without sunlight or drops of water.',
-    ecoFeature: '100% Biodegradable & Natural Acoustic Dampener',
+    id: 'artisan-support',
+    name: 'Artisan Support',
+    subtitle: 'We support artisan livelihoods.',
+    description: 'We directly collaborate with skilled craftsmen and women, ensuring their talents are valued and their work is fairly recognised. Our approach supports dignified livelihoods while helping preserve traditional Indian crafts.',
+    ecoFeature: 'Direct collaboration with artisans • Fair pay & dignity • Preserving traditional crafts • Empowering artisan communities',
     image: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=800&q=80',
-    tactileFeel: 'Plush, velvety & calming to the touch',
-    productsLink: '/catalogue?material=Moss',
+    tactileFeel: 'Preserving traditional Indian crafts',
+    productsLink: '/catalogue',
     color: 'from-emerald-950 to-[#1F332B]',
   },
   {
-    id: 'wood',
-    name: 'Reclaimed Timber & Hardwoods',
-    subtitle: 'Sheesham, Teak & Seasoned Acacia',
-    description: 'Sourced from certified sustainable plantations and architectural salvage. Hand-turned by third-generation Saharanpur artisans and treated with pure organic beeswax.',
-    ecoFeature: 'Zero Virgin Forest Deforestation & Carbon Sink',
+    id: 'environmental-impact',
+    name: 'Environmental Impact',
+    subtitle: 'Sustainability at the core.',
+    description: 'Our gifting solutions are created with sustainability in mind, using eco-friendly materials and reusable packaging to reduce unnecessary environmental impact.',
+    ecoFeature: 'Eco-friendly materials • Reusable packaging • Sustainable gifting • Reduced environmental footprint',
     image: 'https://images.unsplash.com/photo-1616046229478-9901c5536a45?auto=format&fit=crop&w=800&q=80',
-    tactileFeel: 'Rich organic grain with warm satin luster',
-    productsLink: '/catalogue?material=Wood',
+    tactileFeel: 'Eco-friendly and sustainable',
+    productsLink: '/catalogue',
     color: 'from-[#2A1D15] to-[#452E22]',
   },
   {
-    id: 'cork',
-    name: 'Renewable Tree-Bark Cork',
-    subtitle: 'Nature’s most resilient vegan leather',
-    description: 'Stripped from mature cork oak trees every 9 years without cutting the trunk. Naturally impermeable, antimicrobial, lightweight and silky smooth.',
-    ecoFeature: 'Harvesting allows tree to absorb 3x-5x more CO2',
+    id: 'emotional-connection',
+    name: 'Emotional Connection',
+    subtitle: 'Gifts that carry a story.',
+    description: 'Virsaa gifts are designed to create a meaningful connection between the giver and recipient. Each piece brings together craftsmanship, culture and purpose to make gifting more memorable.',
+    ecoFeature: 'Meaningful gifting • Cultural craftsmanship • Stories behind every piece • Lasting emotional connection',
     image: 'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=800&q=80',
-    tactileFeel: 'Soft, cushioned, featherlight & water-resistant',
-    productsLink: '/catalogue?material=Cork',
+    tactileFeel: 'Meaningful and memorable',
+    productsLink: '/catalogue',
     color: 'from-[#4D382A] to-[#8C6246]',
   },
   {
-    id: 'bamboo',
-    name: 'Fine Organic Bamboo',
-    subtitle: 'The fastest renewable grass on Earth',
-    description: 'Grown rapidly without synthetic fertilizers or irrigation. Precision-lathed and engineered into sleek tech docking stations and luxury journals.',
-    ecoFeature: 'Regenerates in 3-5 years with tensile strength exceeding steel',
+    id: 'product-highlights',
+    name: 'Product Highlights',
+    subtitle: 'Thoughtful products, made to last.',
+    description: 'Our collection brings together sustainable and customisable gifting solutions, including moss-based corporate gifts that bring a sense of calm and greenery to workspaces.',
+    ecoFeature: 'Open customization • Moss-based corporate gifts • 100% eco-friendly • Brings calm & greenery to workspaces • Long-lasting & maintenance-free',
     image: 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?auto=format&fit=crop&w=800&q=80',
-    tactileFeel: 'Crisp, feather-smooth & enduringly strong',
-    productsLink: '/catalogue?material=Bamboo',
+    tactileFeel: 'Calm and greenery to workspaces',
+    productsLink: '/catalogue',
     color: 'from-[#273B28] to-[#486349]',
   },
   {
-    id: 'mdf',
-    name: 'Zero-Emission Eco-MDF & Jali',
-    subtitle: 'Precision architectural laser craft',
-    description: 'Produced from upcycled agricultural timber residue using non-toxic resins. Enables hypnotic traditional jali lattices and geometric ambient lamps.',
-    ecoFeature: 'Zero Formaldehyde & 40% Timber Waste Reduction',
+    id: 'impact-towards-society',
+    name: 'Impact Towards Society',
+    subtitle: 'Every step towards change.',
+    description: 'Virsaa is committed to creating impact beyond the product. By supporting women artisans and promoting eco-conscious products, we work towards greater financial independence, dignity and lasting empowerment.',
+    ecoFeature: 'Fair pay & dignity for women artisans • Promoting eco-friendly products • Financial independence for women • Legacy of empowerment & impact',
     image: 'https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format&fit=crop&w=800&q=80',
-    tactileFeel: 'Crisp architectural contours with warm matte finish',
-    productsLink: '/catalogue?material=MDF',
+    tactileFeel: 'Lasting empowerment and impact',
+    productsLink: '/catalogue',
     color: 'from-[#332A24] to-[#5C4A3E]',
   },
 ];
@@ -96,7 +96,7 @@ export default function MaterialsShowcase() {
             <span className="text-gold-gradient">Elevated by Indian Craftsmanship.</span>
           </h2>
           <p className="text-stone-300 text-sm sm:text-base leading-relaxed">
-            Every material in the VirSaa atelier is handpicked for its tactile dignity, environmental regeneration, and longevity. We replace plastic disposable swag with timeless natural artifacts.
+            Every material in the Virsaa atelier is handpicked for its tactile dignity, environmental regeneration, and longevity. We replace plastic disposable swag with timeless natural artifacts.
           </p>
         </div>
 
@@ -171,21 +171,7 @@ export default function MaterialsShowcase() {
                 </p>
               </div>
 
-              <div className="pt-2 flex flex-wrap gap-4 items-center">
-                <Link
-                  href={activeMaterial.productsLink}
-                  className="px-6 py-3 rounded-full bg-[#C88B56] hover:bg-[#b67843] text-white text-sm font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-2"
-                >
-                  <span>Explore {activeMaterial.name.split(' ')[0]} Gifts</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-                <Link
-                  href="/catalogue"
-                  className="text-xs text-stone-300 hover:text-white underline underline-offset-4"
-                >
-                  View complete materials matrix →
-                </Link>
-              </div>
+
             </div>
           </div>
         </div>

@@ -73,7 +73,7 @@ export default function ProductImage({
     return (
       <div className={`flex flex-col items-center justify-center bg-[#F5EFEB] text-stone-400 p-4 ${className}`}>
         <Leaf className="w-8 h-8 text-[#C88B56]/50 mb-1" />
-        <span className="text-[10px] font-medium tracking-wider uppercase">VirSaa Atelier</span>
+        <span className="text-[10px] font-medium tracking-wider uppercase">Virsaa Atelier</span>
       </div>
     );
   }

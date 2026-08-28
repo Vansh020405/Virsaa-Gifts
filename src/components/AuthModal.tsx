@@ -41,7 +41,7 @@ export default function AuthModal() {
             <Sparkles className="w-6 h-6" />
           </div>
           <h3 className="font-serif-luxury text-xl font-bold">
-            {isRegister ? 'Join VirSaa Gifts' : 'Sign in to VirSaa'}
+            {isRegister ? 'Join Virsaa Gifts' : 'Sign in to Virsaa'}
           </h3>
           <p className="text-xs text-stone-300 mt-1">
             Track your bespoke corporate enquiries & collaborate with our master artisans
