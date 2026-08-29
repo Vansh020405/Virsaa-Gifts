@@ -43,13 +43,15 @@ export default function ProductImage({
   const [currentSrc, setCurrentSrc] = useState<string>(initialUrl);
   const [hasError, setHasError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [prevUrl, setPrevUrl] = useState<string>(initialUrl);
 
-  // Sync state if product or image prop changes
-  React.useEffect(() => {
+  // Reset image state when the resolved source changes (adjust state during render)
+  if (prevUrl !== initialUrl) {
+    setPrevUrl(initialUrl);
     setCurrentSrc(initialUrl);
     setHasError(false);
     setIsLoading(true);
-  }, [initialUrl]);
+  }
 
   const handleError = () => {
     // Fallback hierarchy:
@@ -90,7 +92,7 @@ export default function ProductImage({
         priority={priority}
         onError={handleError}
         onLoad={() => setIsLoading(false)}
-        className={`${className} ${isLoading ? 'blur-xs scale-98' : 'blur-0 scale-100'} transition-all duration-300`}
+        className={`${className} ${isLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-500`}
         {...rest}
       />
     </div>

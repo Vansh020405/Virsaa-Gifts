@@ -1,61 +1,32 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
-import { Sparkles, Mail, Phone, MapPin, Heart, ShieldCheck, Leaf } from 'lucide-react';
+import { Mail, Phone, MapPin, ShieldCheck, Leaf } from 'lucide-react';
+import FooterLogo from '../../Someone is already doing it..png';
 
 export default function Footer() {
   return (
-    <footer className="bg-[#12211B] text-stone-300 border-t border-[#233B31]">
-      {/* Top CTA Banner */}
-      <div className="border-b border-[#233B31] py-12 bg-gradient-to-b from-[#172A22] to-[#12211B]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
-          <div>
-            <div className="flex items-center justify-center md:justify-start gap-2 text-[#E4B58A] text-xs uppercase tracking-widest font-semibold mb-2">
-              <Sparkles className="w-4 h-4" />
-              <span>Bespoke Corporate Studio</span>
-            </div>
-            <h3 className="font-serif-luxury text-2xl sm:text-3xl text-white font-bold">
-              Ready to elevate your corporate gifting experience?
-            </h3>
-            <p className="text-sm text-stone-400 mt-1 max-w-xl">
-              Connect with our artisan curators to receive custom digital 3D renders and physical prototype hampers.
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            <Link
-              href="/catalogue"
-              className="px-6 py-3 rounded-full bg-[#C88B56] hover:bg-[#b57741] text-white text-sm font-bold shadow-lg transition"
-            >
-              Browse 2026 Catalogue
-            </Link>
-            <Link
-              href="/#contact-cta"
-              className="px-6 py-3 rounded-full border border-stone-600 hover:bg-white/10 text-white text-sm font-medium transition"
-            >
-              Talk to Our Team
-            </Link>
-          </div>
-        </div>
-      </div>
-
+    <footer className="bg-[#12211B] text-stone-300">
       {/* Main Footer Links */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="flex flex-col md:flex-row justify-between gap-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="flex flex-col md:flex-row justify-between gap-8">
           {/* Brand Col */}
           <div className="max-w-xl space-y-4">
             <Link href="/" className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#C88B56] to-[#1F332B] flex items-center justify-center text-white">
-                <span className="font-cinzel text-lg font-bold">V</span>
-              </div>
-              <span className="font-cinzel text-xl font-bold tracking-wider text-white">
-                Virsaa <span className="text-[#C88B56] text-xs">GIFTS</span>
-              </span>
+              <Image
+                src={FooterLogo}
+                alt="Virsaa Gifts Logo"
+                width={1474}
+                height={1354}
+                className="w-20 h-20 object-contain"
+              />
             </Link>
             <p className="text-sm text-stone-400 max-w-sm leading-relaxed">
               Virsaa Gifts creates premium, personalized and sustainable gifts using wood, MDF, cork, bamboo and preserved moss décor. Combining Indian artisan craftsmanship, personalization, and emotional connection.
             </p>
-            <p className="text-xs text-[#E4B58A] italic font-serif">
+            <p className="text-xs text-[#E4B58A] italic font-sans">
               “Gifts That Carry Your Story.”
             </p>
             <div className="flex items-center gap-3 pt-2 text-xs text-stone-400">
@@ -94,9 +65,11 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-[#233B31] mt-12 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-stone-500 gap-4">
+        <div className="border-t border-[#233B31] mt-8 pt-5 flex flex-col sm:flex-row items-center justify-between text-xs text-stone-500 gap-4">
           <p>© {new Date().getFullYear()} Virsaa Gifts Private Limited. All rights reserved.</p>
-
+          <p>
+            Powered by <span className="text-[#C88B56] font-semibold">Foundrhub</span>
+          </p>
         </div>
       </div>
     </footer>

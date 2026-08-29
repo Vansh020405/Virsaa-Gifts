@@ -17,17 +17,12 @@ import {
   ArrowRight, 
   Leaf, 
   Compass, 
-  Heart, 
   ShieldCheck, 
   Award, 
   Check, 
   Layers, 
   Clock, 
-  Sliders, 
-  MessageSquare,
-  Building,
-  TreeDeciduous,
-  Palette
+  Sliders 
 } from 'lucide-react';
 
 export default function HomePage() {
@@ -98,10 +93,26 @@ export default function HomePage() {
             Virsaa GIFTS
           </div>
 
-          <h1 className="font-serif-luxury text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight text-white leading-tight">
+          <h1 className="font-serif-luxury text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-normal tracking-tight text-white leading-tight hero-text-shadow">
             Gifts That Carry <br />
             <span className="text-gold-gradient font-normal italic">Your Story.</span>
           </h1>
+
+          <p className="mt-5 max-w-2xl text-base sm:text-lg md:text-lg text-stone-200 leading-relaxed hero-copy-shadow">
+            Handcrafted heirloom corporate gifts in reclaimed wood, cork, bamboo and
+            preserved moss — personalised with your brand, delivered with meaning.
+            Emotion that lingers on every desk, every year.
+          </p>
+
+          <div className="mt-8 flex items-center justify-center">
+            <Link
+              href="/catalogue"
+              className="px-8 py-3.5 rounded-full bg-gradient-to-r from-[#C88B56] via-[#D9A45E] to-[#C88B56] text-[#12211B] text-sm font-bold uppercase tracking-wide font-sans border border-[#E4B58A]/70 hover:shadow-md hover:shadow-[#C88B56]/40 hover:brightness-110 active:scale-95 transition-all duration-500 ease-in-out inline-flex items-center gap-2"
+            >
+              <Sparkles className="w-4 h-4" />
+              Explore the Collection
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -118,7 +129,7 @@ export default function HomePage() {
                 <span>The Virsaa Philosophy</span>
               </div>
 
-              <h2 className="font-serif-luxury text-3xl sm:text-4xl lg:text-5xl font-bold text-[#1F332B] leading-tight">
+              <h2 className="font-serif-luxury text-3xl sm:text-4xl lg:text-5xl font-normal text-[#1F332B] leading-tight tracking-tight">
                 Beyond Disposable Swag. <br />
                 <span className="italic font-normal text-[#C88B56]">Heirloom Corporate Gifts.</span>
               </h2>
@@ -128,36 +139,36 @@ export default function HomePage() {
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                <div className="p-4 rounded-2xl bg-white border border-[#E8DFC8] shadow-2xs">
-                  <div className="w-8 h-8 rounded-lg bg-[#C88B56]/15 text-[#9E5A38] flex items-center justify-center mb-2 font-bold">
+                <div className="p-5 rounded-2xl bg-white border border-[#E8DFC8] relative overflow-hidden">
+                  <div className="w-8 h-8 rounded-lg bg-[#C88B56] text-white flex items-center justify-center mb-2 font-bold">
                     1
                   </div>
-                  <h4 className="text-sm font-bold text-[#1F332B]">Personalization</h4>
-                  <p className="text-xs text-stone-600 mt-1">Individual laser engraving, bespoke brass inlays and curated gift cards.</p>
+                  <h4 className="text-sm font-bold text-[#1F332B] font-sans">Personalization</h4>
+                  <p className="text-xs text-stone-600 mt-1 font-sans">Individual laser engraving, bespoke brass inlays and curated gift cards.</p>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-white border border-[#E8DFC8] shadow-2xs">
-                  <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-800 flex items-center justify-center mb-2 font-bold">
+                <div className="p-5 rounded-2xl bg-[#F8F5F0] border border-[#E8DFC8] relative overflow-hidden">
+                  <div className="w-8 h-8 rounded-lg bg-[#1F332B]/10 text-[#1F332B] flex items-center justify-center mb-2 font-bold">
                     2
                   </div>
-                  <h4 className="text-sm font-bold text-[#1F332B]">Sustainability</h4>
-                  <p className="text-xs text-stone-600 mt-1">Reclaimed wood, harvested tree-bark cork, bamboo and zero-maintenance moss.</p>
+                  <h4 className="text-sm font-bold text-[#1F332B] font-sans">Sustainability</h4>
+                  <p className="text-xs text-stone-600 mt-1 font-sans">Reclaimed wood, harvested tree-bark cork, bamboo and zero-maintenance moss.</p>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-white border border-[#E8DFC8] shadow-2xs">
-                  <div className="w-8 h-8 rounded-lg bg-[#1F332B]/10 text-[#1F332B] flex items-center justify-center mb-2 font-bold">
+                <div className="p-5 rounded-2xl bg-white border border-[#E8DFC8] relative overflow-hidden">
+                  <div className="w-8 h-8 rounded-lg bg-[#C88B56]/15 text-[#9E5A38] flex items-center justify-center mb-2 font-bold">
                     3
                   </div>
-                  <h4 className="text-sm font-bold text-[#1F332B]">Indian Craftsmanship</h4>
-                  <p className="text-xs text-stone-600 mt-1">Direct livelihood to traditional craft clusters across Saharanpur, Rajasthan & Nilgiris.</p>
+                  <h4 className="text-sm font-bold text-[#1F332B] font-sans">Indian Craftsmanship</h4>
+                  <p className="text-xs text-stone-600 mt-1 font-sans">Direct livelihood to traditional craft clusters across Saharanpur, Rajasthan & Nilgiris.</p>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-white border border-[#E8DFC8] shadow-2xs">
+                <div className="p-5 rounded-2xl bg-[#F8F5F0] border border-[#E8DFC8] relative overflow-hidden">
                   <div className="w-8 h-8 rounded-lg bg-amber-100 text-amber-900 flex items-center justify-center mb-2 font-bold">
                     4
                   </div>
-                  <h4 className="text-sm font-bold text-[#1F332B]">Emotional Connection</h4>
-                  <p className="text-xs text-stone-600 mt-1">Gifts designed to sit on executive desks for years, continually carrying your story.</p>
+                  <h4 className="text-sm font-bold text-[#1F332B] font-sans">Emotional Connection</h4>
+                  <p className="text-xs text-stone-600 mt-1 font-sans">Gifts designed to sit on executive desks for years, continually carrying your story.</p>
                 </div>
               </div>
             </div>
@@ -189,10 +200,13 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Soft fade: #FAF8F5 -> #F4EFEA */}
+      <div className="h-12 bg-gradient-to-b from-[#FAF8F5] to-[#F4EFEA]" />
+
       {/* ========================================================================= */}
       {/* B. PRODUCT HIGHLIGHTS */}
       {/* ========================================================================= */}
-      <section className="py-20 bg-[#F4EFEA] border-y border-[#E8DFC8]">
+      <section className="py-20 bg-[#F4EFEA]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
@@ -201,7 +215,7 @@ export default function HomePage() {
                 <Sparkles className="w-4 h-4" />
                 <span>Curated Signatures</span>
               </div>
-              <h2 className="font-serif-luxury text-3xl sm:text-4xl font-bold text-[#1F332B]">
+              <h2 className="font-serif-luxury text-3xl sm:text-4xl font-normal text-[#1F332B]">
                 Selected Sustainable Masterpieces
               </h2>
               <p className="text-stone-600 text-sm mt-1 max-w-xl">
@@ -209,13 +223,7 @@ export default function HomePage() {
               </p>
             </div>
 
-            <Link
-              href="/catalogue"
-              className="inline-flex items-center gap-2 text-sm font-bold text-[#1F332B] hover:text-[#C88B56] transition"
-            >
-              <span>View All Products in Catalogue</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
+            
           </div>
 
           {/* Product Cards Grid (3-4 desktop, 2-3 tablet, 1-2 mobile) */}
@@ -226,6 +234,7 @@ export default function HomePage() {
                 product={product}
                 onSelectProduct={(prod) => setSelectedProductForDetail(prod)}
                 onEnquire={(prod) => handleOpenEnquiry(prod)}
+                compact
               />
             ))}
           </div>
@@ -236,7 +245,7 @@ export default function HomePage() {
               href="/catalogue"
               className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-[#1F332B] hover:bg-[#2D4A3E] text-white font-bold text-sm shadow-md transition"
             >
-              <span>Explore Complete Catalogue (Search & Filters)</span>
+              <span>Explore Complete Catalogue</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
@@ -244,124 +253,45 @@ export default function HomePage() {
       </section>
 
       {/* ========================================================================= */}
-      {/* C. WHY Virsaa - FOUR PILLARS */}
-      {/* ========================================================================= */}
-      <section id="why-Virsaa" className="py-24 bg-[#FAF8F5]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="text-xs uppercase tracking-widest font-bold text-[#C88B56]">
-              Why Choose Virsaa
-            </span>
-            <h2 className="font-serif-luxury text-3xl sm:text-4xl lg:text-5xl font-bold text-[#1F332B] mt-2 mb-4">
-              Gifts Designed to Inspire Pride
-            </h2>
-            <p className="text-stone-600 text-sm sm:text-base">
-              Four fundamental pillars that define every gift leaving our studio.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {/* Pillar 1 */}
-            <div className="bg-white p-8 rounded-3xl border border-[#E8DFC8] shadow-xs hover:shadow-xl transition-all duration-300 group">
-              <div className="w-14 h-14 rounded-2xl bg-[#C88B56]/15 text-[#9E5A38] flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <Palette className="w-7 h-7" />
-              </div>
-              <h3 className="font-serif-luxury text-xl font-bold text-[#1F332B] mb-2">
-                Personalized
-              </h3>
-              <p className="text-stone-600 text-xs sm:text-sm leading-relaxed">
-                Precision laser branding, bespoke brass engravings, and custom individual recipient names that turn every piece into a singular memory.
-              </p>
-            </div>
-
-            {/* Pillar 2 */}
-            <div className="bg-white p-8 rounded-3xl border border-[#E8DFC8] shadow-xs hover:shadow-xl transition-all duration-300 group">
-              <div className="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <TreeDeciduous className="w-7 h-7" />
-              </div>
-              <h3 className="font-serif-luxury text-xl font-bold text-[#1F332B] mb-2">
-                Sustainable
-              </h3>
-              <p className="text-stone-600 text-xs sm:text-sm leading-relaxed">
-                Crafted strictly with reclaimed timber, renewable cork bark, fast-regenerating bamboo, and zero-maintenance preserved botanical moss.
-              </p>
-            </div>
-
-            {/* Pillar 3 */}
-            <div className="bg-white p-8 rounded-3xl border border-[#E8DFC8] shadow-xs hover:shadow-xl transition-all duration-300 group">
-              <div className="w-14 h-14 rounded-2xl bg-[#1F332B]/10 text-[#1F332B] flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <Award className="w-7 h-7" />
-              </div>
-              <h3 className="font-serif-luxury text-xl font-bold text-[#1F332B] mb-2">
-                Artisan Crafted
-              </h3>
-              <p className="text-stone-600 text-xs sm:text-sm leading-relaxed">
-                Celebrating generation-old Indian handcraft traditions, wood lathing, and metal etchings while supporting rural livelihoods.
-              </p>
-            </div>
-
-            {/* Pillar 4 */}
-            <div className="bg-white p-8 rounded-3xl border border-[#E8DFC8] shadow-xs hover:shadow-xl transition-all duration-300 group">
-              <div className="w-14 h-14 rounded-2xl bg-rose-100 text-rose-800 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                <Heart className="w-7 h-7" />
-              </div>
-              <h3 className="font-serif-luxury text-xl font-bold text-[#1F332B] mb-2">
-                Made to Be Remembered
-              </h3>
-              <p className="text-stone-600 text-xs sm:text-sm leading-relaxed">
-                Heirloom physical objects designed with permanent functional and decorative value that remain on desks for decades.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ========================================================================= */}
-      {/* D. MATERIALS SHOWCASE */}
+      {/* C. MATERIALS SHOWCASE */}
       {/* ========================================================================= */}
       <MaterialsShowcase />
 
       {/* ========================================================================= */}
-      {/* E. CORPORATE GIFTING CTA */}
+      {/* D. CORPORATE GIFTING CTA */}
       {/* ========================================================================= */}
-      <section id="contact-cta" className="py-24 bg-[#FAF8F5] relative">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative rounded-3xl bg-gradient-to-r from-[#1F332B] via-[#1A2E26] to-[#12211B] text-white p-8 sm:p-14 overflow-hidden shadow-2xl border border-[#C88B56]/30">
-            {/* Ambient background decoration */}
-            <div className="absolute top-0 right-0 w-96 h-96 bg-[#C88B56]/15 rounded-full blur-3xl pointer-events-none" />
+      <section id="contact-cta" className="py-20 bg-[#F8F5F0] relative">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
 
-            <div className="relative z-10 max-w-2xl">
-              <div className="inline-flex items-center gap-2 text-xs uppercase tracking-widest font-bold text-[#E4B58A] mb-3">
-                <Building className="w-4 h-4" />
-                <span>Enterprise & Leadership Solutions</span>
-              </div>
+          {/* Bespoke Corporate Studio */}
+          <div>
 
-              <h2 className="font-serif-luxury text-3xl sm:text-5xl font-bold text-white leading-tight mb-4">
-                Make Your Next Gift Meaningful.
-              </h2>
+            <h2 className="font-serif-luxury text-3xl sm:text-4xl font-normal text-[#1F332B] leading-tight mb-4">
+              Ready to elevate your corporate gifting experience?
+            </h2>
 
-              <p className="text-stone-300 text-sm sm:text-base leading-relaxed mb-8">
-                Whether you need 25 executive boxes for your board of directors or 1,000 customized sustainable welcome kits for a global summit, our concierge team will bring your vision to life.
-              </p>
+            <p className="text-stone-600 text-sm sm:text-base leading-relaxed mb-8 font-sans">
+              Connect with our artisan curators to receive custom digital 3D renders and physical prototype hampers.
+            </p>
 
-              <div className="flex flex-wrap gap-4 items-center">
-                <button
-                  onClick={() => handleOpenEnquiry()}
-                  className="px-8 py-4 rounded-full bg-[#C88B56] hover:bg-[#b6763f] text-white font-bold text-base shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
-                >
-                  <MessageSquare className="w-4 h-4" />
-                  <span>Talk to Us</span>
-                </button>
+            <div className="flex flex-wrap justify-center gap-3 items-center">
+              <Link
+                href="/catalogue"
+                className="px-7 py-3.5 rounded-full bg-[#1F332B] hover:bg-[#2D4A3E] text-white font-bold text-sm shadow-md hover:shadow-lg transition-all font-sans"
+              >
+                Browse 2026 Catalogue
+              </Link>
 
-                <Link
-                  href="/catalogue"
-                  className="px-6 py-4 rounded-full border border-white/30 hover:bg-white/10 text-white font-medium text-sm transition"
-                >
-                  Browse Catalogue First
-                </Link>
-              </div>
+              <button
+                onClick={() => handleOpenEnquiry()}
+                className="px-6 py-3.5 rounded-full border border-[#DCD1C4] text-[#1F332B] hover:bg-[#FAF8F5] font-medium text-sm transition font-sans"
+              >
+                Talk to Our Team
+              </button>
             </div>
+
           </div>
+
         </div>
       </section>
 
