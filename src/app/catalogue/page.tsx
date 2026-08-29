@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import ProductCard from '../../components/ProductCard';
+import ProductImage from '../../components/ProductImage';
 import ProductDetailModal from '../../components/ProductDetailModal';
 import EnquiryModal from '../../components/EnquiryModal';
 import AuthModal from '../../components/AuthModal';
@@ -19,9 +20,6 @@ import {
   RotateCcw,
   Check,
   Grid,
-  Columns2,
-  Columns3,
-  LayoutList,
   Layers,
   Leaf,
   Clock,
@@ -532,23 +530,18 @@ export default function CataloguePage() {
               {/* Mobile Layout Selector */}
               <div className="lg:hidden flex items-center gap-1 rounded-full border border-[#E6DCCE] bg-white p-1 shadow-sm">
                 <Grid className="w-3.5 h-3.5 text-[#C88B56] ml-2" aria-hidden />
-                {([
-                  { value: 'one' as const, Icon: LayoutList, label: '1' },
-                  { value: 'two' as const, Icon: Columns2, label: '2' },
-                  { value: 'three' as const, Icon: Columns3, label: '3' },
-                ]).map(({ value, Icon, label }) => (
+                {(['one', 'two', 'three'] as const).map((value, idx) => (
                   <button
                     key={value}
                     onClick={() => setMobileColumns(value)}
-                    aria-label={`${label} column layout`}
-                    className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
+                    aria-label={`${idx + 1} column layout`}
+                    className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all ${
                       mobileColumns === value
                         ? 'bg-[#1F332B] text-white shadow-sm'
                         : 'text-stone-500 hover:text-[#1F332B]'
                     }`}
                   >
-                    <Icon className="w-3 h-3" />
-                    {label}
+                    {idx + 1}
                   </button>
                 ))}
               </div>
@@ -586,7 +579,87 @@ export default function CataloguePage() {
               </div>
             ) : (
               <>
-                <div className={`grid ${mobileColumns === 'one' ? 'grid-cols-1' : mobileColumns === 'two' ? 'grid-cols-2' : 'grid-cols-3'} sm:grid-cols-2 xl:grid-cols-3 gap-6`}>
+                {/* Mobile grid — column count follows the 1/2/3 selector */}
+                {mobileColumns === 'one' ? (
+                  /* Layout 1: full tile with image + name + price */
+                  <div className="lg:hidden space-y-2.5">
+                    {filteredProducts.slice(0, visibleCount).map((product) => {
+                      const catLine = (product.category_name || product.subcategory || '')
+                        .replace(/artisanal gifts/gi, '')
+                        .trim();
+                      return (
+                        <button
+                          key={product.id || product.sku}
+                          type="button"
+                          onClick={() => setSelectedProductForDetail(product)}
+                          aria-label={`View ${product.name}`}
+                          className="group w-full text-left bg-white rounded-2xl border border-[#EBE4D8] active:scale-[0.99] transition-all overflow-hidden"
+                        >
+                          <div className="relative aspect-4/3 w-full overflow-hidden bg-[#F4EFEA]">
+                            <ProductImage
+                              product={product}
+                              type="hero"
+                              fill
+                              className="object-cover group-hover:scale-105 transition-transform duration-300"
+                              sizes="100vw"
+                            />
+                          </div>
+                          <div className="px-4 py-3 flex items-start justify-between gap-3">
+                            <div className="min-w-0">
+                              <p className="text-[10px] uppercase tracking-wider font-bold text-[#C88B56] truncate font-sans">
+                                {catLine}
+                              </p>
+                              <h3 className="font-serif-luxury text-base font-semibold text-[#1F332B] leading-snug truncate">
+                                {product.name}
+                              </h3>
+                            </div>
+                            <div className="text-right shrink-0">
+                              <span className="block text-[9px] text-stone-400 uppercase tracking-wide font-sans">
+                                Starting from
+                              </span>
+                              <div className="flex items-baseline gap-1">
+                                <span className="font-sans text-base font-bold text-[#1F332B]">
+                                  ₹{product.price.toLocaleString('en-IN')}
+                                </span>
+                                <span className="text-[9px] text-stone-500 font-medium font-sans">
+                                  +{product.gst_percent}% GST
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  /* Layouts 2 & 3: image-only tiles (tap to view) */
+                  <div
+                    className={`lg:hidden grid gap-2.5 ${
+                      mobileColumns === 'two' ? 'grid-cols-2' : 'grid-cols-3'
+                    }`}
+                  >
+                    {filteredProducts.slice(0, visibleCount).map((product) => (
+                      <button
+                        key={product.id || product.sku}
+                        type="button"
+                        onClick={() => setSelectedProductForDetail(product)}
+                        aria-label={`View ${product.name}`}
+                        className="group relative overflow-hidden rounded-xl bg-[#F4EFEA] border border-[#EBE4D8] active:scale-[0.98] transition-all aspect-square"
+                      >
+                        <ProductImage
+                          product={product}
+                          type="hero"
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          sizes={mobileColumns === 'three' ? '33vw' : '50vw'}
+                        />
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Desktop full-card grid */}
+                <div className="hidden lg:grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
                   {filteredProducts.slice(0, visibleCount).map((product) => (
                     <ProductCard
                       key={product.id || product.sku}
