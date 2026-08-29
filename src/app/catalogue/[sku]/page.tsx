@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import Navbar from '../../../components/Navbar';
 import Footer from '../../../components/Footer';
 import ProductCard from '../../../components/ProductCard';
@@ -20,18 +20,12 @@ import {
   Leaf, 
   ShieldCheck, 
   CheckCircle2, 
-  Layers, 
-  Package, 
   Compass, 
-  Share2, 
-  Sliders,
-  Send,
-  MessageSquare
+  Share2
 } from 'lucide-react';
 
 export default function ProductDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const sku = params?.sku as string;
 
   const [product, setProduct] = useState<Product | null>(null);
@@ -95,7 +89,7 @@ export default function ProductDetailPage() {
       <div className="min-h-screen flex flex-col bg-[#FAF8F5]">
         <Navbar />
         <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
-          <h2 className="font-serif-luxury text-2xl font-bold text-[#1F332B] mb-2">Product Not Found</h2>
+          <h2 className="font-sans text-2xl font-bold tracking-tight text-[#1F332B] mb-2">Product Not Found</h2>
           <p className="text-stone-600 text-sm mb-6">The requested SKU {sku} could not be located in our catalogue.</p>
           <Link
             href="/catalogue"
@@ -166,13 +160,13 @@ export default function ProductDetailPage() {
           {/* ========================================================================= */}
           <div className="lg:col-span-7 space-y-4">
             {/* Big Active Image */}
-            <div className="relative aspect-4/3 sm:aspect-16/11 w-full rounded-3xl overflow-hidden bg-stone-100 border border-[#E8DFC8] shadow-lg">
+            <div className="relative aspect-4/3 w-full rounded-3xl overflow-hidden bg-[#F4EFEA] border border-[#E8DFC8] shadow-lg">
               <Image
                 src={getProductImageUrl(activeImage)}
                 alt={product.name}
                 fill
                 priority
-                className="object-cover transition-all duration-300"
+                className="object-contain transition-all duration-300 p-2"
               />
               <div className="absolute top-4 left-4 flex flex-wrap gap-2">
                 <span className="text-xs uppercase font-bold tracking-wider px-3 py-1 rounded-full bg-white/90 backdrop-blur-md text-[#1F332B] shadow-xs border border-white/40">
@@ -187,7 +181,7 @@ export default function ProductDetailPage() {
 
             {/* Thumbnails (Gracefully hidden if only 1 image) */}
             {images.length > 1 && (
-              <div className="flex items-center gap-3 overflow-x-auto pb-2">
+              <div className="flex flex-wrap gap-3">
                 {images.map((img, idx) => (
                   <button
                     key={img.id || idx}
@@ -248,7 +242,7 @@ export default function ProductDetailPage() {
                 </span>
               </div>
 
-              <h1 className="font-serif-luxury text-2xl sm:text-3xl font-bold text-[#1F332B] leading-tight">
+              <h1 className="font-sans text-2xl sm:text-3xl font-bold tracking-tight text-[#1F332B] leading-tight">
                 {product.name}
               </h1>
             </div>
@@ -259,7 +253,7 @@ export default function ProductDetailPage() {
                 <div>
                   <span className="text-[11px] uppercase font-bold text-stone-400">Institutional B2B Price</span>
                   <div className="flex items-baseline gap-2">
-                    <span className="font-serif-luxury text-3xl font-bold text-[#1F332B]">
+                    <span className="font-sans text-3xl font-bold tracking-tight text-[#1F332B]">
                       ₹{product.price.toLocaleString('en-IN')}
                     </span>
                     <span className="text-xs text-stone-500 font-medium">
@@ -308,74 +302,65 @@ export default function ProductDetailPage() {
               </div>
             </div>
 
-            {/* Customization Callout Banner */}
-            <div className="p-5 rounded-2xl bg-gradient-to-br from-[#F5EFEB] to-[#EFE7DE] border border-[#DFCFC0] relative overflow-hidden">
-              <div className="flex items-start gap-3">
-                <div className="w-9 h-9 rounded-xl bg-[#C88B56] text-white flex items-center justify-center shrink-0">
-                  <Sparkles className="w-4 h-4" />
-                </div>
-                <div>
-                  <h4 className="font-serif-luxury text-sm font-bold text-[#1F332B]">
-                    Interested in customizing this product?
-                  </h4>
-                  <p className="text-xs text-stone-600 mt-1 leading-relaxed">
-                    Add custom logo laser engraving, brass insignia plaques, tailored ribbon wrapping, and plantable seed gift cards.
-                  </p>
-                  <button
-                    onClick={() => setIsEnquiryOpen(true)}
-                    className="inline-flex items-center gap-1 text-xs font-bold text-[#9E5A38] hover:underline mt-2.5"
-                  >
-                    <span>Customize this product now →</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Detailed Specifications Table */}
-            <div className="bg-white rounded-2xl p-5 border border-[#E8DFC8] space-y-3">
-              <h4 className="font-serif-luxury font-bold text-sm text-[#1F332B] uppercase tracking-wider">
-                Specifications & Materials
+            {/* Detailed Specifications */}
+            <div className="bg-white rounded-2xl p-6 border border-[#E8DFC8]">
+              <h4 className="font-sans text-base font-bold tracking-tight text-[#1F332B]">
+                Specifications &amp; Materials
               </h4>
 
-              <div className="text-xs space-y-2 divide-y divide-[#F0EAE1]">
-                <div className="flex justify-between pt-1">
-                  <span className="text-stone-500">Materials:</span>
-                  <span className="font-semibold text-[#1F332B]">{product.material_tags.join(', ')}</span>
+              {product.material_tags.length > 0 && (
+                <div className="mt-4">
+                  <p className="text-[11px] uppercase tracking-wider font-bold text-stone-500 mb-2.5">
+                    Materials
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {product.material_tags.map((m) => (
+                      <span
+                        key={m}
+                        className="px-3 py-1.5 rounded-full bg-[#FAF8F5] border border-[#E8DFC8] text-[11px] font-semibold text-[#1F332B]"
+                      >
+                        {m}
+                      </span>
+                    ))}
+                  </div>
                 </div>
+              )}
 
-                {product.specification?.dimensions && (
-                  <div className="flex justify-between pt-2">
-                    <span className="text-stone-500">Dimensions:</span>
-                    <span className="font-semibold text-[#1F332B]">{product.specification.dimensions}</span>
+              {(() => {
+                const specRows = [
+                  { label: 'Dimensions', value: product.specification?.dimensions },
+                  { label: 'Approx. Weight', value: product.specification?.weight },
+                  { label: 'Surface Finish', value: product.specification?.finish },
+                  { label: 'Standard Packaging', value: product.specification?.packaging },
+                ].filter((r) => r.value) as { label: string; value: string }[];
+
+                return (
+                  <div className="mt-4 divide-y divide-[#F0EAE1] border-t border-[#F0EAE1]">
+                    {specRows.map((row) => (
+                      <div key={row.label} className="flex items-start justify-between gap-4 py-3 text-[13px]">
+                        <span className="text-stone-500 shrink-0">{row.label}</span>
+                        <span className="font-semibold text-[#1F332B] text-right break-words min-w-0 flex-1">
+                          {row.value}
+                        </span>
+                      </div>
+                    ))}
+                    <div className="flex items-start justify-between gap-4 py-3 text-[13px]">
+                      <span className="text-stone-500 shrink-0">Best For</span>
+                      <span className="font-semibold text-[#1F332B] text-right break-words min-w-0 flex-1">
+                        {product.primary_use_case}
+                      </span>
+                    </div>
+                    {product.secondary_use_cases.length > 0 && (
+                      <div className="flex items-start justify-between gap-4 py-3 text-[13px]">
+                        <span className="text-stone-500 shrink-0">Also Great For</span>
+                        <span className="font-semibold text-[#1F332B] text-right break-words min-w-0 flex-1">
+                          {product.secondary_use_cases.join(', ')}
+                        </span>
+                      </div>
+                    )}
                   </div>
-                )}
-
-                {product.specification?.weight && (
-                  <div className="flex justify-between pt-2">
-                    <span className="text-stone-500">Approx. Weight:</span>
-                    <span className="font-semibold text-[#1F332B]">{product.specification.weight}</span>
-                  </div>
-                )}
-
-                {product.specification?.finish && (
-                  <div className="flex justify-between pt-2">
-                    <span className="text-stone-500">Surface Finish:</span>
-                    <span className="font-semibold text-[#1F332B]">{product.specification.finish}</span>
-                  </div>
-                )}
-
-                {product.specification?.packaging && (
-                  <div className="flex justify-between pt-2">
-                    <span className="text-stone-500">Standard Packaging:</span>
-                    <span className="font-semibold text-[#1F332B]">{product.specification.packaging}</span>
-                  </div>
-                )}
-
-                <div className="flex justify-between pt-2">
-                  <span className="text-stone-500">Best For:</span>
-                  <span className="font-semibold text-[#1F332B] text-right max-w-[200px]">{product.primary_use_case}</span>
-                </div>
-              </div>
+                );
+              })()}
             </div>
           </div>
         </div>
@@ -386,7 +371,7 @@ export default function ProductDetailPage() {
             <div className="flex items-center justify-between mb-8">
               <div>
                 <span className="text-xs uppercase tracking-widest font-bold text-[#C88B56]">Artisan Pairings</span>
-                <h3 className="font-serif-luxury text-2xl font-bold text-[#1F332B]">You May Also Consider</h3>
+                <h3 className="font-sans text-2xl font-bold tracking-tight text-[#1F332B]">You May Also Consider</h3>
               </div>
               <Link href="/catalogue" className="text-xs font-bold text-[#1F332B] hover:text-[#C88B56]">
                 View Full Catalogue →
