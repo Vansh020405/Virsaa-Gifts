@@ -52,7 +52,7 @@ export default function CataloguePage() {
   const [selectedProductForEnquiry, setSelectedProductForEnquiry] = useState<Product | null>(null);
 
   // Pagination / Load More
-  const [visibleCount, setVisibleCount] = useState(16);
+  const [visibleCount, setVisibleCount] = useState(18);
 
   useEffect(() => {
     async function loadData() {
@@ -87,7 +87,7 @@ export default function CataloguePage() {
     setSelectedCollection('all');
     setPriceRange(5000);
     setSortBy('featured');
-    setVisibleCount(16);
+    setVisibleCount(18);
   };
 
   // Derive unique materials from products
