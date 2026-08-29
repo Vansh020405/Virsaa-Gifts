@@ -79,7 +79,7 @@ export default function HomePage() {
             className="w-full h-full object-cover"
           >
             <source
-              src="/bgVidVirsaa.MP4"
+              src="/bgVidVirsaa.mp4"
               type="video/mp4"
             />
           </video>
