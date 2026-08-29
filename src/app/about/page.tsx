@@ -10,13 +10,6 @@ import { dbService } from '../../lib/supabase/db-service';
 import { getProductImageUrl } from '../../lib/supabase/storage';
 import { Leaf, Users, PenTool, Heart, ChevronDown, ArrowRight, CheckCircle2, Sparkles } from 'lucide-react';
 
-const stats = [
-  { value: '100%', label: 'Plastic-free, biodegradable materials' },
-  { value: '25+', label: 'Certified artisan clusters across India' },
-  { value: '1.2L+', label: 'Corporate gifts delivered' },
-  { value: '9 Yrs', label: 'Of sustainable gifting heritage' },
-];
-
 const values = [
   {
     icon: Leaf,
@@ -123,21 +116,12 @@ export default function AboutPage() {
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#1F332B]/10 border border-[#1F332B]/20 text-[#1F332B] text-xs uppercase tracking-widest font-semibold font-sans">
                 <span>About Virsaa</span>
               </div>
-              <h1 className="font-serif-luxury text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-[#1F332B] leading-tight">
+              <h1 className="font-serif-luxury text-4xl sm:text-5xl lg:text-6xl font-normal tracking-tight text-[#1F332B] leading-tight">
                 Gifting with Purpose. <br /> Crafted to Be Remembered.
               </h1>
               <p className="text-stone-600 text-lg leading-relaxed max-w-lg font-sans">
                 Virsaa brings together thoughtful design, sustainable materials, and Indian craftsmanship to create corporate gifts that carry meaning beyond the moment.
               </p>
-
-              <div className="grid grid-cols-2 gap-4 pt-2">
-                {stats.map((stat) => (
-                  <div key={stat.label} className="bg-white rounded-2xl border border-[#E8DFC8] p-4 shadow-2xs">
-                    <p className="font-serif-luxury text-2xl font-bold text-[#C88B56] tracking-tight">{stat.value}</p>
-                    <p className="text-[11px] text-stone-500 leading-snug mt-1 font-sans">{stat.label}</p>
-                  </div>
-                ))}
-              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -162,20 +146,23 @@ export default function AboutPage() {
         </section>
 
         {/* Manifesto */}
-        <section className="bg-[#1F332B] text-white py-12 lg:py-16 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-[#C88B56]/10 rounded-full blur-3xl pointer-events-none transform translate-x-1/3 -translate-y-1/3" />
-
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-            <h2 className="font-serif-luxury text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mb-8">
-              More Than a Gift.
-            </h2>
-            <div className="space-y-6 text-stone-300 text-lg sm:text-xl leading-relaxed font-sans">
-              <p>
-                &ldquo;We believe a corporate gift can do more than mark an occasion. It can tell a story, support skilled artisans, celebrate craftsmanship, and make a more thoughtful choice for the environment.
-              </p>
-              <p>
-                From personalised pieces to moss-based gifts and handcrafted products, Virsaa creates gifting experiences that connect people, purpose, and design.&rdquo;
-              </p>
+        <section className="py-16 lg:py-20">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="relative overflow-hidden rounded-3xl bg-[#1F332B] text-white px-6 py-14 sm:px-14 sm:py-16 text-center border border-[#2E4B3F] shadow-xl">
+              <div className="absolute top-0 right-0 w-96 h-96 bg-[#C88B56]/10 rounded-full blur-3xl pointer-events-none transform translate-x-1/3 -translate-y-1/3" />
+              <div className="relative z-10">
+                <h2 className="font-serif-luxury text-3xl sm:text-4xl lg:text-5xl font-normal tracking-tight mb-8">
+                  More Than a Gift.
+                </h2>
+                <div className="space-y-6 text-stone-300 text-lg sm:text-xl leading-relaxed font-sans">
+                  <p>
+                    &ldquo;We believe a corporate gift can do more than mark an occasion. It can tell a story, support skilled artisans, celebrate craftsmanship, and make a more thoughtful choice for the environment.
+                  </p>
+                  <p>
+                    From personalised pieces to moss-based gifts and handcrafted products, Virsaa creates gifting experiences that connect people, purpose, and design.&rdquo;
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -207,7 +194,7 @@ export default function AboutPage() {
                 <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#1F332B]/10 border border-[#1F332B]/20 text-[#1F332B] text-xs uppercase tracking-widest font-semibold font-sans">
                   <span>Our Story</span>
                 </div>
-                <h2 className="font-serif-luxury text-3xl sm:text-4xl font-bold tracking-tight text-[#1F332B]">
+                <h2 className="font-serif-luxury text-3xl sm:text-4xl font-normal tracking-tight text-[#1F332B]">
                   From a Woodshed in India to a Movement in Gifting
                 </h2>
                 <p className="text-stone-600 leading-relaxed font-sans">
@@ -217,7 +204,7 @@ export default function AboutPage() {
                 <div className="space-y-0">
                   {journey.map((step) => (
                     <div key={step.year} className="flex gap-4 py-4 border-b border-[#EBE4D8] last:border-0">
-                      <span className="font-serif-luxury text-lg font-bold text-[#C88B56] shrink-0 w-14">{step.year}</span>
+                      <span className="font-serif-luxury text-lg font-normal text-[#C88B56] shrink-0 w-14">{step.year}</span>
                       <div>
                         <p className="text-sm font-bold text-[#1F332B] font-sans">{step.title}</p>
                         <p className="text-xs text-stone-500 leading-relaxed mt-1 font-sans">{step.text}</p>
@@ -237,7 +224,7 @@ export default function AboutPage() {
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#1F332B]/10 border border-[#1F332B]/20 text-[#1F332B] text-xs uppercase tracking-widest font-semibold font-sans mb-4">
                 <span>What We Value</span>
               </div>
-              <h2 className="font-serif-luxury text-3xl sm:text-4xl font-bold tracking-tight text-[#1F332B]">
+              <h2 className="font-serif-luxury text-3xl sm:text-4xl font-normal tracking-tight text-[#1F332B]">
                 Purpose in Every Detail
               </h2>
               <p className="text-stone-600 mt-4 leading-relaxed font-sans">
@@ -253,7 +240,7 @@ export default function AboutPage() {
                     <div className="w-12 h-12 rounded-2xl bg-[#1F332B] text-[#E4B58A] flex items-center justify-center mb-5">
                       <Icon className="w-5 h-5" />
                     </div>
-                    <h3 className="font-serif-luxury text-lg font-bold text-[#1F332B] mb-2">{v.title}</h3>
+                    <h3 className="font-serif-luxury text-lg font-normal text-[#1F332B] mb-2">{v.title}</h3>
                     <p className="text-xs sm:text-[13px] text-stone-600 leading-relaxed font-sans">{v.text}</p>
                   </div>
                 );
@@ -269,7 +256,7 @@ export default function AboutPage() {
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#1F332B]/10 border border-[#1F332B]/20 text-[#1F332B] text-xs uppercase tracking-widest font-semibold font-sans mb-4">
                 <span>The Craft in Motion</span>
               </div>
-              <h2 className="font-serif-luxury text-3xl sm:text-4xl font-bold tracking-tight text-[#1F332B]">
+              <h2 className="font-serif-luxury text-3xl sm:text-4xl font-normal tracking-tight text-[#1F332B]">
                 Made Slowly, Given Deliberately
               </h2>
             </div>
@@ -306,7 +293,7 @@ export default function AboutPage() {
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#1F332B]/10 border border-[#1F332B]/20 text-[#1F332B] text-xs uppercase tracking-widest font-semibold font-sans mb-4">
                 <span>FAQ</span>
               </div>
-              <h2 className="font-serif-luxury text-3xl sm:text-4xl font-bold tracking-tight text-[#1F332B]">
+              <h2 className="font-serif-luxury text-3xl sm:text-4xl font-normal tracking-tight text-[#1F332B]">
                 Questions, Answered
               </h2>
               <p className="text-stone-600 mt-4 leading-relaxed font-sans">
@@ -341,34 +328,27 @@ export default function AboutPage() {
         </section>
 
         {/* CTA */}
-        <section className="bg-[#1F332B] text-white py-16 lg:py-20 relative overflow-hidden">
-          <div className="absolute -bottom-20 -left-20 w-96 h-96 bg-[#C88B56]/15 rounded-full blur-3xl pointer-events-none" />
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/20 text-[#E4B58A] text-xs uppercase tracking-widest font-semibold font-sans mb-5">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Start a Conversation</span>
-            </div>
-            <h2 className="font-serif-luxury text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mb-4">
-              Let&apos;s Craft Gifts Worth Remembering
-            </h2>
-            <p className="text-stone-300 leading-relaxed max-w-xl mx-auto mb-8 font-sans">
-              Tell us about your recipients, budget and timeline. We&apos;ll design a sustainable gifting experience around your brand.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <button
-                onClick={() => setEnquiryModalOpen(true)}
-                className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-[#C88B56] hover:bg-[#b67843] text-white text-sm font-bold shadow-lg transition"
-              >
-                <span>Start Your Gifting Journey</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-              <Link
-                href="/catalogue"
-                className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full border border-white/25 hover:bg-white/10 text-white text-sm font-bold transition"
-              >
-                <CheckCircle2 className="w-4 h-4 text-[#E4B58A]" />
-                <span>Explore the Catalogue</span>
-              </Link>
+        <section className="bg-[#12211B] py-16 lg:py-20">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="relative overflow-hidden rounded-3xl bg-[#1F332B] text-white px-6 py-14 sm:px-14 sm:py-16 text-center border border-[#2E4B3F] shadow-xl">
+              <div className="absolute -bottom-20 -left-20 w-96 h-96 bg-[#C88B56]/15 rounded-full blur-3xl pointer-events-none" />
+              <div className="relative z-10">
+                <h2 className="font-serif-luxury text-3xl sm:text-4xl lg:text-5xl font-normal tracking-tight mb-4">
+                  Let&apos;s Craft Gifts Worth Remembering
+                </h2>
+                <p className="text-stone-300 leading-relaxed max-w-xl mx-auto mb-8 font-sans">
+                  Tell us about your recipients, budget and timeline. We&apos;ll design a sustainable gifting experience around your brand.
+                </p>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+                  <Link
+                    href="/catalogue"
+                    className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full border border-white/25 hover:bg-white/10 text-white text-sm font-bold transition"
+                  >
+                    <CheckCircle2 className="w-4 h-4 text-[#E4B58A]" />
+                    <span>Explore the Catalogue</span>
+                  </Link>
+                </div>
+              </div>
             </div>
           </div>
         </section>
