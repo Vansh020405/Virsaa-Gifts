@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { dbService } from '../../lib/supabase/db-service';
 import { Enquiry, Product } from '../../lib/supabase/types';
+import { getProductImageUrl } from '../../lib/supabase/storage';
 import { 
   Package, 
   MessageSquareText, 
@@ -230,7 +231,7 @@ export default function AdminDashboardPage() {
                 <div className="flex items-center gap-3">
                   <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-stone-200 shrink-0">
                     <Image
-                      src={p.images?.[0]?.storage_path || 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=200&q=80'}
+                      src={getProductImageUrl(p, 'primary')}
                       alt={p.name}
                       fill
                       className="object-cover"

@@ -81,7 +81,7 @@ export async function uploadProductImageToStorage(
     
     const storagePath = `${cleanSku}/${filename}`;
 
-    const { data, error } = await supabase.storage
+    const { error } = await supabase.storage
       .from(SUPABASE_STORAGE_BUCKET)
       .upload(storagePath, file, {
         cacheControl: '3600',

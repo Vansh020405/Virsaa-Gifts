@@ -4,15 +4,18 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
+import { useAuth } from '../context/AuthContext';
 import { 
   LayoutDashboard, 
   Package, 
   MessageSquareText, 
-  Users
+  Users,
+  LogOut
 } from 'lucide-react';
 
 export default function AdminSidebar() {
   const pathname = usePathname();
+  const { logout } = useAuth();
 
   const navItems = [
     { name: 'Dashboard', href: '/admin', icon: LayoutDashboard },
@@ -60,6 +63,17 @@ export default function AdminSidebar() {
             </Link>
           );
         })}
+      </div>
+
+      {/* Logout */}
+      <div className="p-4 border-t border-[#233B31]">
+        <button
+          onClick={logout}
+          className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-stone-400 hover:text-white hover:bg-white/10 transition"
+        >
+          <LogOut className="w-4 h-4" />
+          <span>Sign out</span>
+        </button>
       </div>
     </aside>
   );

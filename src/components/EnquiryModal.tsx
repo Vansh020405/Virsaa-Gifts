@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Product } from '../lib/supabase/types';
 import { dbService } from '../lib/supabase/db-service';
+import { getProductImageUrl } from '../lib/supabase/storage';
 import { useAuth } from '../context/AuthContext';
 import { X, CheckCircle2, Send, Building2, User, Mail, Phone, Layers, ArrowRight } from 'lucide-react';
 import confetti from 'canvas-confetti';
@@ -67,9 +68,7 @@ export default function EnquiryModal({ isOpen, onClose, selectedProduct }: Enqui
 
     setIsSubmitting(true);
     try {
-      const productImage =
-        selectedProduct?.images?.[0]?.storage_path ||
-        'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=600&q=80';
+      const productImage = getProductImageUrl(selectedProduct, 'primary');
 
       const customReqString = customizations.join(', ');
 
@@ -214,7 +213,7 @@ export default function EnquiryModal({ isOpen, onClose, selectedProduct }: Enqui
               <div className="flex items-center gap-3.5 p-3.5 bg-white rounded-2xl border border-[#E8DFC8] shadow-2xs">
                 <div className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0 bg-stone-100">
                   <Image
-                    src={selectedProduct.images?.[0]?.storage_path || 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=400&q=80'}
+                    src={getProductImageUrl(selectedProduct, 'primary')}
                     alt={selectedProduct.name}
                     fill
                     className="object-cover"

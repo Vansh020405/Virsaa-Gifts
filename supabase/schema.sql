@@ -146,6 +146,28 @@ create table if not exists public.notifications (
 -- Policies are intentionally permissive for the demo (public reads/writes).
 -- Switch to authenticated-only policies before production launch.
 -- =============================================================================
+-- -----------------------------------------------------------------------------
+-- ADMIN CREDENTIALS (portal email/password + TOTP 2FA secret)
+-- -----------------------------------------------------------------------------
+create table if not exists public.admin_credentials (
+  id                text primary key,
+  email             text not null unique,
+  password_salt     text not null,
+  password_hash     text not null,
+  two_factor_secret text not null,
+  created_at        timestamptz not null default now()
+);
+
+insert into public.admin_credentials (id, email, password_salt, password_hash, two_factor_secret)
+values (
+  'cred-1',
+  'admin@virsaagifts.com',
+  'virsaa-admin-salt-v1',
+  '6a93e16d52fec9c5eb4763099946c0f44c2e5c94f03f9d55e52fe6725319bd06',
+  '74AX7CSCI4YXFI6VFDM56RT5NMK52YWG'
+)
+on conflict (id) do nothing;
+
 alter table public.profiles        enable row level security;
 alter table public.categories      enable row level security;
 alter table public.collections     enable row level security;
@@ -154,6 +176,10 @@ alter table public.product_images  enable row level security;
 alter table public.enquiries       enable row level security;
 alter table public.enquiry_messages enable row level security;
 alter table public.notifications   enable row level security;
+alter table public.admin_credentials enable row level security;
+
+drop policy if exists "Admin credentials public read" on public.admin_credentials;
+create policy "Admin credentials public read" on public.admin_credentials for select using (true);
 
 drop policy if exists "Categories public read" on public.categories;
 create policy "Categories public read" on public.categories for select using (true);
