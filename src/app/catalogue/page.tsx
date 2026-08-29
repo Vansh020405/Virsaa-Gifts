@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 
 export default function CataloguePage() {
+  type SortOption = 'featured' | 'price_asc' | 'price_desc' | 'name_asc';
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [collections, setCollections] = useState<Collection[]>([]);
@@ -40,7 +41,7 @@ export default function CataloguePage() {
   const [selectedSpeed, setSelectedSpeed] = useState('all');
   const [selectedCollection, setSelectedCollection] = useState('all');
   const [priceRange, setPriceRange] = useState<number>(5000);
-  const [sortBy, setSortBy] = useState<'featured' | 'price_asc' | 'price_desc' | 'name_asc'>('featured');
+  const [sortBy, setSortBy] = useState<SortOption>('featured');
 
   // Mobile Filter Drawer
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
@@ -121,11 +122,12 @@ export default function CataloguePage() {
     }
 
     if (selectedCategory !== 'all') {
-      list = list.filter(
-        (p) =>
-          p.category_id === selectedCategory ||
-          p.category_name?.toLowerCase() === selectedCategory.toLowerCase() ||
-          categories.find(c => c.slug === selectedCategory)?.name.toLowerCase() === p.category_name?.toLowerCase()
+      const activeCat = categories.find((c) => c.slug === selectedCategory || c.id === selectedCategory);
+      list = list.filter((p) =>
+        p.category_id === selectedCategory ||
+        (activeCat
+          ? p.category_id === activeCat.id || p.category_name?.toLowerCase() === activeCat.name.toLowerCase()
+          : p.category_name?.toLowerCase() === selectedCategory.toLowerCase())
       );
     }
 
@@ -181,7 +183,7 @@ export default function CataloguePage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF8F5]">
-      <Navbar onOpenEnquiry={() => handleOpenEnquiry()} />
+      <Navbar />
 
       <AuthModal />
       <EnquiryModal
@@ -198,19 +200,14 @@ export default function CataloguePage() {
         onEnquire={(p) => handleOpenEnquiry(p)}
       />
 
-      {/* Page Header Banner */}
-      <div className="pt-28 pb-12 bg-[#12211B] text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(200,139,86,0.15),transparent_70%)]" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-[#E4B58A] text-xs font-semibold uppercase tracking-widest mb-3">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Full Artisanal Catalogue ({products.length} Products)</span>
-            </div>
-            <h1 className="font-serif-luxury text-3xl sm:text-5xl font-bold tracking-tight text-white mb-3">
+      {/* Page Header */}
+      <div className="pt-36 pb-12 text-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-3xl mx-auto">
+            <h1 className="font-serif-luxury text-3xl sm:text-4xl font-normal text-[#1F332B] mb-3">
               Sustainable Corporate Gifts & Keepsakes
             </h1>
-            <p className="text-stone-300 text-sm sm:text-base leading-relaxed">
+            <p className="text-stone-600 text-sm sm:text-base leading-relaxed font-sans">
               Explore authentic eco-conscious gifts made with cork, seed paper, bamboo, reclaimed timber and preserved botanicals. Click any product to view its complete specifications and photo gallery.
             </p>
           </div>
@@ -221,24 +218,25 @@ export default function CataloguePage() {
       <div className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         
         {/* Top Search & Filter Bar */}
-        <div className="bg-white rounded-2xl p-4 mb-8 border border-[#EBE4D8] shadow-xs flex flex-col md:flex-row items-center justify-between gap-4">
-          
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
+
           {/* Search Input */}
-          <div className="relative w-full md:w-96">
-            <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <div className="relative w-full md:w-[26rem]">
+            <Search className="w-4 h-4 text-[#C88B56] absolute left-4 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               placeholder="Search by product name, SKU (e.g. 4ck03), material..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#DCD1C4] focus:outline-none focus:ring-2 focus:ring-[#C88B56] text-xs sm:text-sm bg-[#FAF8F5]"
+              className="w-full pl-11 pr-10 py-3 rounded-full border border-[#E6DCCE] bg-white focus:outline-none focus:ring-2 focus:ring-[#C88B56]/40 focus:border-[#C88B56] text-xs sm:text-sm text-[#1F332B] placeholder:text-stone-400 shadow-sm transition-all"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-[#F0EAE1] hover:bg-[#E4DBCB] text-stone-500 hover:text-stone-700 flex items-center justify-center transition-colors"
+                aria-label="Clear search"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3 h-3" />
               </button>
             )}
           </div>
@@ -247,24 +245,29 @@ export default function CataloguePage() {
           <div className="flex items-center justify-between w-full md:w-auto gap-3">
             <button
               onClick={() => setMobileFiltersOpen(true)}
-              className="lg:hidden flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[#DCD1C4] bg-[#FAF8F5] text-xs font-semibold text-[#1F332B]"
+              className="lg:hidden flex items-center gap-2 px-5 py-3 rounded-full border border-[#E6DCCE] bg-white text-xs font-semibold text-[#1F332B] shadow-sm transition-all"
             >
               <SlidersHorizontal className="w-4 h-4 text-[#C88B56]" />
               <span>Filters {activeFiltersCount > 0 && `(${activeFiltersCount})`}</span>
             </button>
 
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-stone-500 font-medium hidden sm:inline">Sort:</span>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
-                className="px-3 py-2.5 rounded-xl border border-[#DCD1C4] bg-white text-xs font-semibold text-[#1F332B] focus:outline-none focus:ring-2 focus:ring-[#C88B56]"
-              >
-                <option value="featured">Featured / Curated</option>
-                <option value="price_asc">Price: Low to High</option>
-                <option value="price_desc">Price: High to Low</option>
-                <option value="name_asc">Name: A to Z</option>
-              </select>
+            <div className="flex items-center gap-2.5">
+              <span className="text-xs text-stone-500 font-medium hidden sm:inline font-sans">
+                Sort by
+              </span>
+              <div className="relative">
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as SortOption)}
+                  className="appearance-none pl-4 pr-9 py-3 rounded-full border border-[#E6DCCE] bg-white text-xs font-semibold text-[#1F332B] focus:outline-none focus:ring-2 focus:ring-[#C88B56]/40 focus:border-[#C88B56] shadow-sm cursor-pointer transition-all font-sans"
+                >
+                  <option value="featured">Featured / Curated</option>
+                  <option value="price_asc">Price: Low to High</option>
+                  <option value="price_desc">Price: High to Low</option>
+                  <option value="name_asc">Name: A to Z</option>
+                </select>
+                <ChevronDown className="w-4 h-4 text-[#C88B56] absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
             </div>
           </div>
         </div>
@@ -275,42 +278,50 @@ export default function CataloguePage() {
           {/* ========================================================================= */}
           {/* DESKTOP SIDEBAR FILTERS */}
           {/* ========================================================================= */}
-          <aside className="hidden lg:block lg:col-span-3 bg-white rounded-2xl p-6 border border-[#EBE4D8] shadow-xs space-y-6 sticky top-28 max-h-[85vh] overflow-y-auto">
+          <aside className="hidden lg:block lg:col-span-3 bg-white rounded-3xl p-6 border border-[#EBE4D8] shadow-sm space-y-7 sticky top-9 max-h-[85vh] overflow-y-auto pr-5 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#D8C9B8] [scrollbar-width:thin] [scrollbar-color:#D8C9B8_transparent]">
             
-            <div className="flex items-center justify-between pb-4 border-b border-[#EBE4D8]">
-              <div className="flex items-center gap-2">
-                <Filter className="w-4 h-4 text-[#C88B56]" />
-                <h3 className="font-serif-luxury font-bold text-sm text-[#1F332B]">Filter Catalogue</h3>
+            {/* Filters Header */}
+            <div className="flex items-center justify-between pb-5 border-b border-[#EBE4D8]">
+              <div className="flex items-center gap-2.5">
+                <span className="w-9 h-9 rounded-xl bg-[#1F332B]/[0.06] flex items-center justify-center">
+                  <Filter className="w-4 h-4 text-[#C88B56]" />
+                </span>
+                <div>
+                  <h3 className="text-sm font-bold text-[#1F332B] tracking-tight font-sans">Filters</h3>
+                  <p className="text-[10px] text-stone-400 font-medium font-sans">
+                    {activeFiltersCount > 0 ? `${activeFiltersCount} active` : 'Refine your results'}
+                  </p>
+                </div>
               </div>
               {activeFiltersCount > 0 && (
                 <button
                   onClick={handleResetFilters}
-                  className="text-[11px] font-semibold text-[#C88B56] hover:underline flex items-center gap-1"
+                  className="text-[11px] font-semibold text-[#C88B56] hover:text-[#9E5A38] flex items-center gap-1 transition-colors"
                 >
                   <RotateCcw className="w-3 h-3" />
-                  <span>Reset ({activeFiltersCount})</span>
+                  <span>Reset</span>
                 </button>
               )}
             </div>
 
             {/* Category Filter */}
             <div>
-              <label className="text-xs uppercase font-bold text-stone-500 tracking-wider block mb-3">
+              <label className="text-[11px] uppercase font-bold text-stone-500 tracking-wider block mb-3 font-sans">
                 Categories
               </label>
-              <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+              <div className="flex flex-col gap-0.5">
                 <button
                   onClick={() => setSelectedCategory('all')}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition ${
+                  className={`flex items-center gap-2.5 w-full text-left px-2 py-1.5 rounded-lg text-xs font-medium font-sans transition-colors ${
                     selectedCategory === 'all'
-                      ? 'bg-[#1F332B] text-white font-bold'
-                      : 'text-stone-700 hover:bg-[#FAF8F5]'
+                      ? 'text-[#1F332B] font-bold'
+                      : 'text-stone-600 hover:text-[#1F332B]'
                   }`}
                 >
-                  <span>All Categories</span>
-                  <span className="text-[10px] opacity-75">{products.length}</span>
+                  <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 transition-colors ${selectedCategory === 'all' ? 'bg-[#C88B56]' : 'bg-stone-300'}`} />
+                  <span className="flex-1">All Products</span>
+                  <span className="text-[10px] text-stone-400 font-medium">{products.length}</span>
                 </button>
-
                 {categories.map((cat) => {
                   const count = products.filter(
                     (p) => p.category_id === cat.id || p.category_name?.toLowerCase() === cat.name.toLowerCase()
@@ -319,14 +330,15 @@ export default function CataloguePage() {
                     <button
                       key={cat.id}
                       onClick={() => setSelectedCategory(cat.slug)}
-                      className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition ${
+                      className={`flex items-center gap-2.5 w-full text-left px-2 py-1.5 rounded-lg text-xs font-medium font-sans transition-colors ${
                         selectedCategory === cat.slug
-                          ? 'bg-[#1F332B] text-white font-bold'
-                          : 'text-stone-700 hover:bg-[#FAF8F5]'
+                          ? 'text-[#1F332B] font-bold'
+                          : 'text-stone-600 hover:text-[#1F332B]'
                       }`}
                     >
-                      <span className="truncate">{cat.name}</span>
-                      <span className="text-[10px] opacity-75">{count}</span>
+                      <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 transition-colors ${selectedCategory === cat.slug ? 'bg-[#C88B56]' : 'bg-stone-300'}`} />
+                      <span className="flex-1">{cat.name}</span>
+                      <span className="text-[10px] text-stone-400 font-medium">{count}</span>
                     </button>
                   );
                 })}
@@ -334,18 +346,18 @@ export default function CataloguePage() {
             </div>
 
             {/* Material Filter */}
-            <div className="pt-4 border-t border-[#EBE4D8]">
-              <label className="text-xs uppercase font-bold text-stone-500 tracking-wider block mb-3 flex items-center gap-1">
+            <div>
+              <label className="text-[11px] uppercase font-bold text-stone-500 tracking-wider block mb-3 flex items-center gap-1.5 font-sans">
                 <Leaf className="w-3.5 h-3.5 text-[#2D4A3E]" />
                 <span>Materials</span>
               </label>
-              <div className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto pr-1">
+              <div className="flex flex-wrap gap-1.5 max-h-44 overflow-y-auto pr-1">
                 <button
                   onClick={() => setSelectedMaterial('all')}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-medium transition ${
+                  className={`px-3 py-1.5 rounded-full text-xs font-semibold font-sans transition-all ${
                     selectedMaterial === 'all'
-                      ? 'bg-[#C88B56] text-white font-bold'
-                      : 'bg-[#FAF8F5] text-stone-700 border border-[#EBE4D8] hover:border-stone-400'
+                      ? 'bg-[#C88B56] text-white shadow-md shadow-[#C88B56]/25'
+                      : 'bg-[#FAF8F5] text-stone-700 border border-[#EBE4D8] hover:border-[#C88B56]/60 hover:text-[#1F332B]'
                   }`}
                 >
                   All
@@ -354,10 +366,10 @@ export default function CataloguePage() {
                   <button
                     key={m}
                     onClick={() => setSelectedMaterial(m)}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-medium transition ${
+                    className={`px-3 py-1.5 rounded-full text-xs font-semibold font-sans transition-all ${
                       selectedMaterial === m
-                        ? 'bg-[#C88B56] text-white font-bold'
-                        : 'bg-[#FAF8F5] text-stone-700 border border-[#EBE4D8] hover:border-stone-400'
+                        ? 'bg-[#C88B56] text-white shadow-md shadow-[#C88B56]/25'
+                        : 'bg-[#FAF8F5] text-stone-700 border border-[#EBE4D8] hover:border-[#C88B56]/60 hover:text-[#1F332B]'
                     }`}
                   >
                     {m}
@@ -367,17 +379,17 @@ export default function CataloguePage() {
             </div>
 
             {/* Tier Filter */}
-            <div className="pt-4 border-t border-[#EBE4D8]">
-              <label className="text-xs uppercase font-bold text-stone-500 tracking-wider block mb-3">
+            <div>
+              <label className="text-[11px] uppercase font-bold text-stone-500 tracking-wider block mb-3 font-sans">
                 Product Tier
               </label>
               <div className="grid grid-cols-2 gap-1.5">
                 <button
                   onClick={() => setSelectedTier('all')}
-                  className={`px-2.5 py-1.5 rounded-lg text-xs font-medium text-center transition ${
+                  className={`px-2.5 py-2 rounded-xl text-xs font-semibold font-sans text-center transition-all ${
                     selectedTier === 'all'
-                      ? 'bg-[#1F332B] text-white font-bold'
-                      : 'bg-[#FAF8F5] text-stone-700 border border-[#EBE4D8] hover:border-stone-400'
+                      ? 'bg-[#1F332B] text-white shadow-md shadow-[#1F332B]/15'
+                      : 'bg-[#FAF8F5] text-stone-700 border border-[#EBE4D8] hover:border-[#C88B56]/60 hover:text-[#1F332B]'
                   }`}
                 >
                   All Tiers
@@ -386,10 +398,10 @@ export default function CataloguePage() {
                   <button
                     key={t}
                     onClick={() => setSelectedTier(t)}
-                    className={`px-2.5 py-1.5 rounded-lg text-xs font-medium text-center transition ${
+                    className={`px-2.5 py-2 rounded-xl text-xs font-semibold font-sans text-center transition-all ${
                       selectedTier === t
-                        ? 'bg-[#1F332B] text-white font-bold'
-                        : 'bg-[#FAF8F5] text-stone-700 border border-[#EBE4D8] hover:border-stone-400'
+                        ? 'bg-[#1F332B] text-white shadow-md shadow-[#1F332B]/15'
+                        : 'bg-[#FAF8F5] text-stone-700 border border-[#EBE4D8] hover:border-[#C88B56]/60 hover:text-[#1F332B]'
                     }`}
                   >
                     {t}
@@ -399,16 +411,18 @@ export default function CataloguePage() {
             </div>
 
             {/* Speed / Lead Time */}
-            <div className="pt-4 border-t border-[#EBE4D8]">
-              <label className="text-xs uppercase font-bold text-stone-500 tracking-wider block mb-3 flex items-center gap-1">
-                <Clock className="w-3.5 h-3.5 text-[#E4B58A]" />
+            <div>
+              <label className="text-[11px] uppercase font-bold text-stone-500 tracking-wider block mb-3 flex items-center gap-1.5 font-sans">
+                <Clock className="w-3.5 h-3.5 text-[#C88B56]" />
                 <span>Turnaround Time</span>
               </label>
-              <div className="space-y-1">
+              <div className="flex flex-wrap gap-1.5">
                 <button
                   onClick={() => setSelectedSpeed('all')}
-                  className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-medium transition ${
-                    selectedSpeed === 'all' ? 'bg-[#FAF8F5] text-[#1F332B] font-bold' : 'text-stone-600 hover:text-black'
+                  className={`px-3 py-1.5 rounded-full text-xs font-semibold font-sans transition-all ${
+                    selectedSpeed === 'all'
+                      ? 'bg-[#1F332B] text-white shadow-md shadow-[#1F332B]/20'
+                      : 'bg-[#FAF8F5] text-stone-700 border border-[#EBE4D8] hover:border-[#C88B56]/60 hover:text-[#1F332B]'
                   }`}
                 >
                   All Timelines
@@ -417,8 +431,10 @@ export default function CataloguePage() {
                   <button
                     key={s}
                     onClick={() => setSelectedSpeed(s)}
-                    className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-medium transition ${
-                      selectedSpeed === s ? 'bg-[#FAF8F5] text-[#C88B56] font-bold' : 'text-stone-600 hover:text-black'
+                    className={`px-3 py-1.5 rounded-full text-xs font-semibold font-sans transition-all ${
+                      selectedSpeed === s
+                        ? 'bg-[#1F332B] text-white shadow-md shadow-[#1F332B]/20'
+                        : 'bg-[#FAF8F5] text-stone-700 border border-[#EBE4D8] hover:border-[#C88B56]/60 hover:text-[#1F332B]'
                     }`}
                   >
                     {s}
@@ -428,12 +444,12 @@ export default function CataloguePage() {
             </div>
 
             {/* Price Filter */}
-            <div className="pt-4 border-t border-[#EBE4D8]">
-              <div className="flex items-center justify-between mb-2">
-                <label className="text-xs uppercase font-bold text-stone-500 tracking-wider">
+            <div className="pt-1">
+              <div className="flex items-center justify-between mb-3">
+                <label className="text-[11px] uppercase font-bold text-stone-500 tracking-wider font-sans">
                   Max Unit Price
                 </label>
-                <span className="text-xs font-bold text-[#1F332B]">₹{priceRange}</span>
+                <span className="text-xs font-bold text-[#1F332B] text-stone-800 font-sans">₹{priceRange.toLocaleString('en-IN')}</span>
               </div>
               <input
                 type="range"
@@ -444,7 +460,7 @@ export default function CataloguePage() {
                 onChange={(e) => setPriceRange(Number(e.target.value))}
                 className="w-full accent-[#C88B56] cursor-pointer"
               />
-              <div className="flex justify-between text-[10px] text-stone-400 mt-1">
+              <div className="flex justify-between text-[10px] text-stone-400 mt-1 font-sans">
                 <span>₹50</span>
                 <span>₹5,000+</span>
               </div>
@@ -505,9 +521,7 @@ export default function CataloguePage() {
               <p className="text-xs sm:text-sm text-stone-600 font-medium">
                 Showing <strong className="text-[#1F332B]">{Math.min(visibleCount, filteredProducts.length)}</strong> of <strong className="text-[#1F332B]">{filteredProducts.length}</strong> matching products
               </p>
-              <div className="text-[11px] text-stone-400 hidden sm:block">
-                ✨ Click any product card for photo gallery & details
-              </div>
+             
             </div>
 
             {/* Loading Skeleton */}
@@ -527,7 +541,7 @@ export default function CataloguePage() {
                 <div className="w-16 h-16 rounded-full bg-[#FAF8F5] flex items-center justify-center mx-auto mb-4 text-[#C88B56]">
                   <PackageCheck className="w-8 h-8" />
                 </div>
-                <h3 className="font-serif-luxury text-xl font-bold text-[#1F332B] mb-2">
+                <h3 className="text-xl font-bold text-[#1F332B] mb-2">
                   No Products Match Your Criteria
                 </h3>
                 <p className="text-stone-500 text-xs sm:text-sm max-w-md mx-auto mb-6">
@@ -581,7 +595,7 @@ export default function CataloguePage() {
           <div className="relative w-full max-w-xs bg-white h-full p-6 overflow-y-auto shadow-2xl flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between pb-4 border-b border-[#EBE4D8] mb-6">
-                <h3 className="font-serif-luxury text-lg font-bold text-[#1F332B]">Filters</h3>
+                <h3 className="text-lg font-bold text-[#1F332B] font-sans">Filters</h3>
                 <button onClick={() => setMobileFiltersOpen(false)}>
                   <X className="w-5 h-5 text-stone-500" />
                 </button>
@@ -589,7 +603,7 @@ export default function CataloguePage() {
 
               {/* Category */}
               <div className="mb-6">
-                <label className="text-xs uppercase font-bold text-stone-500 block mb-2">Category</label>
+                <label className="text-[11px] uppercase font-bold text-stone-500 block mb-2 font-sans">Category</label>
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
@@ -604,7 +618,7 @@ export default function CataloguePage() {
 
               {/* Material */}
               <div className="mb-6">
-                <label className="text-xs uppercase font-bold text-stone-500 block mb-2">Material</label>
+                <label className="text-[11px] uppercase font-bold text-stone-500 block mb-2 font-sans">Material</label>
                 <select
                   value={selectedMaterial}
                   onChange={(e) => setSelectedMaterial(e.target.value)}
@@ -619,7 +633,7 @@ export default function CataloguePage() {
 
               {/* Tier */}
               <div className="mb-6">
-                <label className="text-xs uppercase font-bold text-stone-500 block mb-2">Tier</label>
+                <label className="text-[11px] uppercase font-bold text-stone-500 block mb-2 font-sans">Tier</label>
                 <select
                   value={selectedTier}
                   onChange={(e) => setSelectedTier(e.target.value)}

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { dbService } from '../../../lib/supabase/db-service';
 import { Category } from '../../../lib/supabase/types';
-import { FolderTree, Plus, Sparkles, Tag } from 'lucide-react';
+import { FolderTree } from 'lucide-react';
 
 export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -18,9 +18,9 @@ export default function AdminCategoriesPage() {
         <div>
           <div className="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-[#C88B56] font-bold mb-1">
             <FolderTree className="w-3.5 h-3.5" />
-            <span>Taxonomy</span>
+            <span>Categories</span>
           </div>
-          <h1 className="font-serif-luxury text-3xl font-bold text-[#1F332B]">Categories</h1>
+          <h1 className="font-sans text-3xl font-bold tracking-tight text-[#1F332B]">Categories</h1>
         </div>
       </div>
 
@@ -33,7 +33,7 @@ export default function AdminCategoriesPage() {
                 {cat.slug}
               </span>
             </div>
-            <h3 className="font-serif-luxury font-bold text-lg text-[#1F332B]">{cat.name}</h3>
+            <h3 className="font-sans font-bold text-lg text-[#1F332B]">{cat.name}</h3>
             <p className="text-xs text-stone-600 mt-2 leading-relaxed">{cat.description}</p>
           </div>
         ))}

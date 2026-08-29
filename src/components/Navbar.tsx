@@ -1,32 +1,22 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { 
-  Sparkles, 
   Menu, 
-  X
+  X, 
+  ClipboardList
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
-interface NavbarProps {
-  onOpenEnquiry?: () => void;
-}
-
-export default function Navbar({ onOpenEnquiry }: NavbarProps) {
+export default function Navbar() {
   const pathname = usePathname();
-  const [isScrolled, setIsScrolled] = useState(false);
+  const router = useRouter();
+  const { user, openAuthModal } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [pressedNav, setPressedNav] = useState<string | null>(null);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   const triggerGoldFade = (name: string) => {
     setPressedNav(null);
@@ -41,13 +31,7 @@ export default function Navbar({ onOpenEnquiry }: NavbarProps) {
   ];
 
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled
-          ? 'bg-[#121F16]/90 backdrop-blur-md shadow-xl shadow-black/20 border-b border-[#C88B56]/25 py-3.5'
-          : 'bg-[#121F16] border-b border-white/10 py-4'
-      }`}
-    >
+    <header className="fixed top-0 left-0 right-0 z-50 bg-[#121F16] border-b border-white/10 py-4">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           {/* Brand Logo */}
@@ -83,14 +67,20 @@ export default function Navbar({ onOpenEnquiry }: NavbarProps) {
           </nav>
 
           {/* Right Action Icons & Buttons */}
-          <div className="hidden lg:flex items-center gap-4">
-            {/* Primary Action: Send Enquiry (Premium) */}
+          <div className="hidden lg:flex items-center gap-3">
+            {/* Track Enquiry */}
             <button
-              onClick={onOpenEnquiry}
-              className="px-6 py-2.5 rounded-full bg-gradient-to-r from-[#C88B56] via-[#D9A45E] to-[#C88B56] text-[#12211B] text-xs font-bold uppercase tracking-wide font-sans border border-[#E4B58A]/70 hover:shadow-md hover:shadow-[#C88B56]/40 hover:brightness-110 active:scale-95 transition-all duration-500 ease-in-out flex items-center gap-2"
+              onClick={() => {
+                if (user) {
+                  router.push('/dashboard');
+                } else {
+                  openAuthModal();
+                }
+              }}
+              className="px-6 py-2.5 rounded-full border border-[#C88B56]/50 text-[#E4B58A] hover:bg-[#C88B56]/10 hover:border-[#C88B56] text-xs font-bold uppercase tracking-wide font-sans transition-all duration-500 ease-in-out flex items-center gap-2 active:scale-95"
             >
-              
-              <span>Send Enquiry</span>
+              <ClipboardList className="w-4 h-4" />
+              <span>Track Enquiry</span>
             </button>
           </div>
 
@@ -134,12 +124,16 @@ export default function Navbar({ onOpenEnquiry }: NavbarProps) {
               <button
                 onClick={() => {
                   setMobileMenuOpen(false);
-                  onOpenEnquiry?.();
+                  if (user) {
+                    router.push('/dashboard');
+                  } else {
+                    openAuthModal();
+                  }
                 }}
-                className="w-full mt-2 py-3 rounded-xl bg-gradient-to-r from-[#C88B56] via-[#D9A45E] to-[#C88B56] text-[#12211B] font-bold text-sm uppercase tracking-wide font-sans flex items-center justify-center gap-2 hover:shadow-md hover:shadow-[#C88B56]/40 transition-all duration-500 ease-in-out hover:brightness-110 active:scale-[0.98]"
+                className="w-full mt-2 py-3 rounded-xl border border-[#C88B56]/50 text-[#E4B58A] font-bold text-sm uppercase tracking-wide font-sans flex items-center justify-center gap-2 transition-all duration-500 ease-in-out active:scale-[0.98]"
               >
-                <Sparkles className="w-4 h-4" />
-                Send Bespoke Corporate Enquiry
+                <ClipboardList className="w-4 h-4" />
+                Track Enquiry
               </button>
             </div>
           </div>

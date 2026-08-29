@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Product } from '../lib/supabase/types';
 import { dbService } from '../lib/supabase/db-service';
 import { useAuth } from '../context/AuthContext';
-import { X, CheckCircle2, Sparkles, Send, Building2, User, Mail, Phone, Layers, Clock, ArrowRight } from 'lucide-react';
+import { X, CheckCircle2, Send, Building2, User, Mail, Phone, Layers, ArrowRight } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 interface EnquiryModalProps {
@@ -30,20 +30,26 @@ export default function EnquiryModal({ isOpen, onClose, selectedProduct }: Enqui
   const [isSuccess, setIsSuccess] = useState(false);
   const [createdEnquiryId, setCreatedEnquiryId] = useState<string | null>(null);
 
-  useEffect(() => {
+  // Sync user details when the signed-in user changes
+  const [prevUserKey, setPrevUserKey] = useState(user?.id ?? null);
+  if ((user?.id ?? null) !== prevUserKey) {
+    setPrevUserKey(user?.id ?? null);
     if (user) {
       setName(user.name || '');
       setEmail(user.email || '');
       setPhone(user.phone || '');
       setCompanyName(user.company_name || '');
     }
-  }, [user, isOpen]);
+  }
 
-  useEffect(() => {
+  // Sync quantity when the selected product changes
+  const [prevSelectedProductKey, setPrevSelectedProductKey] = useState(selectedProduct?.sku ?? null);
+  if ((selectedProduct?.sku ?? null) !== prevSelectedProductKey) {
+    setPrevSelectedProductKey(selectedProduct?.sku ?? null);
     if (selectedProduct) {
       setQuantity(selectedProduct.min_order_qty || 25);
     }
-  }, [selectedProduct]);
+  }
 
   if (!isOpen) return null;
 
@@ -119,33 +125,29 @@ export default function EnquiryModal({ isOpen, onClose, selectedProduct }: Enqui
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs overflow-y-auto animate-in fade-in duration-200">
-      <div className="relative w-full max-w-2xl bg-[#FAF8F5] rounded-3xl shadow-2xl border border-[#E8DFC8] overflow-hidden my-8">
-        {/* Header Ribbon */}
-        <div className="bg-gradient-to-r from-[#1F332B] to-[#2D4A3E] text-white px-6 py-5 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#C88B56]/20 border border-[#C88B56]/40 flex items-center justify-center text-[#E4B58A]">
-              <Sparkles className="w-5 h-5" />
-            </div>
-            <div>
-              <h2 className="font-serif-luxury text-lg sm:text-xl font-bold">
-                {isSuccess ? 'Enquiry Submitted' : 'Request Corporate Gifting Proposal'}
-              </h2>
-              <p className="text-xs text-stone-300">
-                {isSuccess ? 'Our concierge team will reach out within 4 business hours' : 'Personalized pricing, physical prototyping & bulk timeline'}
-              </p>
-            </div>
-          </div>
-          <button
-            onClick={handleResetAndClose}
-            className="text-stone-300 hover:text-white p-1 rounded-lg transition"
-          >
-            <X className="w-6 h-6" />
-          </button>
-        </div>
+      <div className="relative w-full max-w-2xl bg-[#FAF8F5] rounded-3xl shadow-xl border border-[#E8DFC8] overflow-hidden my-8">
+
+        {/* Floating Close */}
+        <button
+          onClick={handleResetAndClose}
+          className="absolute top-4 right-4 z-20 p-2 rounded-full bg-white border border-[#E4DDD2] shadow-sm text-stone-500 hover:text-stone-900 hover:bg-[#F4EFEA] transition-colors"
+        >
+          <X className="w-5 h-5" />
+        </button>
 
         {/* Modal Body */}
         {isSuccess ? (
-          <div className="p-8 text-center flex flex-col items-center">
+          <div className="p-6 sm:p-8 pt-10">
+            <div className="self-stretch text-left pr-12">
+              <h2 className="font-serif-luxury text-xl sm:text-2xl font-normal text-[#1F332B]">
+                Enquiry Submitted
+              </h2>
+              <p className="text-xs text-stone-500 font-sans mt-1">
+                Our concierge team will reach out within 4 business hours
+              </p>
+            </div>
+
+            <div className="text-center flex flex-col items-center pt-8">
             <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mb-4 ring-8 ring-emerald-50">
               <CheckCircle2 className="w-10 h-10" />
             </div>
@@ -186,7 +188,7 @@ export default function EnquiryModal({ isOpen, onClose, selectedProduct }: Enqui
                 <span>Track in My Enquiries</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
-              <button
+<button
                 onClick={handleResetAndClose}
                 className="py-3 px-4 rounded-xl border border-[#DCD1C4] text-[#1F332B] hover:bg-white font-medium text-sm transition"
               >
@@ -194,8 +196,19 @@ export default function EnquiryModal({ isOpen, onClose, selectedProduct }: Enqui
               </button>
             </div>
           </div>
+        </div>
         ) : (
-          <form onSubmit={handleSubmit} className="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
+          <form onSubmit={handleSubmit} className="p-6 sm:p-8 space-y-5 max-h-[75vh] overflow-y-auto">
+            {/* Title directly on main div */}
+            <div className="pt-1 pr-12">
+              <h2 className="font-serif-luxury text-xl sm:text-2xl font-normal text-[#1F332B]">
+                Request Corporate Gifting Proposal
+              </h2>
+              <p className="text-xs text-stone-500 font-sans mt-1">
+                Personalized pricing, physical prototyping & bulk timeline
+              </p>
+            </div>
+
             {/* Selected Product Banner */}
             {selectedProduct && (
               <div className="flex items-center gap-3.5 p-3.5 bg-white rounded-2xl border border-[#E8DFC8] shadow-2xs">
@@ -381,9 +394,7 @@ export default function EnquiryModal({ isOpen, onClose, selectedProduct }: Enqui
                   </>
                 )}
               </button>
-              <p className="text-[11px] text-center text-stone-500 mt-2">
-                🔒 No credit card required. No obligation. You will receive a direct quotation with 3D proofs.
-              </p>
+             
             </div>
           </form>
         )}

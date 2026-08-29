@@ -2,10 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { dbService } from '../../../lib/supabase/db-service';
-import { Product, Category, ProductTier, SpeedType } from '../../../lib/supabase/types';
-import { getProductImageUrl, uploadProductImageToStorage, deleteProductImageFromStorage } from '../../../lib/supabase/storage';
+import { Product, Category, ProductTier, SpeedType, ProductImage } from '../../../lib/supabase/types';
+import { getProductImageUrl, uploadProductImageToStorage, DEFAULT_PLACEHOLDER } from '../../../lib/supabase/storage';
 import ProductDetailModal from '../../../components/ProductDetailModal';
 import { 
   Package, 
@@ -13,18 +12,32 @@ import {
   Search, 
   Edit3, 
   Trash2, 
-  Sparkles, 
   Star, 
-  Check, 
-  X, 
   Upload, 
-  Layers, 
-  RotateCcw, 
+  X, 
   Eye, 
-  ExternalLink,
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
+
+type FormImage = {
+  id: string;
+  storage_path: string;
+  image_type: 'primary' | 'gallery' | 'packaging' | 'craft';
+  sort_order: number;
+  file?: File;
+  previewUrl?: string;
+};
+
+const TIER_OPTIONS: ProductTier[] = [
+  'Essential',
+  'Premium',
+  'Signature',
+  'Luxury',
+  'Executive',
+  'Artisan Luxe',
+  'Eco Essentials',
+];
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -45,15 +58,17 @@ export default function AdminProductsPage() {
   const [formName, setFormName] = useState('');
   const [formSku, setFormSku] = useState('');
   const [formCategoryId, setFormCategoryId] = useState('cat-1');
+  const [formNewCategory, setFormNewCategory] = useState('');
   const [formSubcategory, setFormSubcategory] = useState('Desk Décor');
   const [formPrice, setFormPrice] = useState(1500);
   const [formGst, setFormGst] = useState(18);
   const [formDescription, setFormDescription] = useState('');
   const [formPrimaryUseCase, setFormPrimaryUseCase] = useState('');
   const [formMaterials, setFormMaterials] = useState<string[]>(['Wood']);
-  const [formTier, setFormTier] = useState<ProductTier>('Signature');
+  const [formTier, setFormTier] = useState<ProductTier | '__new'>('Signature');
+  const [formNewTier, setFormNewTier] = useState('');
   const [formSpeed, setFormSpeed] = useState<SpeedType>('3-5 Days');
-  const [formImageUrl, setFormImageUrl] = useState('');
+  const [formImages, setFormImages] = useState<FormImage[]>([]);
   const [formFeatured, setFormFeatured] = useState(false);
   const [formMinOrder, setFormMinOrder] = useState(15);
   const [saving, setSaving] = useState(false);
@@ -73,7 +88,23 @@ export default function AdminProductsPage() {
   };
 
   useEffect(() => {
-    loadProducts();
+    let cancelled = false;
+    (async () => {
+      try {
+        const [prodData, catData] = await Promise.all([
+          dbService.getProducts(),
+          dbService.getCategories(),
+        ]);
+        if (cancelled) return;
+        setProducts(prodData.products);
+        setCategories(catData);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const openAddModal = () => {
@@ -81,6 +112,7 @@ export default function AdminProductsPage() {
     setFormName('');
     setFormSku(`VG-CUSTOM-${Math.floor(10 + Math.random() * 90)}`);
     setFormCategoryId(categories[0]?.id || 'cat-1');
+    setFormNewCategory('');
     setFormSubcategory('Desk Organizers');
     setFormPrice(1750);
     setFormGst(18);
@@ -88,8 +120,9 @@ export default function AdminProductsPage() {
     setFormPrimaryUseCase('Corporate Welcome Kits & Leadership Conclaves');
     setFormMaterials(['Wood', 'Moss']);
     setFormTier('Signature');
+    setFormNewTier('');
     setFormSpeed('3-5 Days');
-    setFormImageUrl('https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=1000&q=80');
+    setFormImages([]);
     setFormFeatured(true);
     setFormMinOrder(15);
     setModalOpen(true);
@@ -100,6 +133,7 @@ export default function AdminProductsPage() {
     setFormName(p.name);
     setFormSku(p.sku);
     setFormCategoryId(p.category_id);
+    setFormNewCategory('');
     setFormSubcategory(p.subcategory);
     setFormPrice(p.price);
     setFormGst(p.gst_percent);
@@ -107,11 +141,59 @@ export default function AdminProductsPage() {
     setFormPrimaryUseCase(p.primary_use_case);
     setFormMaterials(p.material_tags);
     setFormTier(p.tier);
+    setFormNewTier('');
     setFormSpeed(p.speed);
-    setFormImageUrl(p.images?.[0]?.storage_path || '');
+    setFormImages(
+      (p.images || []).map((img, i) => ({
+        id: img.id,
+        storage_path: img.storage_path,
+        image_type: img.image_type,
+        sort_order: img.sort_order || i + 1,
+      }))
+    );
     setFormFeatured(Boolean(p.featured));
     setFormMinOrder(p.min_order_qty || 10);
     setModalOpen(true);
+  };
+
+  const handleAddImages = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files ? Array.from(e.target.files) : [];
+    setFormImages((prev) => [
+      ...prev,
+      ...files.map((file, i) => ({
+        id: `img-${Date.now()}-${i}`,
+        storage_path: '',
+        image_type: (prev.length + i === 0 ? 'primary' : 'gallery') as FormImage['image_type'],
+        sort_order: prev.length + i + 1,
+        file,
+        previewUrl: URL.createObjectURL(file),
+      })),
+    ]);
+    e.target.value = '';
+  };
+
+  const handleRemoveImage = (id: string) => {
+    setFormImages((prev) =>
+      prev
+        .filter((img) => img.id !== id)
+        .map((img, i) => ({ ...img, sort_order: i + 1 }))
+    );
+  };
+
+  const handleSetCoverImage = (id: string) => {
+    setFormImages((prev) => {
+      const target = prev.find((img) => img.id === id);
+      if (!target) return prev;
+      const rest = prev.filter((img) => img.id !== id);
+      return [
+        { ...target, image_type: 'primary' as const, sort_order: 1 },
+        ...rest.map((img, i) => ({
+          ...img,
+          image_type: img.image_type === 'primary' ? ('gallery' as const) : img.image_type,
+          sort_order: i + 2,
+        })),
+      ];
+    });
   };
 
   const toggleMaterial = (m: string) => {
@@ -126,39 +208,92 @@ export default function AdminProductsPage() {
     e.preventDefault();
     if (!formName || !formSku) return;
 
+    const newCategoryName = formNewCategory.trim();
+    if (formCategoryId === '__new' && !newCategoryName) {
+      window.alert('Enter a name for the new category.');
+      return;
+    }
+
+    const finalTier = formTier === '__new' ? formNewTier.trim() : formTier;
+    if (formTier === '__new' && !finalTier) {
+      window.alert('Enter a name for the new tier.');
+      return;
+    }
+
     setSaving(true);
     try {
-      const selectedCat = categories.find((c) => c.id === formCategoryId);
-      const payload: Partial<Product> = {
+      let finalCategoryId = formCategoryId;
+      let categoryName: string | undefined;
+      if (formCategoryId === '__new') {
+        const newCat = await dbService.createCategory({
+          name: newCategoryName,
+          slug: newCategoryName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''),
+        });
+        finalCategoryId = newCat.id;
+        categoryName = newCat.name;
+        setCategories((prev) => [...prev, newCat]);
+      } else {
+        categoryName = categories.find((c) => c.id === finalCategoryId)?.name || 'Home & Décor';
+      }
+
+      const productId = editingProduct?.id || 'new';
+      const productImages: ProductImage[] = [];
+      for (const img of formImages) {
+        if (img.file) {
+          const res = await uploadProductImageToStorage(formSku, img.file, img.image_type, img.sort_order);
+          if (res) {
+            productImages.push({
+              id: `img-${Date.now()}-${img.sort_order}`,
+              product_id: productId,
+              storage_path: res.storagePath,
+              image_type: img.image_type,
+              sort_order: img.sort_order,
+            });
+          }
+        } else {
+          productImages.push({
+            id: img.id,
+            product_id: productId,
+            storage_path: img.storage_path,
+            image_type: img.image_type,
+            sort_order: img.sort_order,
+          });
+        }
+      }
+      if (productImages.length === 0) {
+        productImages.push({
+          id: `img-${Date.now()}`,
+          product_id: productId,
+          storage_path: DEFAULT_PLACEHOLDER,
+          image_type: 'primary',
+          sort_order: 1,
+        });
+      }
+
+      const payload = {
         name: formName,
         sku: formSku,
-        category_id: formCategoryId,
-        category_name: selectedCat?.name || 'Home & Décor',
+        category_id: finalCategoryId,
+        category_name: categoryName,
         subcategory: formSubcategory,
         price: Number(formPrice),
         gst_percent: Number(formGst),
         description: formDescription,
+        specification: {},
         primary_use_case: formPrimaryUseCase,
+        secondary_use_cases: [],
         material_tags: formMaterials,
-        tier: formTier,
+        tier: finalTier as ProductTier,
         speed: formSpeed,
         featured: formFeatured,
         min_order_qty: Number(formMinOrder),
-        images: [
-          {
-            id: 'img-' + Date.now(),
-            product_id: editingProduct?.id || 'new',
-            storage_path: formImageUrl || 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=1000&q=80',
-            image_type: 'primary',
-            sort_order: 1,
-          },
-        ],
+        images: productImages,
       };
 
       if (editingProduct) {
         await dbService.updateProduct(editingProduct.id, payload);
       } else {
-        await dbService.createProduct(payload as any);
+        await dbService.createProduct(payload);
       }
 
       setModalOpen(false);
@@ -207,13 +342,13 @@ export default function AdminProductsPage() {
         <div>
           <div className="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-[#C88B56] font-bold mb-1">
             <Package className="w-3.5 h-3.5" />
-            <span>Catalogue Studio</span>
+            <span>Products</span>
           </div>
-          <h1 className="font-serif-luxury text-3xl font-bold text-[#1F332B]">
-            Product & Inventory Management
+          <h1 className="font-sans text-3xl font-bold tracking-tight text-[#1F332B]">
+            Products
           </h1>
           <p className="text-xs sm:text-sm text-stone-500 mt-1">
-            Browse {products.length} live products, adjust institutional pricing, manage images and tiers.
+            Add, edit and manage the catalogue — pricing, images and tiers.
           </p>
         </div>
 
@@ -425,8 +560,8 @@ export default function AdminProductsPage() {
             <div className="bg-[#1F332B] text-white px-6 py-4 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Package className="w-5 h-5 text-[#E4B58A]" />
-                <h3 className="font-serif-luxury font-bold text-lg">
-                  {editingProduct ? `Edit ${editingProduct.name}` : 'Add New Sustainable Creation'}
+                <h3 className="font-sans font-bold text-lg">
+                  {editingProduct ? `Edit ${editingProduct.name}` : 'Add New Product'}
                 </h3>
               </div>
               <button onClick={() => setModalOpen(false)} className="text-stone-300 hover:text-white">
@@ -472,8 +607,22 @@ export default function AdminProductsPage() {
                         {c.name}
                       </option>
                     ))}
+                    <option value="__new">+ New Category...</option>
                   </select>
                 </div>
+
+                {formCategoryId === '__new' && (
+                  <div>
+                    <label className="block text-xs font-semibold text-[#1F332B] mb-1">New Category Name</label>
+                    <input
+                      type="text"
+                      value={formNewCategory}
+                      onChange={(e) => setFormNewCategory(e.target.value)}
+                      placeholder="e.g. Travel & Conference"
+                      className="w-full px-3 py-2 bg-white border border-[#C88B56] rounded-xl text-xs"
+                    />
+                  </div>
+                )}
 
                 <div>
                   <label className="block text-xs font-semibold text-[#1F332B] mb-1">Subcategory</label>
@@ -511,15 +660,33 @@ export default function AdminProductsPage() {
                   <label className="block text-xs font-semibold text-[#1F332B] mb-1">Tier</label>
                   <select
                     value={formTier}
-                    onChange={(e) => setFormTier(e.target.value as ProductTier)}
+                    onChange={(e) => setFormTier(e.target.value as ProductTier | '__new')}
                     className="w-full px-3 py-2 bg-white border border-[#DCD1C4] rounded-xl text-xs"
                   >
-                    <option value="Signature">Signature</option>
-                    <option value="Executive">Executive</option>
-                    <option value="Artisan Luxe">Artisan Luxe</option>
-                    <option value="Eco Essentials">Eco Essentials</option>
+                    {formTier && !TIER_OPTIONS.includes(formTier as ProductTier) && formTier !== '__new' && (
+                      <option value={formTier}>{formTier}</option>
+                    )}
+                    {TIER_OPTIONS.map((t) => (
+                      <option key={t} value={t}>
+                        {t}
+                      </option>
+                    ))}
+                    <option value="__new">+ New Tier...</option>
                   </select>
                 </div>
+
+                {formTier === '__new' && (
+                  <div>
+                    <label className="block text-xs font-semibold text-[#1F332B] mb-1">New Tier Name</label>
+                    <input
+                      type="text"
+                      value={formNewTier}
+                      onChange={(e) => setFormNewTier(e.target.value)}
+                      placeholder="e.g. Bespoke"
+                      className="w-full px-3 py-2 bg-white border border-[#C88B56] rounded-xl text-xs"
+                    />
+                  </div>
+                )}
 
                 <div>
                   <label className="block text-xs font-semibold text-[#1F332B] mb-1">Production Speed / Lead Time</label>
@@ -560,18 +727,67 @@ export default function AdminProductsPage() {
                 </div>
               </div>
 
-              {/* Product Image URL */}
+              {/* Product Images (Upload Multiple) */}
               <div>
-                <label className="block text-xs font-semibold text-[#1F332B] mb-1">
-                  Product Image URL (Unsplash or Supabase Storage)
+                <label className="block text-xs font-semibold text-[#1F332B] mb-1.5">
+                  Product Images ({formImages.length})
                 </label>
-                <input
-                  type="url"
-                  value={formImageUrl}
-                  onChange={(e) => setFormImageUrl(e.target.value)}
-                  placeholder="https://images.unsplash.com/..."
-                  className="w-full px-3 py-2 bg-white border border-[#DCD1C4] rounded-xl text-xs"
-                />
+                <div className="flex flex-wrap gap-2.5">
+                  {formImages.map((img) => (
+                    <div key={img.id} className="relative group">
+                      <div className="w-24 h-24 rounded-xl overflow-hidden bg-stone-200 border border-[#E8DFC8]">
+                        <Image
+                          src={img.previewUrl || getProductImageUrl(img.storage_path)}
+                          alt="Product"
+                          fill
+                          unoptimized={!!img.previewUrl}
+                          className="object-cover"
+                        />
+                      </div>
+                      {img.sort_order === 1 && (
+                        <span className="absolute top-1.5 left-1.5 text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-[#1F332B] text-white shadow-xs">
+                          Cover
+                        </span>
+                      )}
+                      <button
+                        type="button"
+                        title="Set as cover"
+                        onClick={() => handleSetCoverImage(img.id)}
+                        className={`absolute bottom-1.5 left-1.5 w-6 h-6 rounded-full flex items-center justify-center shadow-xs transition ${
+                          img.sort_order === 1
+                            ? 'bg-[#C88B56] text-white'
+                            : 'bg-white/90 text-stone-400 hover:text-[#C88B56]'
+                        }`}
+                      >
+                        <Star className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        title="Remove image"
+                        onClick={() => handleRemoveImage(img.id)}
+                        className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-rose-500 text-white flex items-center justify-center hover:bg-rose-600 shadow-xs"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+
+                  <label className="flex flex-col items-center justify-center w-24 h-24 rounded-xl border-2 border-dashed border-[#DCD1C4] bg-[#FAF8F5] text-stone-400 hover:border-[#C88B56] hover:text-[#C88B56] cursor-pointer transition">
+                    <Upload className="w-5 h-5 mb-1" />
+                    <span className="text-[10px] font-semibold">Upload</span>
+                    <span className="text-[9px] text-stone-400">multiple</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      className="hidden"
+                      onChange={handleAddImages}
+                    />
+                  </label>
+                </div>
+                <p className="text-[11px] text-stone-400 mt-1.5">
+                  Upload multiple images. The first image is the cover — tap the star to set another.
+                </p>
               </div>
 
               {/* Description */}

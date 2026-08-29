@@ -12,16 +12,12 @@ import {
   Sparkles, 
   Leaf, 
   Clock, 
-  Package, 
   Check, 
   Share2, 
   ArrowUpRight, 
   Layers, 
   Copy, 
   CheckCheck,
-  ShieldCheck,
-  Award,
-  Maximize2
 } from 'lucide-react';
 
 interface ProductDetailModalProps {
@@ -43,10 +39,14 @@ export default function ProductDetailModal({
   const [imgError, setImgError] = useState<Record<number, boolean>>({});
 
   // Reset active image when product changes
-  useEffect(() => {
+  const [prevProductId, setPrevProductId] = useState(product?.id);
+  const [prevSku, setPrevSku] = useState(product?.sku);
+  if (product?.id !== prevProductId || product?.sku !== prevSku) {
+    setPrevProductId(product?.id);
+    setPrevSku(product?.sku);
     setActiveImageIndex(0);
     setImgError({});
-  }, [product?.id, product?.sku]);
+  }
 
   // Handle keyboard events: Escape to close, Left/Right for images
   useEffect(() => {
@@ -121,73 +121,25 @@ export default function ProductDetailModal({
       />
 
       {/* Modal Container */}
-      <div className="relative bg-[#FAF8F5] rounded-3xl shadow-2xl border border-[#EBE4D8] w-full max-w-5xl max-h-[92vh] flex flex-col overflow-hidden z-10 animate-in zoom-in-95 duration-200">
-        
-        {/* Top Header Bar */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#EBE4D8] bg-white/80 backdrop-blur-md">
-          <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-            <span className="text-xs uppercase font-bold text-[#C88B56] tracking-wider">
-              {product.category_name || 'Sustainable Gifting'}
-            </span>
-            {product.subcategory && (
-              <>
-                <span className="text-stone-300">•</span>
-                <span className="text-xs text-stone-600 font-medium">{product.subcategory}</span>
-              </>
-            )}
-            <div className="flex items-center gap-1.5 bg-[#FAF8F5] px-2.5 py-1 rounded-lg border border-[#EBE4D8]">
-              <span className="text-[11px] font-mono font-semibold text-[#1F332B]">
-                SKU: {product.sku}
-              </span>
-              <button
-                onClick={handleCopySku}
-                title="Copy SKU"
-                className="text-stone-400 hover:text-[#1F332B] transition-colors"
-              >
-                {copiedSku ? (
-                  <CheckCheck className="w-3.5 h-3.5 text-emerald-600" />
-                ) : (
-                  <Copy className="w-3.5 h-3.5" />
-                )}
-              </button>
-            </div>
-          </div>
+      <div className="relative bg-[#FAF8F5] rounded-3xl shadow-2xl border border-[#EBE4D8] w-full max-w-5xl max-h-[92vh] overflow-hidden z-10 animate-in zoom-in-95 duration-200">
 
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleCopyLink}
-              title="Share product link"
-              className="p-2 rounded-full hover:bg-stone-100 text-stone-600 hover:text-[#1F332B] transition-colors flex items-center gap-1.5 text-xs font-medium"
-            >
-              {copiedLink ? (
-                <>
-                  <Check className="w-4 h-4 text-emerald-600" />
-                  <span className="hidden sm:inline text-emerald-700">Copied!</span>
-                </>
-              ) : (
-                <>
-                  <Share2 className="w-4 h-4" />
-                  <span className="hidden sm:inline">Share</span>
-                </>
-              )}
-            </button>
-            <button
-              onClick={onClose}
-              className="p-2 rounded-full hover:bg-stone-100 text-stone-500 hover:text-stone-900 transition-colors"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
+        {/* Close Button: fixed top-right */}
+        <button
+          onClick={onClose}
+          title="Close"
+          className="absolute top-3.5 right-3.5 z-20 p-2.5 rounded-full bg-white border border-[#E4DDD2] shadow-sm text-stone-500 hover:text-stone-900 hover:bg-[#F4EFEA] transition-colors"
+        >
+          <X className="w-5 h-5" />
+        </button>
 
-        {/* Modal Body: Two Columns */}
-        <div className="flex-1 overflow-y-auto p-6 md:p-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-            
-            {/* LEFT: Image Gallery */}
-            <div className="lg:col-span-6 space-y-4">
+        {/* Scrollable Body */}
+        <div className="overflow-y-auto max-h-[92vh]">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start p-6 md:p-8">
+
+            {/* LEFT: Image Gallery + Actions underneath */}
+            <div className="lg:col-span-6 space-y-5">
               {/* Main Image Viewport */}
-              <div className="relative aspect-4/3 sm:aspect-square w-full rounded-2xl bg-white border border-[#EBE4D8] overflow-hidden shadow-inner flex items-center justify-center group">
+              <div className="relative aspect-4/3 sm:aspect-square w-full rounded-2xl bg-white border border-[#EBE4D8] overflow-hidden flex items-center justify-center group">
                 <Image
                   src={
                     imgError[activeImageIndex] 
@@ -265,26 +217,82 @@ export default function ProductDetailModal({
                   ))}
                 </div>
               )}
+
+              {/* Actions: under the image */}
+              <div className="flex flex-col sm:flex-row gap-3 mt-6">
+                <Link
+                  href={`/catalogue/${product.sku}`}
+                  onClick={onClose}
+                  className="flex-1 px-5 py-3 rounded-xl bg-white border border-[#DCD1C4] text-[#1F332B] hover:bg-white/70 text-sm font-bold flex items-center justify-center gap-1.5 whitespace-nowrap transition-all"
+                >
+                  <span>Open Dedicated Page</span>
+                  <ArrowUpRight className="w-4 h-4 text-stone-400" />
+                </Link>
+
+                <button
+                  onClick={() => {
+                    onClose();
+                    onEnquire?.(product);
+                  }}
+                  className="flex-1 px-6 py-3 rounded-xl bg-[#1F332B] hover:bg-[#2D4A3E] text-white text-sm font-bold flex items-center justify-center gap-2 whitespace-nowrap shadow-md hover:shadow-lg transition-all"
+                >
+                  <Sparkles className="w-4 h-4 text-[#E4B58A]" />
+                  <span>Enquire For Custom Quote</span>
+                </button>
+              </div>
             </div>
 
-            {/* RIGHT: Product Information & Specifications */}
-            <div className="lg:col-span-6 space-y-6">
-              <div>
-                <h2 className="font-serif-luxury text-2xl sm:text-3xl font-bold text-[#1F332B] leading-snug">
+            {/* RIGHT: Product Info Directly on Modal Surface */}
+            <div className="lg:col-span-6 divide-y divide-[#E4DDD2]">
+
+              {/* Header: SKU / Share */}
+              <div className="pb-5 flex items-center gap-3">
+                <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-[#EBE4D8]">
+                  <span className="text-[11px] font-mono font-semibold text-[#1F332B]">
+                    SKU: {product.sku}
+                  </span>
+                  <button
+                    onClick={handleCopySku}
+                    title="Copy SKU"
+                    className="text-stone-400 hover:text-[#1F332B] transition-colors"
+                  >
+                    {copiedSku ? (
+                      <CheckCheck className="w-3.5 h-3.5 text-emerald-600" />
+                    ) : (
+                      <Copy className="w-3.5 h-3.5" />
+                    )}
+                  </button>
+                </div>
+
+                <button
+                  onClick={handleCopyLink}
+                  title="Share product link"
+                  className="p-2 rounded-full hover:bg-white text-stone-500 hover:text-[#1F332B] transition-colors"
+                >
+                  {copiedLink ? (
+                    <Check className="w-4 h-4 text-emerald-600" />
+                  ) : (
+                    <Share2 className="w-4 h-4" />
+                  )}
+                </button>
+              </div>
+
+              {/* Heading + Price */}
+              <div className="py-5 space-y-4">
+                <h2 className="font-serif-luxury text-xl sm:text-2xl font-normal text-[#1F332B] leading-snug">
                   {product.name}
                 </h2>
 
-                {/* Price & GST Section */}
-                <div className="mt-4 p-4 rounded-2xl bg-white border border-[#EBE4D8] flex items-baseline justify-between shadow-2xs">
+                <div className="flex items-end justify-between flex-wrap gap-3">
                   <div>
-                    <span className="text-[11px] uppercase tracking-wider text-stone-400 font-semibold block">
+                    <span className="text-[11px] uppercase tracking-wider text-stone-400 font-semibold font-sans block">
                       Starting Corporate Rate
                     </span>
                     <div className="flex items-baseline gap-2 mt-0.5">
-                      <span className="text-2xl sm:text-3xl font-extrabold text-[#1F332B] tracking-tight">
+                      <span className="text-xl sm:text-2xl font-semibold text-[#1F332B] tracking-tight font-sans">
                         ₹{product.price.toLocaleString('en-IN')}
                       </span>
-                      <span className="text-xs font-semibold text-stone-500">
+                      <span className="text-xs font-medium text-stone-500 font-sans">
                         + {product.gst_percent}% GST
                       </span>
                     </div>
@@ -292,10 +300,10 @@ export default function ProductDetailModal({
 
                   {product.min_order_qty && (
                     <div className="text-right">
-                      <span className="text-[10px] uppercase tracking-wider text-stone-400 font-semibold block">
+                      <span className="text-[10px] uppercase tracking-wider text-stone-400 font-semibold block font-sans">
                         Min. Order Qty
                       </span>
-                      <span className="text-sm font-bold text-[#1F332B] bg-[#FAF8F5] px-3 py-1 rounded-lg border border-[#EBE4D8] inline-block mt-0.5">
+                      <span className="text-sm font-bold text-[#1F332B] bg-white px-3 py-1 rounded-lg border border-[#EBE4D8] inline-block mt-0.5 font-sans">
                         {product.min_order_qty} units
                       </span>
                     </div>
@@ -304,29 +312,29 @@ export default function ProductDetailModal({
               </div>
 
               {/* Description */}
-              <div>
-                <h4 className="text-xs uppercase font-bold text-stone-500 tracking-wider mb-2">
+              <div className="py-5">
+                <h4 className="text-[11px] uppercase font-bold text-stone-400 tracking-wider mb-2 font-sans">
                   Product Overview
                 </h4>
-                <p className="text-sm text-stone-700 leading-relaxed font-light">
+                <p className="text-sm text-stone-600 leading-relaxed font-sans">
                   {product.description}
                 </p>
               </div>
 
               {/* Material Composition */}
               {product.material_tags && product.material_tags.length > 0 && (
-                <div>
-                  <h4 className="text-xs uppercase font-bold text-stone-500 tracking-wider mb-2.5 flex items-center gap-1.5">
+                <div className="py-5">
+                  <h4 className="text-[11px] uppercase font-bold text-stone-400 tracking-wider mb-2.5 flex items-center gap-1.5 font-sans">
                     <Leaf className="w-3.5 h-3.5 text-[#2D4A3E]" />
                     <span>Material Composition</span>
                   </h4>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-2.5">
                     {product.material_tags.map((tag, i) => (
                       <span
                         key={i}
-                        className="text-xs font-medium px-3 py-1.5 rounded-xl bg-white border border-[#EBE4D8] text-[#1F332B] shadow-2xs flex items-center gap-1.5"
+                        className="flex items-center gap-2 text-xs font-medium text-stone-700 font-sans"
                       >
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#C88B56]" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#C88B56] flex-shrink-0" />
                         {tag}
                       </span>
                     ))}
@@ -335,60 +343,67 @@ export default function ProductDetailModal({
               )}
 
               {/* Specifications Block */}
-              <div className="p-4 rounded-2xl bg-white border border-[#EBE4D8] space-y-3 shadow-2xs">
-                <h4 className="text-xs uppercase font-bold text-[#1F332B] tracking-wider flex items-center gap-1.5">
+              <div className="py-5">
+                <h4 className="text-[11px] uppercase font-bold text-[#1F332B] tracking-wider mb-3 flex items-center gap-1.5 font-sans">
                   <Layers className="w-3.5 h-3.5 text-[#C88B56]" />
                   <span>Product Specifications</span>
                 </h4>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-4 text-xs">
                   {product.specification?.dimensions && (
-                    <div className="bg-[#FAF8F5] p-2.5 rounded-xl border border-[#EBE4D8]">
-                      <span className="text-stone-400 font-medium block text-[10px] uppercase">Specification</span>
-                      <span className="font-semibold text-stone-800">{product.specification.dimensions}</span>
+                    <div>
+                      <span className="text-stone-400 font-medium block text-[10px] uppercase tracking-wider font-sans">Specification</span>
+                      <span className="font-semibold text-stone-800 font-sans">{product.specification.dimensions}</span>
                     </div>
                   )}
 
                   {product.specification?.packaging && (
-                    <div className="bg-[#FAF8F5] p-2.5 rounded-xl border border-[#EBE4D8]">
-                      <span className="text-stone-400 font-medium block text-[10px] uppercase">Packaging</span>
-                      <span className="font-semibold text-stone-800">{product.specification.packaging}</span>
+                    <div>
+                      <span className="text-stone-400 font-medium block text-[10px] uppercase tracking-wider font-sans">Packaging</span>
+                      <span className="font-semibold text-stone-800 font-sans">{product.specification.packaging}</span>
                     </div>
                   )}
 
                   {product.primary_use_case && (
-                    <div className="bg-[#FAF8F5] p-2.5 rounded-xl border border-[#EBE4D8] sm:col-span-2">
-                      <span className="text-stone-400 font-medium block text-[10px] uppercase">Ideal For</span>
-                      <span className="font-semibold text-[#1F332B]">{product.primary_use_case}</span>
+                    <div className="sm:col-span-2">
+                      <span className="text-stone-400 font-medium block text-[10px] uppercase tracking-wider font-sans">Ideal For</span>
+                      <span className="font-semibold text-[#1F332B] font-sans">{product.primary_use_case}</span>
                     </div>
                   )}
                 </div>
 
                 {/* Customization Available */}
-                <div className="pt-2 border-t border-[#F0EAE1]">
-                  <span className="text-[11px] font-semibold text-[#C88B56] block mb-1.5">
+                <div className="mt-4 pt-4 border-t border-[#E4DDD2]">
+                  <span className="text-xs font-semibold text-[#C88B56] block mb-2 font-sans">
                     ✨ Customization Available:
                   </span>
-                  <div className="flex flex-wrap gap-1.5 text-[11px] text-stone-600">
-                    <span className="bg-[#FAF8F5] px-2 py-0.5 rounded border border-[#EBE4D8]">Laser Logo Engraving</span>
-                    <span className="bg-[#FAF8F5] px-2 py-0.5 rounded border border-[#EBE4D8]">Custom Packaging</span>
-                    <span className="bg-[#FAF8F5] px-2 py-0.5 rounded border border-[#EBE4D8]">Personalized Messages</span>
+                  <div className="flex flex-wrap gap-x-4 gap-y-1.5 text-xs font-medium text-stone-600">
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#C88B56]" />Laser Logo Engraving
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#C88B56]" />Custom Packaging
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#C88B56]" />Personalized Messages
+                    </span>
                   </div>
                 </div>
               </div>
 
               {/* Primary & Secondary Use Cases */}
               {product.secondary_use_cases && product.secondary_use_cases.length > 0 && (
-                <div>
-                  <h4 className="text-xs uppercase font-bold text-stone-500 tracking-wider mb-2">
+                <div className="py-5">
+                  <h4 className="text-[11px] uppercase font-bold text-stone-400 tracking-wider mb-2 font-sans">
                     Recommended Gifting Occasions
                   </h4>
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="flex flex-wrap gap-x-4 gap-y-2">
                     {product.secondary_use_cases.map((uc, idx) => (
                       <span
                         key={idx}
-                        className="text-[11px] font-medium px-2.5 py-1 rounded-lg bg-stone-100 text-stone-700"
+                        className="flex items-center gap-1.5 text-xs font-medium text-stone-700 font-sans"
                       >
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#C88B56] flex-shrink-0" />
                         {uc}
                       </span>
                     ))}
@@ -397,31 +412,6 @@ export default function ProductDetailModal({
               )}
 
             </div>
-          </div>
-        </div>
-
-        {/* Modal Bottom Sticky Actions */}
-        <div className="p-4 sm:p-6 bg-white border-t border-[#EBE4D8] flex flex-col sm:flex-row items-center justify-between gap-3">
-          <Link
-            href={`/catalogue/${product.sku}`}
-            onClick={onClose}
-            className="w-full sm:w-auto px-5 py-3 rounded-xl border border-[#DCD1C4] text-[#1F332B] hover:bg-[#FAF8F5] text-xs font-bold flex items-center justify-center gap-1.5 transition-all order-2 sm:order-1"
-          >
-            <span>Open Dedicated Page</span>
-            <ArrowUpRight className="w-4 h-4 text-stone-400" />
-          </Link>
-
-          <div className="w-full sm:w-auto flex items-center gap-3 order-1 sm:order-2">
-            <button
-              onClick={() => {
-                onClose();
-                onEnquire?.(product);
-              }}
-              className="w-full sm:w-auto px-8 py-3.5 rounded-xl bg-[#1F332B] hover:bg-[#2D4A3E] text-white text-sm font-bold flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all"
-            >
-              <Sparkles className="w-4 h-4 text-[#E4B58A]" />
-              <span>Enquire For Custom Quote</span>
-            </button>
           </div>
         </div>
 

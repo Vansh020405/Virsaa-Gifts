@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { AuthProvider } from '../context/AuthContext';
+import PageScroller from '../components/PageScroller';
 
 export const metadata: Metadata = {
   title: 'Virsaa Gifts | Sustainable & Customizable Corporate Gifting',
@@ -17,7 +18,7 @@ export default function RootLayout({
     <html lang="en" className="scroll-smooth">
       <body className="antialiased min-h-screen bg-[#FAF8F5] text-[#1C1917]">
         <AuthProvider>
-          {children}
+          <PageScroller>{children}</PageScroller>
         </AuthProvider>
       </body>
     </html>

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { dbService } from '../../../lib/supabase/db-service';
 import { Enquiry } from '../../../lib/supabase/types';
-import { Users, Mail, Phone, Building2, ShieldCheck, Sparkles } from 'lucide-react';
+import { Users } from 'lucide-react';
 
 export default function AdminUsersPage() {
   const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
@@ -17,9 +17,9 @@ export default function AdminUsersPage() {
       <div>
         <div className="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-[#C88B56] font-bold mb-1">
           <Users className="w-3.5 h-3.5" />
-          <span>Corporate Directory</span>
+          <span>Customers</span>
         </div>
-        <h1 className="font-serif-luxury text-3xl font-bold text-[#1F332B]">Registered Clients & B2B Leads</h1>
+        <h1 className="font-sans text-3xl font-bold tracking-tight text-[#1F332B]">Customers</h1>
       </div>
 
       <div className="bg-white rounded-3xl border border-[#E8DFC8] shadow-xs overflow-hidden">

@@ -1,20 +1,18 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Settings, Database, ShieldCheck, Check, Key, Bell } from 'lucide-react';
+import React from 'react';
+import { Settings, Database } from 'lucide-react';
 import { isSupabaseConfigured } from '../../../lib/supabase/client';
 
 export default function AdminSettingsPage() {
-  const [saved, setSaved] = useState(false);
-
   return (
     <div className="p-8 space-y-6 max-w-4xl w-full mx-auto">
       <div>
         <div className="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-[#C88B56] font-bold mb-1">
           <Settings className="w-3.5 h-3.5" />
-          <span>System & Credentials</span>
+          <span>Settings</span>
         </div>
-        <h1 className="font-serif-luxury text-3xl font-bold text-[#1F332B]">Platform Settings</h1>
+        <h1 className="font-sans text-3xl font-bold tracking-tight text-[#1F332B]">Settings</h1>
       </div>
 
       <div className="bg-white p-6 rounded-3xl border border-[#E8DFC8] shadow-xs space-y-6">
@@ -28,7 +26,7 @@ export default function AdminSettingsPage() {
               <p className="text-xs text-stone-500">
                 {isSupabaseConfigured
                   ? 'Connected to live Supabase project'
-                  : 'Operating in High-Performance Local / LocalStorage Mode with Instant Sync'}
+                  : 'Operating in local mode'}
               </p>
             </div>
           </div>

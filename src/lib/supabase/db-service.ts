@@ -1,5 +1,5 @@
 import { supabase, isSupabaseConfigured } from './client';
-import { Product, Category, Collection, Enquiry, EnquiryMessage, EnquiryStatus } from './types';
+import { Product, Category, Collection, Enquiry, EnquiryMessage, EnquiryStatus, ProductImage } from './types';
 import { INITIAL_PRODUCTS, INITIAL_CATEGORIES, INITIAL_COLLECTIONS, INITIAL_ENQUIRIES } from './mock-data';
 
 const STORAGE_KEYS = {
@@ -28,6 +28,80 @@ function setLocalItem<T>(key: string, data: T): void {
   } catch (err) {
     console.error('Error writing to local storage', err);
   }
+}
+
+// Resolve a product's display category name from its category_id when not provided.
+function resolveCategoryName(product: Pick<Product, 'category_id' | 'category_name' | 'subcategory'>): string {
+  if (product.category_name) return product.category_name;
+  const cat = INITIAL_CATEGORIES.find((c) => c.id === product.category_id);
+  return cat?.name || product.subcategory;
+}
+
+// Map a Product to the `products` table columns (images live in product_images).
+// NOTE: the live products table has no category_name column — names are
+// resolved client-side from category_id via resolveCategoryName().
+function toProductRow(p: Product) {
+  return {
+    id: p.id,
+    sku: p.sku,
+    name: p.name,
+    category_id: p.category_id,
+    subcategory: p.subcategory ?? null,
+    price: p.price,
+    gst_percent: p.gst_percent,
+    description: p.description ?? null,
+    specification: p.specification ?? {},
+    primary_use_case: p.primary_use_case ?? null,
+    secondary_use_cases: p.secondary_use_cases ?? [],
+    material_tags: p.material_tags ?? [],
+    tier: p.tier ?? null,
+    speed: p.speed ?? null,
+    featured: p.featured ?? false,
+    min_order_qty: p.min_order_qty ?? null,
+    collections: p.collections ?? [],
+    created_at: p.created_at,
+    updated_at: p.updated_at,
+  };
+}
+
+// Demo personas use string ids ('usr-1'/'admin-1') while the live DB stores
+// user_id as uuid — only pass through values that are real UUIDs.
+function isUuid(value: unknown): value is string {
+  return typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+}
+
+// Map an Enquiry to the `enquiries` table columns (messages live in enquiry_messages).
+function toEnquiryRow(e: Enquiry) {
+  return {
+    id: e.id,
+    user_id: e.user_id && isUuid(e.user_id) ? e.user_id : null,
+    product_id: e.product_id ?? null,
+    product_sku: e.product_sku ?? null,
+    product_name: e.product_name ?? null,
+    product_image: e.product_image ?? null,
+    name: e.name,
+    email: e.email,
+    phone: e.phone ?? null,
+    company_name: e.company_name ?? null,
+    quantity: e.quantity ?? 20,
+    customization_requirements: e.customization_requirements ?? null,
+    message: e.message ?? null,
+    status: e.status ?? 'New',
+    admin_notes: e.admin_notes ?? null,
+    created_at: e.created_at,
+    updated_at: e.updated_at,
+  };
+}
+
+// Build `product_images` rows from a product's embedded images.
+function toImageRows(productId: string, images: ProductImage[]) {
+  return images.map((img, i) => ({
+    id: img.id || `img-${productId}-${i + 1}`,
+    product_id: productId,
+    storage_path: img.storage_path,
+    image_type: img.image_type,
+    sort_order: img.sort_order ?? i + 1,
+  }));
 }
 
 export const dbService = {
@@ -137,7 +211,8 @@ export const dbService = {
       list = list.slice(start, end);
     }
 
-    return { products: list, total };
+    const hydrated = list.map((p) => ({ ...p, category_name: resolveCategoryName(p) }));
+    return { products: hydrated, total };
   },
 
   async getProductBySku(sku: string): Promise<Product | null> {
@@ -154,7 +229,9 @@ export const dbService = {
       }
     }
     const list = getLocalItem<Product[]>(STORAGE_KEYS.PRODUCTS, INITIAL_PRODUCTS);
-    return list.find((p) => p.sku.toLowerCase() === sku.toLowerCase()) || null;
+    const found = list.find((p) => p.sku.toLowerCase() === sku.toLowerCase());
+    if (!found) return null;
+    return { ...found, category_name: resolveCategoryName(found) };
   },
 
   async getCategories(): Promise<Category[]> {
@@ -167,6 +244,26 @@ export const dbService = {
       }
     }
     return getLocalItem<Category[]>(STORAGE_KEYS.CATEGORIES, INITIAL_CATEGORIES);
+  },
+
+  async createCategory(category: Omit<Category, 'id'>): Promise<Category> {
+    const newCat: Category = {
+      ...category,
+      id: 'cat-' + Date.now() + Math.random().toString(36).slice(2, 5),
+    };
+
+    const current = getLocalItem<Category[]>(STORAGE_KEYS.CATEGORIES, INITIAL_CATEGORIES);
+    setLocalItem(STORAGE_KEYS.CATEGORIES, [...current, newCat]);
+
+    if (isSupabaseConfigured && supabase) {
+      try {
+        const { error } = await supabase.from('categories').insert([newCat]);
+        if (error) console.warn('Supabase createCategory failed:', error.message);
+      } catch (err) {
+        console.warn('Supabase createCategory failed:', err);
+      }
+    }
+    return newCat;
   },
 
   async getCollections(): Promise<Collection[]> {
@@ -204,8 +301,13 @@ export const dbService = {
 
     if (isSupabaseConfigured && supabase) {
       try {
-        const { data, error } = await supabase.from('enquiries').insert([newEnquiry]).select().single();
-        if (!error && data) return data as Enquiry;
+        const { error } = await supabase
+          .from('enquiries')
+          .insert([toEnquiryRow(newEnquiry)]);
+        if (!error && newEnquiry.messages && newEnquiry.messages.length > 0) {
+          await supabase.from('enquiry_messages').insert([newEnquiry.messages[0]]);
+        }
+        if (!error) return newEnquiry;
       } catch (err) {
         console.warn('Supabase insert enquiry failed, stored in local:', err);
       }
@@ -221,7 +323,9 @@ export const dbService = {
     if (isSupabaseConfigured && supabase) {
       try {
         let query = supabase.from('enquiries').select('*, messages:enquiry_messages(*)').order('created_at', { ascending: false });
-        if (params?.userId) query = query.eq('user_id', params.userId);
+        // Demo personas use non-uuid ids, so they own every enquiry in this
+        // single-tenant demo; only filter when the id is a real UUID.
+        if (params?.userId && isUuid(params.userId)) query = query.eq('user_id', params.userId);
         if (params?.status && params.status !== 'all') query = query.eq('status', params.status);
         const { data, error } = await query;
         if (!error && data) return data as Enquiry[];
@@ -346,7 +450,7 @@ export const dbService = {
   async createProduct(product: Omit<Product, 'id' | 'created_at' | 'updated_at'>): Promise<Product> {
     const newProd: Product = {
       ...product,
-      id: 'prod-' + Date.now(),
+      id: 'prod-' + Date.now() + Math.random().toString(36).slice(2, 7),
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
@@ -357,7 +461,11 @@ export const dbService = {
 
     if (isSupabaseConfigured && supabase) {
       try {
-        await supabase.from('products').insert([newProd]);
+        const { error } = await supabase.from('products').insert([toProductRow(newProd)]);
+        if (!error && newProd.images && newProd.images.length > 0) {
+          await supabase.from('product_images').insert(toImageRows(newProd.id, newProd.images));
+        }
+        if (error) console.warn('Supabase createProduct failed:', error.message);
       } catch (err) {
         console.warn('Supabase createProduct failed:', err);
       }
@@ -366,6 +474,8 @@ export const dbService = {
   },
 
   async updateProduct(id: string, updates: Partial<Product>): Promise<Product | null> {
+    const { images, ...scalarUpdates } = updates;
+
     const current = getLocalItem<Product[]>(STORAGE_KEYS.PRODUCTS, INITIAL_PRODUCTS);
     let updatedProd: Product | null = null;
     const updatedList = current.map((p) => {
@@ -379,7 +489,21 @@ export const dbService = {
 
     if (isSupabaseConfigured && supabase) {
       try {
-        await supabase.from('products').update(updates).eq('id', id);
+        const safeScalarUpdates = Object.fromEntries(
+          Object.entries(scalarUpdates).filter(([k, v]) => v !== undefined && k !== 'category_name')
+        );
+        if (Object.keys(safeScalarUpdates).length > 0) {
+          await supabase
+            .from('products')
+            .update({ ...safeScalarUpdates, updated_at: new Date().toISOString() })
+            .eq('id', id);
+        }
+        if (images) {
+          await supabase.from('product_images').delete().eq('product_id', id);
+          if (images.length > 0) {
+            await supabase.from('product_images').insert(toImageRows(id, images));
+          }
+        }
       } catch (err) {
         console.warn('Supabase updateProduct failed:', err);
       }
@@ -410,6 +534,35 @@ export const dbService = {
     pendingReplies: number;
     estimatedPipelineValue: number;
   }> {
+    if (isSupabaseConfigured && supabase) {
+      try {
+        const [prodRes, enqRes] = await Promise.all([
+          supabase.from('products').select('id, sku, price'),
+          supabase.from('enquiries').select('id, product_id, product_sku, quantity, status'),
+        ]);
+        if (!prodRes.error && !enqRes.error) {
+          const products = (prodRes.data || []) as Array<{ id: string; sku: string; price: number }>;
+          const enquiries = enqRes.data || [];
+          const newEnquiries = enquiries.filter((e) => e.status === 'New').length;
+          const inReview = enquiries.filter((e) => e.status === 'In Review').length;
+          const estimatedPipelineValue = enquiries.reduce((sum, e) => {
+            const prod = products.find((p) => p.id === e.product_id || p.sku === e.product_sku);
+            const unitPrice = Number(prod?.price) || 1500;
+            return sum + (e.quantity ?? 20) * unitPrice;
+          }, 0);
+          return {
+            totalProducts: products.length,
+            totalEnquiries: enquiries.length,
+            newEnquiries,
+            pendingReplies: newEnquiries + inReview,
+            estimatedPipelineValue,
+          };
+        }
+      } catch (err) {
+        console.warn('Supabase getAdminStats failed, using local:', err);
+      }
+    }
+
     const products = getLocalItem<Product[]>(STORAGE_KEYS.PRODUCTS, INITIAL_PRODUCTS);
     const enquiries = getLocalItem<Enquiry[]>(STORAGE_KEYS.ENQUIRIES, INITIAL_ENQUIRIES);
 

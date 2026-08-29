@@ -8,16 +8,9 @@ import { Enquiry, Product } from '../../lib/supabase/types';
 import { 
   Package, 
   MessageSquareText, 
-  Sparkles, 
-  TrendingUp, 
   AlertCircle, 
-  CheckCircle2, 
   ArrowRight, 
-  Clock, 
-  Building2, 
-  User, 
-  PlusCircle,
-  ExternalLink
+  Building2
 } from 'lucide-react';
 
 export default function AdminDashboardPage() {
@@ -32,24 +25,26 @@ export default function AdminDashboardPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const loadData = async () => {
-    setLoading(true);
-    try {
-      const [st, enq, prod] = await Promise.all([
-        dbService.getAdminStats(),
-        dbService.getEnquiries(),
-        dbService.getProducts({ limit: 5 }),
-      ]);
-      setStats(st);
-      setRecentEnquiries(enq.slice(0, 6));
-      setProducts(prod.products);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    loadData();
+    let cancelled = false;
+    (async () => {
+      try {
+        const [st, enq, prod] = await Promise.all([
+          dbService.getAdminStats(),
+          dbService.getEnquiries(),
+          dbService.getProducts({ limit: 5 }),
+        ]);
+        if (cancelled) return;
+        setStats(st);
+        setRecentEnquiries(enq.slice(0, 6));
+        setProducts(prod.products);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const statusBadge = (status: string) => {
@@ -71,26 +66,17 @@ export default function AdminDashboardPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-[#C88B56] font-bold mb-1">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Executive Studio Dashboard</span>
+            <span>Dashboard</span>
           </div>
-          <h1 className="font-serif-luxury text-3xl font-bold text-[#1F332B]">
-            Virsaa Corporate Command Center
+          <h1 className="font-sans text-3xl font-bold tracking-tight text-[#1F332B]">
+            Admin Dashboard
           </h1>
           <p className="text-xs sm:text-sm text-stone-500 mt-1">
-            Real-time tracking of sustainable corporate gifting leads, artisan catalogue & communications.
+            Enquiries, catalogue and customer activity at a glance.
           </p>
         </div>
 
         <div className="flex items-center gap-3">
-          <Link
-            href="/admin/products"
-            className="px-4 py-2.5 rounded-xl bg-white border border-[#DCD1C4] text-[#1F332B] hover:bg-[#FAF8F5] text-xs font-semibold flex items-center gap-2 shadow-2xs transition"
-          >
-            <PlusCircle className="w-4 h-4 text-[#C88B56]" />
-            <span>Add New Product</span>
-          </Link>
-
           <Link
             href="/admin/enquiries"
             className="px-4 py-2.5 rounded-xl bg-[#1F332B] hover:bg-[#2D4A3E] text-white text-xs font-bold flex items-center gap-2 shadow-sm transition"
@@ -102,55 +88,41 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Overview Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Card 1: Total Products */}
-        <div className="bg-white p-6 rounded-3xl border border-[#E8DFC8] shadow-xs">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-xs font-bold uppercase tracking-wider text-stone-500">Total Products</span>
-            <div className="w-10 h-10 rounded-xl bg-[#1F332B]/10 text-[#1F332B] flex items-center justify-center">
-              <Package className="w-5 h-5" />
-            </div>
+        <div className="bg-white px-5 py-4 rounded-2xl border border-[#E8DFC8] shadow-xs flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <span className="block text-[11px] font-bold uppercase tracking-wider text-stone-500 mb-0.5">Total Products</span>
+            <div className="text-2xl font-bold tracking-tight text-[#1F332B]">{stats.totalProducts}</div>
+            <p className="text-[11px] text-stone-500">Products in the catalogue</p>
           </div>
-          <div className="text-3xl font-bold text-[#1F332B]">{stats.totalProducts}</div>
-          <p className="text-[11px] text-stone-500 mt-1">Active SKUs across 5 materials</p>
+          <div className="w-9 h-9 shrink-0 rounded-lg bg-[#1F332B]/10 text-[#1F332B] flex items-center justify-center">
+            <Package className="w-4 h-4" />
+          </div>
         </div>
 
         {/* Card 2: Total Enquiries */}
-        <div className="bg-white p-6 rounded-3xl border border-[#E8DFC8] shadow-xs">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-xs font-bold uppercase tracking-wider text-stone-500">Total Enquiries</span>
-            <div className="w-10 h-10 rounded-xl bg-[#C88B56]/15 text-[#9E5A38] flex items-center justify-center">
-              <MessageSquareText className="w-5 h-5" />
-            </div>
+        <div className="bg-white px-5 py-4 rounded-2xl border border-[#E8DFC8] shadow-xs flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <span className="block text-[11px] font-bold uppercase tracking-wider text-stone-500 mb-0.5">Total Enquiries</span>
+            <div className="text-2xl font-bold tracking-tight text-[#1F332B]">{stats.totalEnquiries}</div>
+            <p className="text-[11px] text-stone-500">Total enquiries received</p>
           </div>
-          <div className="text-3xl font-bold text-[#1F332B]">{stats.totalEnquiries}</div>
-          <p className="text-[11px] text-stone-500 mt-1">Lifetime B2B institutional leads</p>
+          <div className="w-9 h-9 shrink-0 rounded-lg bg-[#C88B56]/15 text-[#9E5A38] flex items-center justify-center">
+            <MessageSquareText className="w-4 h-4" />
+          </div>
         </div>
 
         {/* Card 3: New Enquiries */}
-        <div className="bg-white p-6 rounded-3xl border border-[#E8DFC8] shadow-xs">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-xs font-bold uppercase tracking-wider text-stone-500">New Enquiries</span>
-            <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-900 flex items-center justify-center">
-              <AlertCircle className="w-5 h-5" />
-            </div>
+        <div className="bg-white px-5 py-4 rounded-2xl border border-[#E8DFC8] shadow-xs flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <span className="block text-[11px] font-bold uppercase tracking-wider text-stone-500 mb-0.5">New Enquiries</span>
+            <div className="text-2xl font-bold tracking-tight text-amber-700">{stats.newEnquiries}</div>
+            <p className="text-[11px] text-stone-500">Awaiting first response</p>
           </div>
-          <div className="text-3xl font-bold text-amber-700">{stats.newEnquiries}</div>
-          <p className="text-[11px] text-stone-500 mt-1">Awaiting first response</p>
-        </div>
-
-        {/* Card 4: Estimated Pipeline */}
-        <div className="bg-white p-6 rounded-3xl border border-[#E8DFC8] shadow-xs">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-xs font-bold uppercase tracking-wider text-stone-500">Pipeline Value</span>
-            <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center">
-              <TrendingUp className="w-5 h-5" />
-            </div>
+          <div className="w-9 h-9 shrink-0 rounded-lg bg-amber-100 text-amber-900 flex items-center justify-center">
+            <AlertCircle className="w-4 h-4" />
           </div>
-          <div className="text-3xl font-bold text-emerald-800">
-            ₹{(stats.estimatedPipelineValue / 100000).toFixed(1)}L
-          </div>
-          <p className="text-[11px] text-stone-500 mt-1">Estimated order book value</p>
         </div>
       </div>
 
@@ -158,11 +130,11 @@ export default function AdminDashboardPage() {
       <div className="bg-white rounded-3xl border border-[#E8DFC8] shadow-xs overflow-hidden">
         <div className="p-6 border-b border-[#F0EAE1] flex items-center justify-between">
           <div>
-            <h2 className="font-serif-luxury font-bold text-lg text-[#1F332B]">
-              Recent Corporate Enquiries
+            <h2 className="font-sans font-bold text-lg text-[#1F332B]">
+              Recent Enquiries
             </h2>
             <p className="text-xs text-stone-500">
-              Incoming client requests needing customization and quotation review
+              Latest enquiries submitted through the site
             </p>
           </div>
 
@@ -242,17 +214,16 @@ export default function AdminDashboardPage() {
         )}
       </div>
 
-      {/* Quick Catalog Status */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white p-6 rounded-3xl border border-[#E8DFC8] shadow-xs">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-serif-luxury font-bold text-base text-[#1F332B]">
-              Quick Featured Products
-            </h3>
-            <Link href="/admin/products" className="text-xs font-bold text-[#C88B56] hover:underline">
-              Manage Catalog →
-            </Link>
-          </div>
+      {/* Featured Products */}
+      <div className="bg-white px-6 py-5 rounded-2xl border border-[#E8DFC8] shadow-xs">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-sans font-bold text-base text-[#1F332B]">
+            Featured Products
+          </h3>
+          <Link href="/admin/products" className="text-xs font-bold text-[#C88B56] hover:underline">
+            Manage Catalogue →
+          </Link>
+        </div>
           <div className="space-y-3">
             {products.slice(0, 3).map((p) => (
               <div key={p.id} className="flex items-center justify-between p-3 rounded-xl bg-[#FAF8F5] border border-[#F0EAE1]">
@@ -277,30 +248,6 @@ export default function AdminDashboardPage() {
             ))}
           </div>
         </div>
-
-        <div className="bg-gradient-to-br from-[#1F332B] to-[#14261F] text-white p-6 rounded-3xl shadow-xs flex flex-col justify-between">
-          <div>
-            <div className="inline-flex items-center gap-1.5 text-[11px] text-[#E4B58A] font-bold uppercase tracking-wider mb-2">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Direct Supabase Sync</span>
-            </div>
-            <h3 className="font-serif-luxury text-xl font-bold text-white mb-2">
-              Real-time Database Active
-            </h3>
-            <p className="text-xs text-stone-300 leading-relaxed">
-              Every client submission, custom message and product edit is synchronized instantly across the customer catalogue and admin dashboards.
-            </p>
-          </div>
-
-          <div className="pt-4 flex items-center justify-between border-t border-white/15 text-xs text-stone-300">
-            <span>Status: Operational (Local + Remote Ready)</span>
-            <Link href="/catalogue" target="_blank" className="text-[#E4B58A] hover:underline flex items-center gap-1">
-              <span>View Storefront</span>
-              <ExternalLink className="w-3 h-3" />
-            </Link>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

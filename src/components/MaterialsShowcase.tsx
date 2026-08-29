@@ -89,13 +89,13 @@ export default function MaterialsShowcase() {
       <div className="absolute -top-32 -left-32 w-96 h-96 bg-[#C88B56]/20 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-[#2D4A3E]/40 rounded-full blur-3xl pointer-events-none" />
 
-      <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto text-white relative">
+      <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 relative">
+        <div className="max-w-7xl mx-auto text-white">
           {/* Section Heading */}
           <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-            <h2 className="font-serif-luxury text-3xl sm:text-4xl font-normal tracking-tight text-white leading-tight">
+            <h2 className="text-gold-gradient font-serif-luxury text-3xl sm:text-4xl font-normal tracking-tight leading-tight">
               Rooted in Nature. <br />
-              <span className="text-gold-gradient">Elevated by Indian Craftsmanship.</span>
+              Elevated by Indian Craftsmanship.
             </h2>
             <p className="text-stone-300 text-sm sm:text-base leading-relaxed font-sans mt-3">
               Every material in the Virsaa atelier is handpicked for its tactile dignity, environmental regeneration, and longevity. We replace plastic disposable swag with timeless natural artifacts.

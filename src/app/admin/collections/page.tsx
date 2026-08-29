@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { dbService } from '../../../lib/supabase/db-service';
 import { Collection } from '../../../lib/supabase/types';
-import { Sparkles, Layers } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 
 export default function AdminCollectionsPage() {
   const [collections, setCollections] = useState<Collection[]>([]);
@@ -18,9 +18,9 @@ export default function AdminCollectionsPage() {
         <div>
           <div className="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-[#C88B56] font-bold mb-1">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Curated Themes</span>
+            <span>Collections</span>
           </div>
-          <h1 className="font-serif-luxury text-3xl font-bold text-[#1F332B]">Artisan Collections</h1>
+          <h1 className="font-sans text-3xl font-bold tracking-tight text-[#1F332B]">Collections</h1>
         </div>
       </div>
 
@@ -33,7 +33,7 @@ export default function AdminCollectionsPage() {
                 {col.slug}
               </span>
             </div>
-            <h3 className="font-serif-luxury font-bold text-lg text-[#1F332B]">{col.name}</h3>
+            <h3 className="font-sans font-bold text-lg text-[#1F332B]">{col.name}</h3>
             <p className="text-xs text-stone-600 mt-2 leading-relaxed">{col.description}</p>
           </div>
         ))}

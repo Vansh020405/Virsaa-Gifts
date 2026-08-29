@@ -1,186 +1,231 @@
--- =========================================================================
--- VirSaa Gifts Complete Database Schema & Row Level Security (RLS)
--- Run this in Supabase Dashboard -> SQL Editor
--- =========================================================================
+-- =============================================================================
+-- Virsaa Gifts — Supabase Schema
+-- Run this in the Supabase SQL Editor (https://supabase.com/dashboard > SQL).
+-- It creates every table the app expects, enables RLS with permissive policies,
+-- and creates the public `product-images` storage bucket.
+-- =============================================================================
 
--- 1. EXTENSIONS
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
--- 2. ENUMS
-DO $$ BEGIN
-  CREATE TYPE product_tier AS ENUM ('Essential', 'Premium', 'Signature', 'Luxury', 'Executive', 'Artisan Luxe', 'Eco Essentials');
-EXCEPTION
-  WHEN duplicate_object THEN null;
-END $$;
-
-DO $$ BEGIN
-  CREATE TYPE speed_type AS ENUM ('Ready to Ship', '3-5 Days', '7-10 Days', 'Custom Made (14 Days)', 'Fast', 'Medium', 'Slow');
-EXCEPTION
-  WHEN duplicate_object THEN null;
-END $$;
-
-DO $$ BEGIN
-  CREATE TYPE enquiry_status AS ENUM ('New', 'In Review', 'Replied', 'Closed');
-EXCEPTION
-  WHEN duplicate_object THEN null;
-END $$;
-
-DO $$ BEGIN
-  CREATE TYPE sender_role AS ENUM ('customer', 'admin');
-EXCEPTION
-  WHEN duplicate_object THEN null;
-END $$;
-
--- 3. PROFILES / USERS
-CREATE TABLE IF NOT EXISTS public.profiles (
-  id UUID REFERENCES auth.users ON DELETE CASCADE PRIMARY KEY,
-  name TEXT NOT NULL,
-  email TEXT NOT NULL,
-  phone TEXT,
-  company_name TEXT,
-  role TEXT DEFAULT 'customer' CHECK (role IN ('customer', 'admin')),
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+-- -----------------------------------------------------------------------------
+-- PROFILES (mirrors Auth users for demo/admin personas)
+-- -----------------------------------------------------------------------------
+create table if not exists public.profiles (
+  id            text primary key,
+  name          text,
+  email         text,
+  phone         text,
+  company_name  text,
+  role          text not null default 'customer' check (role in ('customer', 'admin')),
+  created_at    timestamptz not null default now(),
+  updated_at    timestamptz not null default now()
 );
 
--- 4. CATEGORIES
-CREATE TABLE IF NOT EXISTS public.categories (
-  id TEXT PRIMARY KEY,
-  name TEXT NOT NULL,
-  slug TEXT UNIQUE NOT NULL,
-  description TEXT,
-  icon TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+-- -----------------------------------------------------------------------------
+-- CATEGORIES
+-- -----------------------------------------------------------------------------
+create table if not exists public.categories (
+  id          text primary key,
+  name        text not null,
+  slug        text not null unique,
+  description text,
+  icon        text,
+  created_at  timestamptz not null default now()
 );
 
--- 5. COLLECTIONS
-CREATE TABLE IF NOT EXISTS public.collections (
-  id TEXT PRIMARY KEY,
-  name TEXT NOT NULL,
-  slug TEXT UNIQUE NOT NULL,
-  description TEXT,
-  banner_image TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+-- -----------------------------------------------------------------------------
+-- COLLECTIONS
+-- -----------------------------------------------------------------------------
+create table if not exists public.collections (
+  id          text primary key,
+  name        text not null,
+  slug        text not null unique,
+  description text,
+  banner_image text,
+  created_at  timestamptz not null default now()
 );
 
--- 6. PRODUCTS
-CREATE TABLE IF NOT EXISTS public.products (
-  id TEXT PRIMARY KEY,
-  sku TEXT UNIQUE NOT NULL,
-  name TEXT NOT NULL,
-  category_id TEXT REFERENCES public.categories(id) ON DELETE SET NULL,
-  subcategory TEXT,
-  price NUMERIC(10, 2) NOT NULL DEFAULT 0,
-  gst_percent NUMERIC(4, 2) DEFAULT 5,
-  description TEXT,
-  specification JSONB DEFAULT '{}'::jsonb,
-  primary_use_case TEXT,
-  secondary_use_cases TEXT[] DEFAULT ARRAY[]::TEXT[],
-  material_tags TEXT[] DEFAULT ARRAY[]::TEXT[],
-  tier product_tier DEFAULT 'Essential',
-  speed speed_type DEFAULT '3-5 Days',
-  featured BOOLEAN DEFAULT false,
-  min_order_qty INTEGER DEFAULT 10,
-  collections TEXT[] DEFAULT ARRAY[]::TEXT[],
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+-- -----------------------------------------------------------------------------
+-- PRODUCTS
+-- NOTE: mirrors the live table — there is no category_name column; display
+-- names are resolved from category_id on the client (see resolveCategoryName).
+-- -----------------------------------------------------------------------------
+create table if not exists public.products (
+  id                  text primary key,
+  sku                 text not null unique,
+  name                text not null,
+  category_id         text references public.categories(id),
+  subcategory         text,
+  price               numeric not null default 0,
+  gst_percent         integer not null default 18,
+  description         text,
+  specification       jsonb not null default '{}'::jsonb,
+  primary_use_case    text,
+  secondary_use_cases jsonb not null default '[]'::jsonb,
+  material_tags       jsonb not null default '[]'::jsonb,
+  tier                text,
+  speed               text,
+  featured            boolean not null default false,
+  min_order_qty       integer,
+  collections         jsonb not null default '[]'::jsonb,
+  is_active           boolean not null default true,
+  created_at          timestamptz not null default now(),
+  updated_at          timestamptz not null default now()
 );
 
--- 7. PRODUCT IMAGES
-CREATE TABLE IF NOT EXISTS public.product_images (
-  id TEXT PRIMARY KEY,
-  product_id TEXT REFERENCES public.products(id) ON DELETE CASCADE,
-  storage_path TEXT NOT NULL,
-  image_type TEXT DEFAULT 'primary' CHECK (image_type IN ('primary', 'gallery', 'packaging', 'craft')),
-  sort_order INTEGER DEFAULT 1,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+-- -----------------------------------------------------------------------------
+-- PRODUCT IMAGES (one-to-many: allows multiple uploads per product)
+-- -----------------------------------------------------------------------------
+create table if not exists public.product_images (
+  id          text primary key,
+  product_id  text not null references public.products(id) on delete cascade,
+  storage_path text not null,
+  image_type  text not null default 'gallery' check (image_type in ('primary', 'gallery', 'packaging', 'craft')),
+  sort_order  integer not null default 1,
+  created_at  timestamptz not null default now()
 );
 
--- 8. ENQUIRIES
-CREATE TABLE IF NOT EXISTS public.enquiries (
-  id TEXT PRIMARY KEY DEFAULT ('enq-' || floor(extract(epoch from now()))),
-  user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
-  product_id TEXT REFERENCES public.products(id) ON DELETE SET NULL,
-  product_sku TEXT,
-  product_name TEXT,
-  product_image TEXT,
-  name TEXT NOT NULL,
-  email TEXT NOT NULL,
-  phone TEXT NOT NULL,
-  company_name TEXT,
-  quantity INTEGER NOT NULL DEFAULT 20,
-  customization_requirements TEXT,
-  message TEXT NOT NULL,
-  status enquiry_status DEFAULT 'New',
-  admin_notes TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+create index if not exists product_images_product_id_idx on public.product_images (product_id);
+create index if not exists products_created_at_idx on public.products (created_at desc);
+
+-- -----------------------------------------------------------------------------
+-- ENQUIRIES (customer proposals → admin dashboard)
+-- -----------------------------------------------------------------------------
+create table if not exists public.enquiries (
+  id                       text primary key,
+  user_id                  text,
+  product_id               text,
+  product_sku              text,
+  product_name             text,
+  product_image            text,
+  name                     text not null,
+  email                    text not null,
+  phone                    text,
+  company_name             text,
+  quantity                 integer not null default 20,
+  customization_requirements text,
+  message                  text,
+  status                   text not null default 'New' check (status in ('New', 'In Review', 'Replied', 'Closed')),
+  admin_notes              text,
+  created_at               timestamptz not null default now(),
+  updated_at               timestamptz not null default now()
 );
 
--- 9. ENQUIRY MESSAGES
-CREATE TABLE IF NOT EXISTS public.enquiry_messages (
-  id TEXT PRIMARY KEY DEFAULT ('msg-' || floor(extract(epoch from now()))),
-  enquiry_id TEXT REFERENCES public.enquiries(id) ON DELETE CASCADE,
-  sender_id TEXT NOT NULL,
-  sender_name TEXT,
-  sender_type sender_role DEFAULT 'customer',
-  message TEXT NOT NULL,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+create index if not exists enquiries_created_at_idx on public.enquiries (created_at desc);
+create index if not exists enquiries_status_idx on public.enquiries (status);
+
+-- -----------------------------------------------------------------------------
+-- ENQUIRY MESSAGES (customer ⇄ admin thread)
+-- -----------------------------------------------------------------------------
+create table if not exists public.enquiry_messages (
+  id          text primary key,
+  enquiry_id  text not null references public.enquiries(id) on delete cascade,
+  sender_id   text,
+  sender_name text,
+  sender_type text not null default 'customer' check (sender_type in ('customer', 'admin')),
+  message     text,
+  created_at  timestamptz not null default now()
 );
 
--- 10. NOTIFICATIONS
-CREATE TABLE IF NOT EXISTS public.notifications (
-  id TEXT PRIMARY KEY DEFAULT ('notif-' || floor(extract(epoch from now()))),
-  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-  enquiry_id TEXT REFERENCES public.enquiries(id) ON DELETE CASCADE,
-  title TEXT,
-  type TEXT NOT NULL,
-  read BOOLEAN DEFAULT false,
-  created_at TIMESTAMPTZ DEFAULT NOW()
+create index if not exists enquiry_messages_enquiry_id_idx on public.enquiry_messages (enquiry_id);
+
+-- -----------------------------------------------------------------------------
+-- NOTIFICATIONS
+-- -----------------------------------------------------------------------------
+create table if not exists public.notifications (
+  id         text primary key,
+  user_id    text,
+  enquiry_id text,
+  title      text,
+  type       text default 'new_enquiry',
+  read       boolean not null default false,
+  created_at timestamptz not null default now()
 );
 
--- 11. INDEXES
-CREATE INDEX IF NOT EXISTS idx_products_sku ON public.products(sku);
-CREATE INDEX IF NOT EXISTS idx_products_category ON public.products(category_id);
-CREATE INDEX IF NOT EXISTS idx_products_tier ON public.products(tier);
-CREATE INDEX IF NOT EXISTS idx_product_images_product_id ON public.product_images(product_id);
-CREATE INDEX IF NOT EXISTS idx_enquiries_user_id ON public.enquiries(user_id);
-CREATE INDEX IF NOT EXISTS idx_enquiries_status ON public.enquiries(status);
+-- =============================================================================
+-- ROW LEVEL SECURITY
+-- The catalogue is a public storefront; enquiries are lightweight guest forms.
+-- Policies are intentionally permissive for the demo (public reads/writes).
+-- Switch to authenticated-only policies before production launch.
+-- =============================================================================
+alter table public.profiles        enable row level security;
+alter table public.categories      enable row level security;
+alter table public.collections     enable row level security;
+alter table public.products        enable row level security;
+alter table public.product_images  enable row level security;
+alter table public.enquiries       enable row level security;
+alter table public.enquiry_messages enable row level security;
+alter table public.notifications   enable row level security;
 
--- 12. ROW LEVEL SECURITY (RLS) POLICIES
-ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.categories ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.collections ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.product_images ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.enquiries ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.enquiry_messages ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+drop policy if exists "Categories public read" on public.categories;
+create policy "Categories public read" on public.categories for select using (true);
 
--- Public read for catalog
-CREATE POLICY "Public Read Products" ON public.products FOR SELECT USING (true);
-CREATE POLICY "Public Read Categories" ON public.categories FOR SELECT USING (true);
-CREATE POLICY "Public Read Collections" ON public.collections FOR SELECT USING (true);
-CREATE POLICY "Public Read Product Images" ON public.product_images FOR SELECT USING (true);
+drop policy if exists "Collections public read" on public.collections;
+create policy "Collections public read" on public.collections for select using (true);
 
--- Admin CRUD policies (Service role / authenticated admins)
-CREATE POLICY "Admin All Products" ON public.products FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Admin All Product Images" ON public.product_images FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Admin All Categories" ON public.categories FOR ALL TO authenticated USING (true) WITH CHECK (true);
-CREATE POLICY "Admin All Collections" ON public.collections FOR ALL TO authenticated USING (true) WITH CHECK (true);
+drop policy if exists "Products public read" on public.products;
+create policy "Products public read" on public.products for select using (true);
 
--- Enquiries Policies
-CREATE POLICY "Insert Enquiry Any" ON public.enquiries FOR INSERT WITH CHECK (true);
-CREATE POLICY "Users View Own Enquiries" ON public.enquiries FOR SELECT
-  USING (auth.uid() = user_id OR auth.jwt() ->> 'role' = 'service_role');
-CREATE POLICY "Users View Own Messages" ON public.enquiry_messages FOR SELECT
-  USING (EXISTS (
-    SELECT 1 FROM public.enquiries
-    WHERE public.enquiries.id = public.enquiry_messages.enquiry_id
-    AND (public.enquiries.user_id = auth.uid() OR auth.jwt() ->> 'role' = 'service_role')
-  ));
-CREATE POLICY "Users Post Own Messages" ON public.enquiry_messages FOR INSERT
-  WITH CHECK (EXISTS (
-    SELECT 1 FROM public.enquiries
-    WHERE public.enquiries.id = public.enquiry_messages.enquiry_id
-    AND (public.enquiries.user_id = auth.uid() OR auth.uid() IS NULL)
-  ));
+drop policy if exists "Products admin maintain" on public.products;
+create policy "Products admin maintain" on public.products for all using (true) with check (true);
+
+drop policy if exists "Product images public read" on public.product_images;
+create policy "Product images public read" on public.product_images for select using (true);
+
+drop policy if exists "Product images admin maintain" on public.product_images;
+create policy "Product images admin maintain" on public.product_images for all using (true) with check (true);
+
+drop policy if exists "Enquiries public read" on public.enquiries;
+create policy "Enquiries public read" on public.enquiries for select using (true);
+
+drop policy if exists "Enquiries public insert" on public.enquiries;
+create policy "Enquiries public insert" on public.enquiries for insert with check (true);
+
+drop policy if exists "Enquiries public update" on public.enquiries;
+create policy "Enquiries public update" on public.enquiries for update using (true) with check (true);
+
+drop policy if exists "Enquiry messages public read" on public.enquiry_messages;
+create policy "Enquiry messages public read" on public.enquiry_messages for select using (true);
+
+drop policy if exists "Enquiry messages public insert" on public.enquiry_messages;
+create policy "Enquiry messages public insert" on public.enquiry_messages for insert with check (true);
+
+drop policy if exists "Enquiry messages public update" on public.enquiry_messages;
+create policy "Enquiry messages public update" on public.enquiry_messages for update using (true) with check (true);
+
+drop policy if exists "Profiles public read" on public.profiles;
+create policy "Profiles public read" on public.profiles for select using (true);
+
+drop policy if exists "Profiles public maintain" on public.profiles;
+create policy "Profiles public maintain" on public.profiles for all using (true) with check (true);
+
+drop policy if exists "Notifications public read" on public.notifications;
+create policy "Notifications public read" on public.notifications for select using (true);
+
+drop policy if exists "Notifications public maintain" on public.notifications;
+create policy "Notifications public maintain" on public.notifications for all using (true) with check (true);
+
+-- =============================================================================
+-- STORAGE: public `product-images` bucket
+-- =============================================================================
+insert into storage.buckets (id, name, public)
+values ('product-images', 'product-images', true)
+on conflict (id) do nothing;
+
+drop policy if exists "Public read product images" on storage.objects;
+create policy "Public read product images"
+  on storage.objects for select
+  using (bucket_id = 'product-images');
+
+drop policy if exists "Admin upload product images" on storage.objects;
+create policy "Admin upload product images"
+  on storage.objects for insert
+  with check (bucket_id = 'product-images');
+
+drop policy if exists "Admin update product images" on storage.objects;
+create policy "Admin update product images"
+  on storage.objects for update
+  using (bucket_id = 'product-images');
+
+drop policy if exists "Admin delete product images" on storage.objects;
+create policy "Admin delete product images"
+  on storage.objects for delete
+  using (bucket_id = 'product-images');

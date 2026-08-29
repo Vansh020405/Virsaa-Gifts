@@ -117,7 +117,7 @@ export default function ProductDetailPage() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#FAF8F5]">
-      <Navbar onOpenEnquiry={() => setIsEnquiryOpen(true)} />
+      <Navbar />
       <AuthModal />
       <EnquiryModal
         isOpen={isEnquiryOpen}

@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { dbService } from '../../../lib/supabase/db-service';
 import { Enquiry, EnquiryStatus } from '../../../lib/supabase/types';
@@ -10,22 +9,12 @@ import { useAuth } from '../../../context/AuthContext';
 import { 
   MessageSquareText, 
   Search, 
-  Filter, 
-  CheckCircle2, 
-  Clock, 
   Building2, 
   Mail, 
   Phone, 
-  User, 
   Send, 
-  Sparkles, 
-  FileText, 
   ShieldCheck, 
-  RotateCcw, 
-  Check, 
-  X, 
-  Layers,
-  ChevronRight
+  RotateCcw
 } from 'lucide-react';
 
 export default function AdminEnquiriesPage() {
@@ -38,10 +27,29 @@ export default function AdminEnquiriesPage() {
   const [statusFilter, setStatusFilter] = useState<EnquiryStatus | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [replyText, setReplyText] = useState('');
-  const [adminNoteText, setAdminNoteText] = useState('');
   const [loading, setLoading] = useState(true);
   const [sendingReply, setSendingReply] = useState(false);
-  const [savingNotes, setSavingNotes] = useState(false);
+
+  const applyEnquiryData = (data: Enquiry[]) => {
+    setEnquiries(data);
+
+    if (initialId) {
+      const found = data.find((e) => e.id === initialId);
+      if (found) {
+        setSelectedEnquiry(found);
+        return;
+      }
+    }
+
+    if (selectedEnquiry) {
+      const refreshed = data.find((e) => e.id === selectedEnquiry.id);
+      if (refreshed) {
+        setSelectedEnquiry(refreshed);
+      }
+    } else if (data.length > 0) {
+      setSelectedEnquiry(data[0]);
+    }
+  };
 
   const loadEnquiries = async () => {
     setLoading(true);
@@ -50,39 +58,34 @@ export default function AdminEnquiriesPage() {
         status: statusFilter,
         search: searchQuery,
       });
-      setEnquiries(data);
-
-      if (initialId) {
-        const found = data.find((e) => e.id === initialId);
-        if (found) {
-          setSelectedEnquiry(found);
-          setAdminNoteText(found.admin_notes || '');
-          return;
-        }
-      }
-
-      if (selectedEnquiry) {
-        const refreshed = data.find((e) => e.id === selectedEnquiry.id);
-        if (refreshed) {
-          setSelectedEnquiry(refreshed);
-          setAdminNoteText(refreshed.admin_notes || '');
-        }
-      } else if (data.length > 0) {
-        setSelectedEnquiry(data[0]);
-        setAdminNoteText(data[0].admin_notes || '');
-      }
+      applyEnquiryData(data);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadEnquiries();
+    let cancelled = false;
+    (async () => {
+      try {
+        const data = await dbService.getEnquiries({
+          status: statusFilter,
+          search: searchQuery,
+        });
+        if (cancelled) return;
+        applyEnquiryData(data);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusFilter, searchQuery]);
 
   const handleSelectEnquiry = (enq: Enquiry) => {
     setSelectedEnquiry(enq);
-    setAdminNoteText(enq.admin_notes || '');
   };
 
   const handleSendAdminReply = async (e: React.FormEvent) => {
@@ -94,7 +97,7 @@ export default function AdminEnquiriesPage() {
       await dbService.addEnquiryMessage(
         selectedEnquiry.id,
         user?.id || 'admin-1',
-        user?.name || 'Virsaa Design Concierge',
+        user?.name || 'Virsaa',
         'admin',
         replyText.trim()
       );
@@ -111,17 +114,6 @@ export default function AdminEnquiriesPage() {
     if (!selectedEnquiry) return;
     await dbService.updateEnquiryStatus(selectedEnquiry.id, newStatus);
     await loadEnquiries();
-  };
-
-  const handleSaveNotes = async () => {
-    if (!selectedEnquiry) return;
-    setSavingNotes(true);
-    try {
-      await dbService.updateEnquiryStatus(selectedEnquiry.id, selectedEnquiry.status, adminNoteText);
-      await loadEnquiries();
-    } finally {
-      setSavingNotes(false);
-    }
   };
 
   const statusBadge = (status: EnquiryStatus) => {
@@ -144,13 +136,13 @@ export default function AdminEnquiriesPage() {
         <div>
           <div className="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-[#C88B56] font-bold mb-1">
             <ShieldCheck className="w-3.5 h-3.5" />
-            <span>Lead & Conversation Manager</span>
+            <span>Enquiries</span>
           </div>
-          <h1 className="font-serif-luxury text-3xl font-bold text-[#1F332B]">
-            Corporate Enquiry Management
+          <h1 className="font-sans text-3xl font-bold tracking-tight text-[#1F332B]">
+            Enquiries
           </h1>
           <p className="text-xs sm:text-sm text-stone-500 mt-1">
-            Respond to client briefs, configure customizations, adjust status and communicate in real-time.
+            Reply to enquiries, manage status and track conversations.
           </p>
         </div>
 
@@ -159,7 +151,7 @@ export default function AdminEnquiriesPage() {
           className="px-4 py-2 bg-white border border-[#DCD1C4] rounded-xl text-xs font-semibold text-[#1F332B] hover:bg-[#FAF8F5] flex items-center gap-1.5 self-start sm:self-auto shadow-2xs"
         >
           <RotateCcw className="w-3.5 h-3.5" />
-          <span>Refresh Leads</span>
+          <span>Refresh</span>
         </button>
       </div>
 
@@ -255,13 +247,13 @@ export default function AdminEnquiriesPage() {
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <h3 className="font-serif-luxury font-bold text-lg text-[#1F332B]">
+                      <h3 className="font-sans font-bold text-lg text-[#1F332B]">
                         {selectedEnquiry.name}
                       </h3>
                       {statusBadge(selectedEnquiry.status)}
                     </div>
                     <p className="text-xs text-stone-500">
-                      {selectedEnquiry.company_name || 'Independent Client'} • Submitted {new Date(selectedEnquiry.created_at).toLocaleString('en-IN')}
+                      {selectedEnquiry.company_name || 'Individual'} • Submitted {new Date(selectedEnquiry.created_at).toLocaleString('en-IN')}
                     </p>
                   </div>
                 </div>
@@ -339,35 +331,11 @@ export default function AdminEnquiriesPage() {
                 </div>
               </div>
 
-              {/* Internal Notes Accordion/Box */}
-              <div className="p-4 rounded-2xl bg-[#F4EFEA] border border-[#E4D7C7] space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-[#1F332B] flex items-center gap-1.5">
-                    <FileText className="w-3.5 h-3.5 text-[#C88B56]" />
-                    Internal Admin Notes (Invisible to Customer)
-                  </span>
-                  <button
-                    onClick={handleSaveNotes}
-                    disabled={savingNotes}
-                    className="px-3 py-1 rounded-lg bg-[#1F332B] text-white text-[11px] font-semibold hover:bg-[#2D4A3E] transition disabled:opacity-50"
-                  >
-                    {savingNotes ? 'Saving...' : 'Save Notes'}
-                  </button>
-                </div>
-                <textarea
-                  rows={2}
-                  value={adminNoteText}
-                  onChange={(e) => setAdminNoteText(e.target.value)}
-                  placeholder="Add internal notes about bulk quote discounts, artisan production timelines, or sample dispatch..."
-                  className="w-full p-2.5 bg-white border border-[#DCD1C4] rounded-xl text-xs text-[#1F332B] focus:outline-hidden focus:border-[#C88B56]"
-                />
-              </div>
-
               {/* Conversation History Area */}
               <div className="space-y-3">
-                <h4 className="font-serif-luxury font-bold text-sm text-[#1F332B] flex items-center gap-2">
+                <h4 className="font-sans font-bold text-sm text-[#1F332B] flex items-center gap-2">
                   <MessageSquareText className="w-4 h-4 text-[#C88B56]" />
-                  <span>Two-Way Client Conversation Thread</span>
+                  <span>Conversation</span>
                 </h4>
 
                 <div className="bg-[#FAF8F5] rounded-2xl border border-[#E8DFC8] p-4 max-h-72 overflow-y-auto space-y-3">
@@ -408,7 +376,7 @@ export default function AdminEnquiriesPage() {
               {/* Admin Reply Composer */}
               <form onSubmit={handleSendAdminReply} className="space-y-3 pt-2">
                 <label className="block text-xs font-bold text-[#1F332B]">
-                  Send Official Virsaa Concierge Reply
+                  Reply to customer
                 </label>
                 <div className="relative">
                   <textarea
