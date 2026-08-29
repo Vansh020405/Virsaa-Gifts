@@ -19,6 +19,9 @@ import {
   RotateCcw,
   Check,
   Grid,
+  Columns2,
+  Columns3,
+  LayoutList,
   Layers,
   Leaf,
   Clock,
@@ -54,6 +57,9 @@ export default function CataloguePage() {
   // Pagination / Load More
   const [visibleCount, setVisibleCount] = useState(18);
 
+  // Mobile grid columns selector
+  const [mobileColumns, setMobileColumns] = useState<'one' | 'two' | 'three'>('two');
+
   useEffect(() => {
     async function loadData() {
       setLoading(true);
@@ -87,6 +93,7 @@ export default function CataloguePage() {
     setSelectedCollection('all');
     setPriceRange(5000);
     setSortBy('featured');
+    setMobileColumns('two');
     setVisibleCount(18);
   };
 
@@ -517,16 +524,39 @@ export default function CataloguePage() {
             )}
 
             {/* Results Count Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-3">
               <p className="text-xs sm:text-sm text-stone-600 font-medium">
                 Showing <strong className="text-[#1F332B]">{Math.min(visibleCount, filteredProducts.length)}</strong> of <strong className="text-[#1F332B]">{filteredProducts.length}</strong> matching products
               </p>
-             
+
+              {/* Mobile Layout Selector */}
+              <div className="lg:hidden flex items-center gap-1 rounded-full border border-[#E6DCCE] bg-white p-1 shadow-sm">
+                <Grid className="w-3.5 h-3.5 text-[#C88B56] ml-2" aria-hidden />
+                {([
+                  { value: 'one' as const, Icon: LayoutList, label: '1' },
+                  { value: 'two' as const, Icon: Columns2, label: '2' },
+                  { value: 'three' as const, Icon: Columns3, label: '3' },
+                ]).map(({ value, Icon, label }) => (
+                  <button
+                    key={value}
+                    onClick={() => setMobileColumns(value)}
+                    aria-label={`${label} column layout`}
+                    className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
+                      mobileColumns === value
+                        ? 'bg-[#1F332B] text-white shadow-sm'
+                        : 'text-stone-500 hover:text-[#1F332B]'
+                    }`}
+                  >
+                    <Icon className="w-3 h-3" />
+                    {label}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Loading Skeleton */}
             {loading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+              <div className={`grid ${mobileColumns === 'one' ? 'grid-cols-1' : mobileColumns === 'two' ? 'grid-cols-2' : 'grid-cols-3'} sm:grid-cols-2 xl:grid-cols-3 gap-6`}>
                 {[1, 2, 3, 4, 5, 6].map((n) => (
                   <div key={n} className="bg-white rounded-2xl h-96 border border-[#EBE4D8] animate-pulse p-4 space-y-4">
                     <div className="bg-stone-200 aspect-4/3 rounded-xl" />
@@ -556,7 +586,7 @@ export default function CataloguePage() {
               </div>
             ) : (
               <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                <div className={`grid ${mobileColumns === 'one' ? 'grid-cols-1' : mobileColumns === 'two' ? 'grid-cols-2' : 'grid-cols-3'} sm:grid-cols-2 xl:grid-cols-3 gap-6`}>
                   {filteredProducts.slice(0, visibleCount).map((product) => (
                     <ProductCard
                       key={product.id || product.sku}
