@@ -33,10 +33,8 @@ export default function Footer() {
               <span className="flex items-center gap-1">
                 <Leaf className="w-3.5 h-3.5 text-emerald-400" /> 100% Plastic Free
               </span>
-              <span>•</span>
-              <span className="flex items-center gap-1">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#E4B58A]" /> GST Compliant B2B Invoicing
-              </span>
+              
+              
             </div>
           </div>
 
@@ -50,15 +48,15 @@ export default function Footer() {
             <ul className="space-y-3 text-sm">
               <li className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-[#C88B56] shrink-0 mt-0.5" />
-                <span>Artisan Hub: Saharanpur & Bengaluru Design Studio, India</span>
+                <span>House no 5160, gmada aerocity, mohali 140306</span>
               </li>
               <li className="flex items-center gap-2.5">
                 <Mail className="w-4 h-4 text-[#C88B56] shrink-0" />
-                <span>concierge@Virsaagifts.com</span>
+                <span>virsaabyleen@gmail.com</span>
               </li>
               <li className="flex items-center gap-2.5">
                 <Phone className="w-4 h-4 text-[#C88B56] shrink-0" />
-                <span>+91 98110 00000 / +91 80 4120 0000</span>
+                <span>+91 9305534315</span>
               </li>
             </ul>
           </div>

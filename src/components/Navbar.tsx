@@ -22,7 +22,6 @@ export default function Navbar() {
 
   const navLinks = [
     { name: 'Home', href: '/' },
-    { name: 'About', href: '/about' },
   ];
 
   const catalogueLinks = [
@@ -121,6 +120,29 @@ export default function Navbar() {
                 </div>
               </div>
             </div>
+
+            {/* About link (after Catalogue) */}
+            {[
+              { name: 'About', href: '/about' },
+            ].map((link) => {
+              const isActive = pathname === link.href;
+              return (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  className={`text-xs font-semibold uppercase tracking-wider transition-all duration-300 font-sans py-1 relative ${
+                    isActive 
+                      ? 'text-[#E4B58A] font-bold' 
+                      : 'text-stone-300 hover:text-white'
+                  }`}
+                >
+                  {link.name}
+                  {isActive && (
+                    <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#C88B56] to-[#E4B58A] rounded-full" />
+                  )}
+                </Link>
+              );
+            })}
           </nav>
 
           {/* Right Action Icons & Buttons */}
@@ -194,6 +216,18 @@ export default function Navbar() {
                   </Link>
                 );
               })}
+
+              <Link
+                href="/about"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`px-4 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 text-center ${
+                  pathname === '/about'
+                    ? 'bg-[#C88B56]/25 text-[#E4B58A] border border-[#C88B56]/40 font-bold'
+                    : 'text-stone-300 hover:bg-white/10 hover:text-white'
+                }`}
+              >
+                About
+              </Link>
 
               <button
                 onClick={() => {

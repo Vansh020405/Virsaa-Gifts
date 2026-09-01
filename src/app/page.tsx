@@ -119,9 +119,10 @@ export default function HomePage() {
             playsInline
             className="w-full h-full object-cover"
           >
-            <source src="/bgVidVirsaa.mp4" type="video/mp4" />
+            <source src="/hero-showcase.mp4" type="video/mp4" />
           </video>
-          <div className="absolute inset-0 bg-gradient-to-b from-[#12211B]/80 via-[#12211B]/55 to-[#12211B]/90" />
+          {/* Stronger overlay so hero text stays clearly readable over the video */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0B1510]/85 via-[#0B1510]/65 to-[#0B1510]/90" />
           {/* Ambient Glow Orbs */}
           <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#C88B56]/15 rounded-full blur-[120px] pointer-events-none" />
           <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#2D4A3E]/30 rounded-full blur-[140px] pointer-events-none" />
@@ -131,6 +132,23 @@ export default function HomePage() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 flex flex-col items-center">
           {/* Subtle Tagline Pill */}
           
+
+          {/* Virsaa Logo */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.7, ease: 'easeOut' }}
+            className="mb-6 sm:mb-8 drop-shadow-[0_6px_20px_rgba(0,0,0,0.5)]"
+          >
+            <Image
+              src="/logo.png"
+              alt="Virsaa Gifts"
+              width={1700}
+              height={1900}
+              priority
+              className="h-14 sm:h-20 w-auto object-contain mx-auto"
+            />
+          </motion.div>
 
           {/* Minimalist Bold Heading */}
           <motion.h1
@@ -170,12 +188,7 @@ export default function HomePage() {
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </Link>
 
-            <button
-              onClick={() => handleOpenEnquiry()}
-              className="px-7 py-3 rounded-full bg-white/10 hover:bg-white/15 backdrop-blur-md border border-white/20 text-white text-xs sm:text-sm font-bold uppercase tracking-wider font-sans hover:border-[#E4B58A]/50 active:scale-98 transition-all duration-300 inline-flex items-center gap-2"
-            >
-              <span>Curate Custom Hamper</span>
-            </button>
+            
           </motion.div>
 
           {/* Quick Proof Pillars at Bottom of Hero */}
