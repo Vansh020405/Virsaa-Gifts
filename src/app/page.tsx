@@ -222,23 +222,25 @@ export default function HomePage() {
                 Most corporate gifts end up forgotten in desk drawers or landfills. Virsaa replaces ordinary merchandise with thoughtfully sculpted objects that honour tradition, celebrate nature, and carry lasting goodwill.
               </p>
 
-              {/* Minimalist 4 Pillars */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3">
+              {/* Minimalist 4 Pillars - 4 squares, 2 in each row on mobile */}
+              <div className="grid grid-cols-2 gap-3 sm:gap-4 pt-3">
                 {pillars.map((item) => {
                   const Icon = item.icon;
                   return (
                     <div 
                       key={item.num}
-                      className="p-5 rounded-2xl bg-white border border-[#E8DFC8] hover:border-[#C88B56]/50 shadow-xs hover:shadow-md transition-all duration-300 group"
+                      className="p-3.5 sm:p-5 rounded-2xl bg-white border border-[#E8DFC8] hover:border-[#C88B56]/50 shadow-xs hover:shadow-md transition-all duration-300 group flex flex-col justify-between"
                     >
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="w-9 h-9 rounded-xl bg-[#1F332B] text-[#E4B58A] flex items-center justify-center group-hover:scale-105 transition-transform">
-                          <Icon className="w-4 h-4" />
+                      <div>
+                        <div className="flex items-center justify-between mb-2 sm:mb-3">
+                          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#1F332B] text-[#E4B58A] flex items-center justify-center group-hover:scale-105 transition-transform shrink-0">
+                            <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                          </div>
+                          <span className="text-[11px] sm:text-xs font-bold text-[#C88B56]/70 font-serif-luxury">{item.num}</span>
                         </div>
-                        <span className="text-xs font-bold text-[#C88B56]/60 font-serif-luxury">{item.num}</span>
+                        <h4 className="text-xs sm:text-sm font-bold text-[#1F332B] font-sans group-hover:text-[#C88B56] transition-colors leading-snug">{item.title}</h4>
                       </div>
-                      <h4 className="text-sm font-bold text-[#1F332B] font-sans group-hover:text-[#C88B56] transition-colors">{item.title}</h4>
-                      <p className="text-xs text-stone-500 mt-1 leading-relaxed font-sans">{item.desc}</p>
+                      <p className="text-[11px] sm:text-xs text-stone-500 mt-1.5 sm:mt-1 leading-snug sm:leading-relaxed font-sans">{item.desc}</p>
                     </div>
                   );
                 })}
@@ -251,7 +253,7 @@ export default function HomePage() {
               <div className="frame-luxury-gold relative aspect-4/3 rounded-3xl overflow-hidden animate-float-slow">
                 <div className="relative w-full h-full rounded-2xl overflow-hidden border border-[#E4B58A]/30">
                   <Image
-                    src="https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=1200&q=80"
+                    src="/image.png"
                     alt="Master Artisan Crafting Virsaa Keepsakes"
                     fill
                     sizes="(max-width: 1024px) 100vw, 50vw"
@@ -329,8 +331,8 @@ export default function HomePage() {
             </Link>
           </div>
 
-          {/* Product Cards Grid: Sleek, compact and framed */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {/* Product Cards Grid: 2 in a row on mobile, 3 on desktop */}
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5">
             {featuredProducts.slice(0, 6).map((product) => (
               <div 
                 key={product.id || product.sku}
@@ -414,7 +416,7 @@ export default function HomePage() {
       {/* ========================================================================= */}
       {/* 6. EXECUTIVE CORPORATE CTA */}
       {/* ========================================================================= */}
-      <section id="contact-cta" className="py-20 sm:py-28 bg-[#12211B] relative overflow-hidden">
+      <section id="contact-cta" className="py-20 sm:py-28 bg-[#12211B] relative overflow-hidden rounded-tl-[2.5rem] rounded-tr-[2.5rem]">
         {/* Ambient background glows */}
         <div className="absolute top-1/2 left-1/4 -translate-y-1/2 w-96 h-96 bg-[#C88B56]/15 rounded-full blur-[120px] pointer-events-none" />
         <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-96 h-96 bg-[#2D4A3E]/30 rounded-full blur-[140px] pointer-events-none" />
@@ -422,10 +424,7 @@ export default function HomePage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
           <div className="p-8 sm:p-14 rounded-3xl bg-white/[0.04] backdrop-blur-xl border border-[#E4B58A]/25 shadow-2xl relative">
             
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#C88B56]/20 border border-[#C88B56]/40 text-[#E4B58A] text-xs uppercase tracking-widest font-semibold mb-6">
-              <Gift className="w-3.5 h-3.5" />
-              <span>Corporate & Bulk Inquiries</span>
-            </div>
+           
 
             <h2 className="font-serif-luxury text-3xl sm:text-5xl font-normal text-white leading-tight mb-4">
               Ready to elevate your corporate gifting experience?

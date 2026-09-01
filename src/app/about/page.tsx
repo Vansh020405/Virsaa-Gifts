@@ -176,25 +176,7 @@ export default function AboutPage() {
                 We unite thoughtful design, renewable botanicals, and Indian craftsmanship into corporate keepsakes that foster lasting connection.
               </motion.p>
 
-              <motion.div 
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="flex items-center gap-4 pt-2"
-              >
-                <button
-                  onClick={() => setEnquiryModalOpen(true)}
-                  className="px-7 py-3 rounded-full bg-[#1F332B] hover:bg-[#2D4A3E] text-white text-xs sm:text-sm font-bold uppercase tracking-wider shadow-sm hover:brightness-105 active:scale-98 transition-all font-sans border border-[#C88B56]/40"
-                >
-                  Request Atelier Catalog
-                </button>
-                <Link
-                  href="/catalogue"
-                  className="px-6 py-3 rounded-full border border-[#DCD1C4] hover:bg-white text-[#1F332B] text-xs sm:text-sm font-bold uppercase tracking-wider transition-all active:scale-98 font-sans"
-                >
-                  Browse Products
-                </Link>
-              </motion.div>
+              
             </div>
 
             {/* Right: Dual Layered Framed Artwork */}
@@ -203,7 +185,7 @@ export default function AboutPage() {
               <div className="frame-luxury-gold relative aspect-[3/4] rounded-3xl overflow-hidden shadow-xl transform translate-y-6 animate-float-slow">
                 <div className="relative w-full h-full rounded-2xl overflow-hidden border border-[#E4B58A]/30">
                   <Image
-                    src="https://images.unsplash.com/photo-1616046229478-9901c5536a45?auto=format&fit=crop&w=800&q=80"
+                    src="/material/image copy 5.png"
                     alt="Reclaimed Wood Handcrafting"
                     fill
                     sizes="(max-width: 1024px) 50vw, 25vw"
@@ -221,7 +203,7 @@ export default function AboutPage() {
               <div className="frame-gallery relative aspect-[3/4] rounded-3xl overflow-hidden shadow-xl transform -translate-y-4 animate-float-reverse">
                 <div className="relative w-full h-full rounded-2xl overflow-hidden border border-[#C88B56]/30">
                   <Image
-                    src="https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=800&q=80"
+                    src="/material/image copy 6.png"
                     alt="Indian Heritage Craftsmanship"
                     fill
                     sizes="(max-width: 1024px) 50vw, 25vw"
@@ -279,7 +261,7 @@ export default function AboutPage() {
                 <div className="frame-luxury-gold relative aspect-[4/3] sm:aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl">
                   <div className="relative w-full h-full rounded-2xl overflow-hidden border border-[#E4B58A]/30">
                     <Image
-                      src="https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=900&q=80"
+                      src="/image.png"
                       alt="Sustainable packaging at Virsaa"
                       fill
                       sizes="(max-width: 1024px) 100vw, 40vw"
@@ -526,7 +508,7 @@ export default function AboutPage() {
         {/* ===================================================================== */}
         {/* 7. CLOSING CALL TO ACTION */}
         {/* ===================================================================== */}
-        <section className="bg-[#12211B] py-20 text-white relative overflow-hidden">
+        <section className="bg-[#12211B] py-20 text-white relative overflow-hidden rounded-tl-[2.5rem] rounded-tr-[2.5rem]">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
             <div className="p-8 sm:p-14 rounded-3xl bg-white/[0.04] backdrop-blur-xl border border-[#E4B58A]/30 shadow-xl">
               <h2 className="font-serif-luxury text-3xl sm:text-5xl font-normal tracking-tight mb-4">

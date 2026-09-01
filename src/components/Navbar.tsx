@@ -32,7 +32,9 @@ export default function Navbar() {
   return (
     <header className="fixed top-3 sm:top-5 left-0 right-0 z-50 px-3 sm:px-6 pointer-events-none flex justify-center">
       <div 
-        className="pointer-events-auto w-full max-w-5xl rounded-full bg-[#101C15] border border-white/10 shadow-[0_12px_40px_-10px_rgba(0,0,0,0.7)] py-2.5 sm:py-3 px-4 sm:px-6 transition-all duration-300"
+        className={`pointer-events-auto w-full max-w-5xl bg-[#101C15]/95 backdrop-blur-xl border border-white/15 shadow-[0_12px_40px_-10px_rgba(0,0,0,0.7)] py-2.5 sm:py-3 px-4 sm:px-6 transition-all duration-300 ${
+          mobileMenuOpen ? 'rounded-3xl' : 'rounded-full'
+        }`}
       >
         <div className="relative flex items-center justify-between">
           {/* Brand Logo (Left) */}
@@ -176,8 +178,9 @@ export default function Navbar() {
 
         {/* Mobile Navigation Drawer */}
         {mobileMenuOpen && (
-          <div className="md:hidden mt-3 pt-3 pb-2 border-t border-white/10 text-white animate-in fade-in slide-in-from-top-3 duration-300">
-            <div className="flex flex-col gap-1.5">
+          <div className="md:hidden mt-3.5 pt-3.5 pb-2 border-t border-white/10 text-white space-y-3">
+            {/* Primary Nav Links */}
+            <div className="grid grid-cols-2 gap-2">
               {navLinks.map((link) => {
                 const isActive = pathname === link.href;
                 return (
@@ -185,10 +188,10 @@ export default function Navbar() {
                     key={link.name}
                     href={link.href}
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`px-4 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 text-center ${
+                    className={`flex items-center justify-center px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 text-center ${
                       isActive
-                        ? 'bg-[#C88B56]/25 text-[#E4B58A] border border-[#C88B56]/40 font-bold'
-                        : 'text-stone-300 hover:bg-white/10 hover:text-white'
+                        ? 'bg-[#C88B56]/25 text-[#E4B58A] border border-[#C88B56]/40'
+                        : 'bg-white/5 text-stone-300 hover:bg-white/10 hover:text-white border border-white/5'
                     }`}
                   >
                     {link.name}
@@ -196,54 +199,74 @@ export default function Navbar() {
                 );
               })}
 
-              <div className="px-4 pt-1 text-[10px] font-bold uppercase tracking-wider text-center text-stone-500">
-                Catalogue
+              <Link
+                href="/about"
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center justify-center px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 text-center ${
+                  pathname === '/about'
+                    ? 'bg-[#C88B56]/25 text-[#E4B58A] border border-[#C88B56]/40'
+                    : 'bg-white/5 text-stone-300 hover:bg-white/10 hover:text-white border border-white/5'
+                }`}
+              >
+                About
+              </Link>
+            </div>
+
+            {/* Catalogue Group Cards */}
+            <div className="bg-white/5 rounded-2xl p-2.5 border border-white/10 space-y-1.5">
+              <div className="px-2 pt-1 pb-1 flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-[#E4B58A]">
+                <span>Catalogue Collections</span>
+                <span className="text-[9px] text-stone-400 font-sans normal-case tracking-normal">2026 Edition</span>
               </div>
+
               {catalogueLinks.map((cl) => {
+                const Icon = cl.icon;
                 const isActive = pathname === cl.href;
                 return (
                   <Link
                     key={cl.href}
                     href={cl.href}
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`px-4 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 text-center ${
+                    className={`flex items-center gap-3 p-2.5 rounded-xl transition-all ${
                       isActive
-                        ? 'bg-[#C88B56]/25 text-[#E4B58A] border border-[#C88B56]/40 font-bold'
-                        : 'text-stone-300 hover:bg-white/10 hover:text-white'
+                        ? 'bg-[#C88B56]/25 border border-[#C88B56]/40 text-[#E4B58A]'
+                        : 'bg-white/5 hover:bg-white/10 text-white border border-transparent'
                     }`}
                   >
-                    {cl.name}
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+                      isActive ? 'bg-[#C88B56]/30 text-[#E4B58A]' : 'bg-white/10 text-stone-300'
+                    }`}>
+                      <Icon className="w-4 h-4" />
+                    </div>
+                    <div className="flex-1 min-w-0 text-left">
+                      <div className={`text-xs font-bold ${isActive ? 'text-[#E4B58A]' : 'text-white'}`}>
+                        {cl.name}
+                      </div>
+                      <div className="text-[11px] text-stone-400 font-sans truncate">
+                        {cl.desc}
+                      </div>
+                    </div>
                   </Link>
                 );
               })}
-
-              <Link
-                href="/about"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`px-4 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-300 text-center ${
-                  pathname === '/about'
-                    ? 'bg-[#C88B56]/25 text-[#E4B58A] border border-[#C88B56]/40 font-bold'
-                    : 'text-stone-300 hover:bg-white/10 hover:text-white'
-                }`}
-              >
-                About
-              </Link>
-
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  if (user) {
-                    router.push('/dashboard');
-                  } else {
-                    openAuthModal();
-                  }
-                }}
-                className="w-full mt-2 py-2.5 rounded-full bg-gradient-to-r from-[#C88B56] to-[#A86F3E] text-white font-bold text-xs uppercase tracking-wider font-sans flex items-center justify-center gap-2 shadow-md active:scale-95 transition-all"
-              >
-                <ClipboardList className="w-4 h-4" />
-                <span>Track Enquiry</span>
-              </button>
             </div>
+
+            {/* Track Enquiry Action */}
+            <button
+              type="button"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                if (user) {
+                  router.push('/dashboard');
+                } else {
+                  openAuthModal();
+                }
+              }}
+              className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#C88B56] to-[#A86F3E] text-white font-bold text-xs uppercase tracking-wider font-sans flex items-center justify-center gap-2 shadow-lg active:scale-98 transition-all border border-[#E4B58A]/30"
+            >
+              <ClipboardList className="w-4 h-4" />
+              <span>{user ? 'My Client Portal' : 'Track Enquiry'}</span>
+            </button>
           </div>
         )}
       </div>

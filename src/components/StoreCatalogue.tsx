@@ -20,7 +20,6 @@ import {
   ChevronDown, 
   RotateCcw,
   Check,
-  Grid,
   Layers,
   Leaf,
   Clock,
@@ -587,22 +586,63 @@ export default function StoreCatalogue({
               </p>
 
               {/* Mobile Layout Selector */}
-              <div className="lg:hidden flex items-center gap-1 rounded-full border border-[#E6DCCE] bg-white p-1 shadow-sm">
-                <Grid className="w-3.5 h-3.5 text-[#C88B56] ml-2" aria-hidden />
-                {(['one', 'two', 'three'] as const).map((value, idx) => (
-                  <button
-                    key={value}
-                    onClick={() => setMobileColumns(value)}
-                    aria-label={`${idx + 1} column layout`}
-                    className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all ${
-                      mobileColumns === value
-                        ? 'bg-[#1F332B] text-white shadow-sm'
-                        : 'text-stone-500 hover:text-[#1F332B]'
-                    }`}
-                  >
-                    {idx + 1}
-                  </button>
-                ))}
+              <div className="lg:hidden flex items-center gap-1 rounded-full border border-[#E6DCCE] bg-white p-1 shadow-xs">
+                <button
+                  type="button"
+                  onClick={() => setMobileColumns('one')}
+                  aria-label="1 column layout"
+                  title="1 column"
+                  className={`w-7.5 h-7.5 rounded-full flex items-center justify-center transition-all ${
+                    mobileColumns === 'one'
+                      ? 'bg-[#1F332B] text-white shadow-xs'
+                      : 'text-stone-400 hover:text-[#1F332B] hover:bg-stone-50'
+                  }`}
+                >
+                  <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="currentColor">
+                    <rect x="2" y="2" width="12" height="12" rx="1.8" />
+                  </svg>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setMobileColumns('two')}
+                  aria-label="2 column layout"
+                  title="2 columns"
+                  className={`w-7.5 h-7.5 rounded-full flex items-center justify-center transition-all ${
+                    mobileColumns === 'two'
+                      ? 'bg-[#1F332B] text-white shadow-xs'
+                      : 'text-stone-400 hover:text-[#1F332B] hover:bg-stone-50'
+                  }`}
+                >
+                  <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="currentColor">
+                    <rect x="2" y="2" width="5.25" height="12" rx="1.2" />
+                    <rect x="8.75" y="2" width="5.25" height="12" rx="1.2" />
+                  </svg>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setMobileColumns('three')}
+                  aria-label="3 column layout"
+                  title="3 columns"
+                  className={`w-7.5 h-7.5 rounded-full flex items-center justify-center transition-all ${
+                    mobileColumns === 'three'
+                      ? 'bg-[#1F332B] text-white shadow-xs'
+                      : 'text-stone-400 hover:text-[#1F332B] hover:bg-stone-50'
+                  }`}
+                >
+                  <svg className="w-3.5 h-3.5" viewBox="0 0 16 16" fill="currentColor">
+                    <rect x="2" y="2" width="3.2" height="3.2" rx="0.75" />
+                    <rect x="6.4" y="2" width="3.2" height="3.2" rx="0.75" />
+                    <rect x="10.8" y="2" width="3.2" height="3.2" rx="0.75" />
+                    <rect x="2" y="6.4" width="3.2" height="3.2" rx="0.75" />
+                    <rect x="6.4" y="6.4" width="3.2" height="3.2" rx="0.75" />
+                    <rect x="10.8" y="6.4" width="3.2" height="3.2" rx="0.75" />
+                    <rect x="2" y="10.8" width="3.2" height="3.2" rx="0.75" />
+                    <rect x="6.4" y="10.8" width="3.2" height="3.2" rx="0.75" />
+                    <rect x="10.8" y="10.8" width="3.2" height="3.2" rx="0.75" />
+                  </svg>
+                </button>
               </div>
             </div>
 
