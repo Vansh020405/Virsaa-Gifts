@@ -43,6 +43,7 @@ export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('all');
   const [loading, setLoading] = useState(true);
 
   // Modal State for Add / Edit
@@ -315,11 +316,13 @@ export default function AdminProductsPage() {
     await loadProducts();
   };
 
-  const filteredProducts = products.filter(
-    (p) =>
-      p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  const filteredProducts = products.filter((p) =>
+    (categoryFilter === 'all' ||
+      p.category_id === categoryFilter ||
+      (p.category_name || '').toLowerCase() === categories.find((c) => c.id === categoryFilter)?.name.toLowerCase()) &&
+    (p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.sku.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.material_tags.some((m) => m.toLowerCase().includes(searchQuery.toLowerCase()))
+      p.material_tags.some((m) => m.toLowerCase().includes(searchQuery.toLowerCase())))
   );
 
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage) || 1;
@@ -376,6 +379,20 @@ export default function AdminProductsPage() {
             className="w-full pl-9 pr-3 py-1.5 bg-[#FAF8F5] border border-[#DCD1C4] rounded-xl text-xs text-[#1F332B] focus:outline-hidden focus:border-[#C88B56]"
           />
         </div>
+
+        <select
+          value={categoryFilter}
+          onChange={(e) => {
+            setCategoryFilter(e.target.value);
+            setCurrentPage(1);
+          }}
+          className="w-full sm:w-auto px-3 py-2 bg-[#FAF8F5] border border-[#DCD1C4] rounded-xl text-xs font-semibold text-[#1F332B] focus:outline-hidden focus:border-[#C88B56] cursor-pointer"
+        >
+          <option value="all">All Categories</option>
+          {categories.map((c) => (
+            <option key={c.id} value={c.id}>{c.name}</option>
+          ))}
+        </select>
 
         <div className="flex items-center gap-4 text-xs text-stone-500 font-medium">
           <span>Showing {paginatedProducts.length} of {filteredProducts.length} products</span>

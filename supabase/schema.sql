@@ -102,6 +102,8 @@ create table if not exists public.enquiries (
   company_name             text,
   quantity                 integer not null default 20,
   customization_requirements text,
+  personalization_text     text,
+  attachments              text[],
   message                  text,
   status                   text not null default 'New' check (status in ('New', 'In Review', 'Replied', 'Closed')),
   admin_notes              text,

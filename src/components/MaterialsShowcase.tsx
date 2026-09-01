@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import { Leaf } from 'lucide-react';
 
@@ -120,48 +120,50 @@ function MaterialGallery({ images, name, tactileFeel }: { images: string[]; name
 
   return (
     <div className="space-y-3">
-      {/* Main Image */}
-      <div className="relative aspect-4/3 w-full rounded-2xl overflow-hidden shadow-2xl border border-white/20 bg-[#12211B]">
-        <Image
-          key={src}
-          src={src}
-          alt={`${name} — image ${safeIndex + 1}`}
-          fill
-          sizes="(max-width: 1024px) 100vw, 33vw"
-          className="object-cover"
-          onError={handleImgError}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-        <div className="absolute bottom-4 left-4 right-4">
-          <span className="text-[11px] uppercase tracking-widest text-[#E4B58A] font-bold font-sans">
-            Tactile Experience
-          </span>
-          <p className="text-sm font-medium text-white italic mt-0.5 font-sans">
-            &ldquo;{tactileFeel}&rdquo;
-          </p>
-        </div>
+      {/* Main Image in Luxury Gold Frame */}
+      <div className="frame-luxury-gold relative aspect-4/3 w-full rounded-3xl overflow-hidden shadow-2xl">
+        <div className="relative w-full h-full rounded-2xl overflow-hidden border border-[#E4B58A]/30">
+          <Image
+            key={src}
+            src={src}
+            alt={`${name} — image ${safeIndex + 1}`}
+            fill
+            sizes="(max-width: 1024px) 100vw, 33vw"
+            className="object-cover transition-transform duration-700 hover:scale-105"
+            onError={handleImgError}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#12211B]/85 via-transparent to-transparent" />
+          <div className="absolute bottom-4 left-4 right-4">
+            <span className="text-[10px] uppercase tracking-widest text-[#E4B58A] font-bold font-sans">
+              Tactile Essence
+            </span>
+            <p className="text-sm font-serif-luxury text-white italic mt-0.5">
+              &ldquo;{tactileFeel}&rdquo;
+            </p>
+          </div>
 
-        {/* Image counter badge */}
-        {safeImages.length > 1 && (
-          <span className="absolute top-3 right-3 text-[10px] font-bold font-sans px-2 py-1 rounded-full bg-black/50 text-white/90 backdrop-blur-sm border border-white/15">
-            {safeIndex + 1} / {safeImages.length}
-          </span>
-        )}
+          {/* Image counter badge */}
+          {safeImages.length > 1 && (
+            <span className="absolute top-3 right-3 text-[10px] font-bold font-sans px-2.5 py-1 rounded-full bg-[#12211B]/80 text-[#E4B58A] backdrop-blur-md border border-[#C88B56]/40 shadow-sm">
+              {safeIndex + 1} / {safeImages.length}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Thumbnails */}
       {safeImages.length > 1 && (
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2.5 pt-1">
           {safeImages.map((img, i) => (
             <button
               key={img + i}
               type="button"
               onClick={() => selectImage(i)}
               aria-label={`View image ${i + 1} for ${name}`}
-              className={`relative w-14 h-14 rounded-lg overflow-hidden border-2 transition-all ${
+              className={`relative w-14 h-14 rounded-xl overflow-hidden border-2 transition-all active:scale-95 ${
                 i === safeIndex
-                  ? 'border-[#C88B56] ring-2 ring-[#C88B56]/30'
-                  : 'border-white/20 hover:border-white/60 opacity-80 hover:opacity-100'
+                  ? 'border-[#E4B58A] ring-2 ring-[#C88B56]/40 shadow-md scale-105'
+                  : 'border-white/20 hover:border-white/50 opacity-75 hover:opacity-100'
               }`}
             >
               <Image
@@ -180,58 +182,46 @@ function MaterialGallery({ images, name, tactileFeel }: { images: string[]; name
 }
 
 export default function MaterialsShowcase() {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const [isActive, setIsActive] = useState(false);
-
-  useEffect(() => {
-    const el = sectionRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => setIsActive(entry.isIntersecting),
-      { threshold: 0.15 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
   return (
-    <div
-      id="materials"
-      ref={sectionRef}
-      className={`transition-colors duration-700 relative overflow-hidden ${
-        isActive ? 'bg-[#1F332B]' : 'bg-[#F4EFEA]'
-      }`}
-    >
-      {/* Decorative ambient gradients */}
-      <div className="absolute -top-32 -left-32 w-96 h-96 bg-[#C88B56]/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-[#2D4A3E]/40 rounded-full blur-3xl pointer-events-none" />
+    <section id="materials" className="py-24 sm:py-32 bg-moving-gradient-light relative overflow-hidden">
+      {/* Subtle ambient decorative gradient orbs */}
+      <div className="absolute top-10 left-1/4 w-96 h-96 bg-[#C88B56]/10 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute bottom-10 right-1/4 w-96 h-96 bg-[#2D4A3E]/10 rounded-full blur-[140px] pointer-events-none" />
 
-      <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 relative">
-        <div className="max-w-7xl mx-auto text-white">
-          {/* Section Heading */}
-          <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-            <h2 className="text-gold-gradient font-serif-luxury text-3xl sm:text-4xl font-normal tracking-tight leading-tight">
-              Rooted in Nature. <br />
-              Elevated by Indian Craftsmanship.
-            </h2>
-            <p className="text-stone-300 text-sm sm:text-base leading-relaxed font-sans mt-3">
-              Every material in the Virsaa atelier is handpicked for its tactile dignity, environmental regeneration, and longevity. We replace plastic disposable swag with timeless natural artifacts.
-            </p>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        {/* Section Heading */}
+        <div className="text-center max-w-3xl mx-auto mb-16 sm:mb-20">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#1F332B]/10 border border-[#1F332B]/20 text-[#1F332B] text-xs uppercase tracking-widest font-semibold font-sans mb-3">
+            <Leaf className="w-3.5 h-3.5 text-[#C88B56]" />
+            <span>Materials & Principles</span>
           </div>
+          <h2 className="font-serif-luxury text-3xl sm:text-5xl font-normal tracking-tight text-[#1F332B] leading-tight">
+            Rooted in Nature. <br />
+            <span className="italic text-gold-gradient font-normal">Elevated by Indian Craftsmanship.</span>
+          </h2>
+          <p className="text-stone-600 text-sm sm:text-base leading-relaxed font-sans mt-3">
+            Every material in the Virsaa atelier is handpicked for its tactile dignity, environmental regeneration, and longevity.
+          </p>
+        </div>
 
-          {/* Alternating Feature Rows: image <-> info, left/right */}
-          <div className="space-y-10 lg:space-y-16">
-            {MATERIALS_DATA.map((mat, i) => {
-              const imageOnLeft = i % 2 === 0;
-              return (
-                <div
-                  key={mat.id}
-                  className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 items-center"
-                >
-                  {/* Image */}
+        {/* 5 Distinct Green Rounded Div Cards */}
+        <div className="space-y-10 sm:space-y-12">
+          {MATERIALS_DATA.map((mat, i) => {
+            const imageOnLeft = i % 2 === 0;
+            return (
+              <div
+                key={mat.id}
+                className="rounded-3xl bg-[#12211B] border border-[#C88B56]/30 p-6 sm:p-10 shadow-xl hover:shadow-2xl hover:border-[#E4B58A]/50 transition-all duration-300 relative overflow-hidden group"
+              >
+                {/* Ambient interior card glow */}
+                <div className="absolute top-0 right-0 w-80 h-80 bg-[#C88B56]/10 rounded-full blur-[100px] pointer-events-none" />
+                <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#2D4A3E]/20 rounded-full blur-[100px] pointer-events-none" />
+
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center relative z-10">
+                  {/* Image Gallery Side */}
                   <div
-                    className={`w-full max-w-xs mx-auto lg:max-w-sm lg:mx-0 ${
-                      imageOnLeft ? 'lg:justify-self-start' : 'lg:justify-self-end lg:order-2'
+                    className={`lg:col-span-5 w-full ${
+                      imageOnLeft ? 'lg:order-1' : 'lg:order-2'
                     }`}
                   >
                     <MaterialGallery
@@ -241,14 +231,20 @@ export default function MaterialsShowcase() {
                     />
                   </div>
 
-{/* Info */}
-                  <div className={`space-y-4 ${imageOnLeft ? '' : 'lg:order-1'}`}>
+                  {/* Information Side */}
+                  <div
+                    className={`lg:col-span-7 space-y-4 text-white ${
+                      imageOnLeft ? 'lg:order-2' : 'lg:order-1'
+                    }`}
+                  >
                     <div>
-                      
+                      <span className="text-[11px] font-mono uppercase tracking-widest text-[#E4B58A] font-bold">
+                        Pillar 0{i + 1}
+                      </span>
                       <h3 className="font-serif-luxury text-2xl sm:text-3xl font-normal text-white mt-1">
                         {mat.name}
                       </h3>
-                      <p className="text-stone-300 text-sm italic mt-1 font-sans">
+                      <p className="text-[#E4B58A]/90 text-xs sm:text-sm italic mt-1 font-sans">
                         {mat.subtitle}
                       </p>
                     </div>
@@ -257,22 +253,22 @@ export default function MaterialsShowcase() {
                       {mat.description}
                     </p>
 
-                    <div className="p-4 rounded-2xl bg-white/10 border border-white/10 space-y-2">
-                      <div className="flex items-center gap-2 text-[#E4B58A] text-xs font-medium tracking-wider font-sans">
-                        <Leaf className="w-4 h-4" />
+                    <div className="p-4 rounded-2xl bg-white/[0.06] border border-white/10 backdrop-blur-md space-y-1.5">
+                      <div className="flex items-center gap-2 text-[#E4B58A] text-xs font-semibold tracking-wider font-sans">
+                        <Leaf className="w-3.5 h-3.5" />
                         <span>Sustainability Impact</span>
                       </div>
-                      <p className="text-sm text-white font-medium font-sans">
+                      <p className="text-xs sm:text-sm text-stone-200 font-medium font-sans">
                         {mat.ecoFeature}
                       </p>
                     </div>
                   </div>
                 </div>
-              );
-            })}
-          </div>
+              </div>
+            );
+          })}
         </div>
-      </section>
-    </div>
+      </div>
+    </section>
   );
 }

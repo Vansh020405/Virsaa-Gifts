@@ -70,6 +70,13 @@ export const INITIAL_CATEGORIES: Category[] = [
     "slug": "packaging",
     "description": "Biodegradable kraft boxes, jute pouches, seed paper sleeves and bespoke gift wraps.",
     "icon": "Package"
+  },
+  {
+    "id": "cat-personalised-woodwork",
+    "name": "Personalised Woodwork",
+    "slug": "personalised-woodwork",
+    "description": "Engraved, inlaid and bespoke items crafted from reclaimed timber for one-of-a-kind keepsakes.",
+    "icon": "Hammer"
   }
 ];
 
@@ -292,6 +299,167 @@ export const INITIAL_PRODUCTS: Product[] = [
     ],
     "created_at": "2026-04-23T21:25:32+00:00",
     "updated_at": "2026-06-12T18:29:08.36033+00:00"
+  },
+  {
+    "id": "prod-ww-1",
+    "sku": "VG-WW-001",
+    "name": "Brass-Inlaid Walnut Desk Plaque",
+    "category_id": "cat-personalised-woodwork",
+    "category_name": "Personalised Woodwork",
+    "subcategory": "Awards & Plaques",
+    "price": 1499,
+    "gst_percent": 18,
+    "description": "A solid walnut plaque with a hand-set brass inlay, laser-engraved with names, insignia or messages — a personal milestone that outlives the event.",
+    "specification": {
+      "dimensions": "6\" x 4\" x 0.75\", reclaimed walnut, brass inlay detail",
+      "weight": "Artisanal spec",
+      "finish": "Natural Waxed Timber",
+      "packaging": "Handcrafted Wooden Gift Box",
+      "customization_options": [
+        "Laser Name Engraving",
+        "Brass Inset Monogram",
+        "Custom Insignia",
+        "Bespoke Shaping"
+      ],
+      "origin": "Artisan Clusters, India",
+      "eco_impact": "Reclaimed timber, zero single-use plastic, ethically sourced components"
+    },
+    "primary_use_case": "Awards & Recognition",
+    "secondary_use_cases": [
+      "Executive Gifting",
+      "Milestone Celebrations",
+      "Client Souvenirs",
+      "Desk Keepsakes"
+    ],
+    "material_tags": [
+      "Wood",
+      "Brass"
+    ],
+    "tier": "Signature",
+    "speed": "3-5 Days",
+    "featured": true,
+    "min_order_qty": 10,
+    "collections": [
+      "Events & Recognition"
+    ],
+    "images": [
+      {
+        "id": "prod-ww-1-img-1",
+        "product_id": "prod-ww-1",
+        "storage_path": "https://images.unsplash.com/photo-1503602642458-232111445657",
+        "image_type": "primary",
+        "sort_order": 1
+      }
+    ],
+    "created_at": "2026-08-20T10:00:00+00:00",
+    "updated_at": "2026-08-20T10:00:00+00:00"
+  },
+  {
+    "id": "prod-ww-2",
+    "sku": "VG-WW-002",
+    "name": "Engraved Sheesham Barrelled Pen",
+    "category_id": "cat-personalised-woodwork",
+    "category_name": "Personalised Woodwork",
+    "subcategory": "Writing",
+    "price": 899,
+    "gst_percent": 18,
+    "description": "A turned sheesham wood barrel pen with a hand-engraved monogram and brass fittings — an everyday writing instrument with a permanent personal touch.",
+    "specification": {
+      "dimensions": "5.5\" length, turned sheesham, brass refill fittings",
+      "weight": "Artisanal spec",
+      "finish": "Buffed Natural Polish",
+      "packaging": "Kraft Tube with Sleeve",
+      "customization_options": [
+        "Monogram Engraving",
+        "Logo Burn",
+        "Personalised Gift Note"
+      ],
+      "origin": "Artisan Clusters, India",
+      "eco_impact": "Reclaimed sheesham, renewable materials, plastic-free packaging"
+    },
+    "primary_use_case": "Desk Keepsakes",
+    "secondary_use_cases": [
+      "Executive Gifting",
+      "Welcome Kits",
+      "Client Souvenirs",
+      "Employee Gifting"
+    ],
+    "material_tags": [
+      "Wood",
+      "Metal"
+    ],
+    "tier": "Premium",
+    "speed": "3-5 Days",
+    "featured": false,
+    "min_order_qty": 20,
+    "collections": [
+      "Premium Desk Gift Sets",
+      "Writing Instruments"
+    ],
+    "images": [
+      {
+        "id": "prod-ww-2-img-1",
+        "product_id": "prod-ww-2",
+        "storage_path": "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace",
+        "image_type": "primary",
+        "sort_order": 1
+      }
+    ],
+    "created_at": "2026-08-20T10:00:00+00:00",
+    "updated_at": "2026-08-20T10:00:00+00:00"
+  },
+  {
+    "id": "prod-ww-3",
+    "sku": "VG-WW-003",
+    "name": "Personalised Wooden Coaster Set (Brass Edge)",
+    "category_id": "cat-personalised-woodwork",
+    "category_name": "Personalised Woodwork",
+    "subcategory": "Tableware",
+    "price": 749,
+    "gst_percent": 18,
+    "description": "Four reclaimed timber coasters edged with thin brass trim, each laser-engraved with initials or a motif — a table set with family-crest warmth.",
+    "specification": {
+      "dimensions": "set of 4 coasters, 4\" dia, reclaimed timber, brass edge trim",
+      "weight": "Artisanal spec",
+      "finish": "Natural Waxed Timber",
+      "packaging": "Wooden Slider Box",
+      "customization_options": [
+        "Initial Engraving",
+        "Motif Etching",
+        "Set Numbering"
+      ],
+      "origin": "Artisan Clusters, India",
+      "eco_impact": "Reclaimed timber offcuts, brass scraps reclaimed, plastic-free box"
+    },
+    "primary_use_case": "Tabletop Gifting",
+    "secondary_use_cases": [
+      "Wedding Favours",
+      "Milestone Celebrations",
+      "Home Décor",
+      "Client Souvenirs"
+    ],
+    "material_tags": [
+      "Wood",
+      "Brass"
+    ],
+    "tier": "Essential",
+    "speed": "7-10 Days",
+    "featured": false,
+    "min_order_qty": 15,
+    "collections": [
+      "Tableware & Drinkware"
+    ],
+    "images": [
+      {
+        "id": "prod-ww-3-img-1",
+        "product_id": "prod-ww-3",
+        "storage_path": "https://images.unsplash.com/photo-1553413077-190dd305871c",
+        "image_type": "primary",
+        "sort_order": 1
+      }
+    ],
+    "created_at": "2026-08-20T10:00:00+00:00",
+    "updated_at": "2026-08-20T10:00:00+00:00"
   },
   {
     "id": "prod-2",

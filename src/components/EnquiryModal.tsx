@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Product } from '../lib/supabase/types';
 import { dbService } from '../lib/supabase/db-service';
-import { getProductImageUrl } from '../lib/supabase/storage';
+import { getProductImageUrl, compressImageFile, uploadEnquiryAttachment } from '../lib/supabase/storage';
 import { useAuth } from '../context/AuthContext';
-import { X, CheckCircle2, Send, Building2, User, Mail, Phone, Layers, ArrowRight } from 'lucide-react';
+import { X, CheckCircle2, Send, Building2, User, Mail, Phone, Layers, ArrowRight, ImagePlus, Trash2, Type } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 interface EnquiryModalProps {
@@ -27,9 +27,12 @@ export default function EnquiryModal({ isOpen, onClose, selectedProduct }: Enqui
   const [quantity, setQuantity] = useState(50);
   const [customizations, setCustomizations] = useState<string[]>(['Logo Engraving']);
   const [message, setMessage] = useState('');
+  const [personalizationText, setPersonalizationText] = useState('');
+  const [attachmentFiles, setAttachmentFiles] = useState<{ dataUrl: string; name: string }[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [createdEnquiryId, setCreatedEnquiryId] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Sync user details when the signed-in user changes
   const [prevUserKey, setPrevUserKey] = useState(user?.id ?? null);
@@ -62,6 +65,31 @@ export default function EnquiryModal({ isOpen, onClose, selectedProduct }: Enqui
     }
   };
 
+  const handleAttachmentFiles = async (files: FileList | null) => {
+    if (!files) return;
+    const room = 4 - attachmentFiles.length;
+    if (room <= 0) {
+      window.alert('A maximum of 4 reference images can be attached.');
+      return;
+    }
+    const chosen = Array.from(files)
+      .filter((f) => f.type.startsWith('image/'))
+      .slice(0, room);
+    for (const f of chosen) {
+      try {
+        const dataUrl = await compressImageFile(f);
+        setAttachmentFiles((prev) => [...prev, { dataUrl, name: f.name }]);
+      } catch (err) {
+        console.error('Failed to process attachment image', err);
+      }
+    }
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const removeAttachment = (index: number) => {
+    setAttachmentFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !email || !phone) return;
@@ -71,6 +99,15 @@ export default function EnquiryModal({ isOpen, onClose, selectedProduct }: Enqui
       const productImage = getProductImageUrl(selectedProduct, 'primary');
 
       const customReqString = customizations.join(', ');
+
+      // Upload reference images to Storage when possible, otherwise keep the
+      // local data URL so they are still visible in fallback (localStorage) mode.
+      const ref = `enq-${Date.now()}`;
+      const storedAttachments: string[] = [];
+      for (const att of attachmentFiles) {
+        const url = await uploadEnquiryAttachment(att.dataUrl, ref, att.name);
+        storedAttachments.push(url || att.dataUrl);
+      }
 
       const res = await dbService.createEnquiry({
         user_id: user?.id || null,
@@ -84,6 +121,8 @@ export default function EnquiryModal({ isOpen, onClose, selectedProduct }: Enqui
         company_name: companyName,
         quantity: Number(quantity) || 25,
         customization_requirements: customReqString,
+        personalization_text: personalizationText.trim() || undefined,
+        attachments: storedAttachments.length > 0 ? storedAttachments : undefined,
         message: message || 'Interested in ordering customized units for corporate gifting.',
       });
 
@@ -111,6 +150,8 @@ export default function EnquiryModal({ isOpen, onClose, selectedProduct }: Enqui
   const handleResetAndClose = () => {
     setIsSuccess(false);
     setCreatedEnquiryId(null);
+    setPersonalizationText('');
+    setAttachmentFiles([]);
     onClose();
   };
 
@@ -361,6 +402,82 @@ export default function EnquiryModal({ isOpen, onClose, selectedProduct }: Enqui
                   );
                 })}
               </div>
+            </div>
+
+            {/* Personalization Text */}
+            <div>
+              <label className="block text-xs font-semibold text-[#1F332B] mb-1 flex items-center gap-1.5">
+                <Type className="w-3.5 h-3.5 text-[#C88B56]" />
+                Text / Message to be written on the product
+              </label>
+              <p className="text-[11px] text-stone-500 mb-2">
+                Names, logos, quotes or dates to be engraved / printed (e.g. &quot;NovaTech Awards 2026&quot;).
+              </p>
+              <textarea
+                rows={2}
+                value={personalizationText}
+                onChange={(e) => setPersonalizationText(e.target.value)}
+                placeholder="e.g. Congratulations Aarav — Winner, 2026 Excellence Award"
+                className="w-full p-3 bg-white border border-[#DCD1C4] rounded-xl text-sm text-[#1F332B] focus:outline-hidden focus:border-[#C88B56] focus:ring-1 focus:ring-[#C88B56]"
+              />
+            </div>
+
+            {/* Reference Images Upload */}
+            <div>
+              <label className="block text-xs font-semibold text-[#1F332B] mb-1 flex items-center gap-1.5">
+                <ImagePlus className="w-3.5 h-3.5 text-[#C88B56]" />
+                Reference Images (Optional)
+              </label>
+              <p className="text-[11px] text-stone-500 mb-2">
+                Upload up to 4 images — logo, mockup, colour or material reference.
+              </p>
+
+              {attachmentFiles.length > 0 && (
+                <div className="grid grid-cols-4 gap-2.5 mb-3">
+                  {attachmentFiles.map((att, idx) => (
+                    <div key={`${att.name}-${idx}`} className="relative group aspect-square rounded-xl overflow-hidden bg-stone-200 border border-[#E8DFC8]">
+                      <Image
+                        src={att.dataUrl}
+                        alt={`Reference ${idx + 1}`}
+                        fill
+                        unoptimized
+                        className="object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeAttachment(idx)}
+                        aria-label="Remove image"
+                        className="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-red-600 transition-colors"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                      <span className="absolute bottom-0 left-0 right-0 text-[9px] bg-black/50 text-white px-1.5 py-0.5 truncate">
+                        {att.name}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={attachmentFiles.length >= 4}
+                className="w-full py-3 rounded-xl border-2 border-dashed border-[#DCD1C4] text-xs font-semibold text-stone-600 hover:border-[#C88B56] hover:text-[#1F332B] hover:bg-[#F7F1E8] transition-all disabled:opacity-40 flex items-center justify-center gap-2"
+              >
+                <ImagePlus className="w-4 h-4 text-[#C88B56]" />
+                {attachmentFiles.length >= 4
+                  ? 'Maximum 4 images reached'
+                  : 'Click to upload images'}
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={(e) => handleAttachmentFiles(e.target.files)}
+                className="hidden"
+              />
             </div>
 
             {/* Message / Details */}

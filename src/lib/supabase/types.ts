@@ -93,6 +93,8 @@ export interface Enquiry {
   company_name?: string;
   quantity: number;
   customization_requirements?: string;
+  personalization_text?: string;
+  attachments?: string[];
   message: string;
   status: EnquiryStatus;
   admin_notes?: string;

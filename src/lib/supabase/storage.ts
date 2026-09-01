@@ -2,6 +2,7 @@ import { supabase } from './client';
 import { Product, ProductImage } from './types';
 
 export const SUPABASE_STORAGE_BUCKET = 'product-images';
+export const ENQUIRY_ATTACHMENTS_BUCKET = 'enquiry-attachments';
 export const SUPABASE_BASE_URL = 
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://uoefljjbzjysuxarkxvj.supabase.co';
 
@@ -128,5 +129,92 @@ export async function deleteProductImageFromStorage(storagePath: string): Promis
   } catch (err) {
     console.error('Delete error:', err);
     return false;
+  }
+}
+
+// Downscales an image file and returns a resized JPEG data URL (client-side).
+// Keeps payloads small before upload or localStorage persistence.
+export async function compressImageFile(
+  file: File,
+  maxDim = 1280,
+  quality = 0.82
+): Promise<string> {
+  const dataUrl: string = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(typeof reader.result === 'string' ? reader.result : '');
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+
+  try {
+    const img = new Image();
+    img.src = dataUrl;
+    await img.decode();
+
+    const scale = Math.min(1, maxDim / Math.max(img.naturalWidth, img.naturalHeight));
+    const width = Math.max(1, Math.round(img.naturalWidth * scale));
+    const height = Math.max(1, Math.round(img.naturalHeight * scale));
+
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return dataUrl;
+    ctx.drawImage(img, 0, 0, width, height);
+    return canvas.toDataURL('image/jpeg', quality);
+  } catch {
+    return dataUrl;
+  }
+}
+
+// Turns a local data URL into a Blob (used before upload to Supabase Storage).
+export function dataUrlToBlob(dataUrl: string): Blob {
+  const [meta, b64] = dataUrl.split(',');
+  const mime = meta.match(/^data:(.*?);base64/)?.[1] || 'image/jpeg';
+  const binary = atob(b64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return new Blob([bytes], { type: mime });
+}
+
+/**
+ * Uploads an enquiry reference image to Storage under `enquiry-attachments/{ref}/{filename}`
+ * and returns its public URL, or null on failure.
+ */
+export async function uploadEnquiryAttachment(
+  dataUrl: string,
+  ref: string,
+  filename = 'reference'
+): Promise<string | null> {
+  if (!supabase) {
+    console.warn('Supabase client is not configured.');
+    return null;
+  }
+
+  try {
+    const cleanRef = ref.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    const storagePath = `${cleanRef}/${Date.now()}-${filename.toLowerCase().replace(/[^a-z0-9.]+/g, '-')}.jpg`;
+
+    const { error } = await supabase.storage
+      .from(ENQUIRY_ATTACHMENTS_BUCKET)
+      .upload(storagePath, dataUrlToBlob(dataUrl), {
+        cacheControl: '3600',
+        upsert: false,
+        contentType: 'image/jpeg',
+      });
+
+    if (error) {
+      console.error('Enquiry attachment upload error:', error);
+      return null;
+    }
+
+    const { data: pubUrlData } = supabase.storage
+      .from(ENQUIRY_ATTACHMENTS_BUCKET)
+      .getPublicUrl(storagePath);
+
+    return pubUrlData.publicUrl;
+  } catch (err) {
+    console.error('Failed to upload enquiry attachment to Storage:', err);
+    return null;
   }
 }

@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { dbService } from '../../../lib/supabase/db-service';
 import { Enquiry, EnquiryStatus } from '../../../lib/supabase/types';
 import { useAuth } from '../../../context/AuthContext';
+import { generateEnquiryPdf } from '../../../lib/pdf/enquiry-pdf';
 import { 
   MessageSquareText, 
   Search, 
@@ -14,7 +15,10 @@ import {
   Phone, 
   Send, 
   ShieldCheck, 
-  RotateCcw
+  RotateCcw,
+  FileText,
+  Type,
+  ImageIcon
 } from 'lucide-react';
 
 export default function AdminEnquiriesPage() {
@@ -29,6 +33,7 @@ export default function AdminEnquiriesPage() {
   const [replyText, setReplyText] = useState('');
   const [loading, setLoading] = useState(true);
   const [sendingReply, setSendingReply] = useState(false);
+  const [generatingPdf, setGeneratingPdf] = useState(false);
 
   const applyEnquiryData = (data: Enquiry[]) => {
     setEnquiries(data);
@@ -114,6 +119,18 @@ export default function AdminEnquiriesPage() {
     if (!selectedEnquiry) return;
     await dbService.updateEnquiryStatus(selectedEnquiry.id, newStatus);
     await loadEnquiries();
+  };
+
+  const handleDownloadPdf = async () => {
+    if (!selectedEnquiry) return;
+    setGeneratingPdf(true);
+    try {
+      await generateEnquiryPdf(selectedEnquiry);
+    } catch (err) {
+      console.error('PDF generation failed', err);
+    } finally {
+      setGeneratingPdf(false);
+    }
   };
 
   const statusBadge = (status: EnquiryStatus) => {
@@ -259,7 +276,21 @@ export default function AdminEnquiriesPage() {
                 </div>
 
                 {/* Status Switcher Action */}
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <button
+                    type="button"
+                    onClick={handleDownloadPdf}
+                    disabled={generatingPdf}
+                    className="px-4 py-2 rounded-xl bg-[#C88B56] hover:bg-[#b6763f] text-white font-bold text-xs flex items-center gap-1.5 shadow-md disabled:opacity-50 transition"
+                  >
+                    {generatingPdf ? (
+                      <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : (
+                      <FileText className="w-3.5 h-3.5" />
+                    )}
+                    <span>{generatingPdf ? 'Preparing...' : 'Download PDF'}</span>
+                  </button>
+
                   <span className="text-xs font-semibold text-stone-500">Status:</span>
                   <select
                     value={selectedEnquiry.status}
@@ -328,6 +359,49 @@ export default function AdminEnquiriesPage() {
                   <p className="text-stone-700 leading-relaxed font-medium">
                     {selectedEnquiry.customization_requirements || 'Standard packaging / Open to recommendation'}
                   </p>
+                </div>
+              </div>
+
+              {/* Personalization Text + Reference Images */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-4 rounded-2xl bg-[#FAF8F5] border border-[#E8DFC8] text-xs space-y-2">
+                  <h5 className="font-bold text-[#1F332B] uppercase tracking-wider text-[10px] text-[#C88B56] flex items-center gap-1.5">
+                    <Type className="w-3.5 h-3.5" />
+                    Text / Personalization
+                  </h5>
+                  <p className="text-stone-700 leading-relaxed font-medium whitespace-pre-wrap">
+                    {selectedEnquiry.personalization_text || 'Not specified'}
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-[#FAF8F5] border border-[#E8DFC8] text-xs space-y-2">
+                  <h5 className="font-bold text-[#1F332B] uppercase tracking-wider text-[10px] text-[#C88B56] flex items-center gap-1.5">
+                    <ImageIcon className="w-3.5 h-3.5" />
+                    Reference Images ({selectedEnquiry.attachments?.length || 0})
+                  </h5>
+                  {selectedEnquiry.attachments && selectedEnquiry.attachments.length > 0 ? (
+                    <div className="grid grid-cols-3 gap-2">
+                      {selectedEnquiry.attachments.map((src, idx) => (
+                        <a
+                          key={`${src}-${idx}`}
+                          href={src}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="relative aspect-square rounded-lg overflow-hidden bg-stone-200 border border-[#E8DFC8] group"
+                        >
+                          <Image
+                            src={src}
+                            alt={`Reference image ${idx + 1}`}
+                            fill
+                            unoptimized
+                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        </a>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-stone-400">No reference images attached.</p>
+                  )}
                 </div>
               </div>
 

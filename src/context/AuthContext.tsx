@@ -39,21 +39,24 @@ const DEMO_ADMIN: Profile = {
 };
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<Profile | null>(null);
+  const [user, setUser] = useState<Profile | null>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('Virsaa_user_session');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch {
+          return null;
+        }
+      }
+      return DEMO_USER;
+    }
+    return null;
+  });
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   useEffect(() => {
-    // Check local storage for persisted user
-    const saved = localStorage.getItem('Virsaa_user_session');
-    if (saved) {
-      try {
-        setUser(JSON.parse(saved));
-      } catch {
-        setUser(null);
-      }
-    } else {
-      // Default to demo user for a richer initial experience
-      setUser(DEMO_USER);
+    if (typeof window !== 'undefined' && !localStorage.getItem('Virsaa_user_session')) {
       localStorage.setItem('Virsaa_user_session', JSON.stringify(DEMO_USER));
     }
 

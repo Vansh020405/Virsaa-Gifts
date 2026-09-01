@@ -111,3 +111,141 @@ body {
 .gold-fade {
   animation: gold-fade 0.6s ease-out;
 }
+
+/* Premium Picture Frames */
+.frame-gallery {
+  position: relative;
+  padding: 10px;
+  background: #FAF8F5;
+  border: 1px solid #E8DFC8;
+  border-radius: 1.5rem;
+  box-shadow: 0 20px 40px -15px rgba(31, 51, 43, 0.15), 0 0 0 1px rgba(200, 139, 86, 0.2);
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.frame-gallery:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 25px 50px -12px rgba(31, 51, 43, 0.25), 0 0 0 1px rgba(200, 139, 86, 0.4);
+}
+
+.frame-gallery-inner {
+  position: relative;
+  border-radius: 1rem;
+  overflow: hidden;
+  border: 1px solid rgba(200, 139, 86, 0.35);
+}
+
+.frame-luxury-gold {
+  position: relative;
+  padding: 12px;
+  background: linear-gradient(145deg, #1A2E24, #12211B);
+  border: 1px solid rgba(228, 181, 138, 0.35);
+  border-radius: 1.75rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4), 0 0 30px rgba(200, 139, 86, 0.15);
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.frame-luxury-gold:hover {
+  border-color: rgba(228, 181, 138, 0.6);
+  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(200, 139, 86, 0.25);
+}
+
+/* Float Animations */
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(0.5deg); }
+}
+
+@keyframes float-reverse {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(8px) rotate(-0.5deg); }
+}
+
+.animate-float-slow {
+  animation: float-slow 7s ease-in-out infinite;
+}
+
+.animate-float-reverse {
+  animation: float-reverse 8s ease-in-out infinite;
+}
+
+/* Moving Mesh Gradients for Light Sections */
+@keyframes fluid-gradient-light {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.bg-moving-gradient-light {
+  background: linear-gradient(135deg, #FAF8F5, #F5ECE1, #FBF8F3, #EFE6D8, #FAF8F5);
+  background-size: 300% 300%;
+  animation: fluid-gradient-light 16s ease infinite;
+}
+
+.bg-moving-gradient-subtle {
+  background: linear-gradient(120deg, #FAF8F5 0%, #F6EFE6 35%, #FBF9F6 70%, #F3EAE0 100%);
+  background-size: 250% 250%;
+  animation: fluid-gradient-light 20s ease-in-out infinite;
+}
+
+/* Floating leaves animations */
+@keyframes leaf-drift-1 {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate(15px, -25px) rotate(12deg);
+  }
+  50% {
+    transform: translate(-10px, -45px) rotate(-8deg);
+  }
+  75% {
+    transform: translate(20px, -70px) rotate(15deg);
+  }
+  100% {
+    transform: translate(0, -95px) rotate(0deg);
+  }
+}
+
+@keyframes leaf-sway {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg) scale(1);
+  }
+  50% {
+    transform: translateY(-16px) rotate(14deg) scale(1.05);
+  }
+}
+
+@keyframes leaf-sway-reverse {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg) scale(1);
+  }
+  50% {
+    transform: translateY(-20px) rotate(-18deg) scale(1.08);
+  }
+}
+
+.animate-leaf-sway {
+  animation: leaf-sway 6s ease-in-out infinite;
+}
+
+.animate-leaf-sway-slow {
+  animation: leaf-sway-reverse 9s ease-in-out infinite;
+}
+
+/* Subtle Shimmer */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+.animate-shimmer {
+  animation: shimmer 3s infinite linear;
+}
+

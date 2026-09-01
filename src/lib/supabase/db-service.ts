@@ -85,6 +85,8 @@ function toEnquiryRow(e: Enquiry) {
     company_name: e.company_name ?? null,
     quantity: e.quantity ?? 20,
     customization_requirements: e.customization_requirements ?? null,
+    personalization_text: e.personalization_text ?? null,
+    attachments: e.attachments ?? null,
     message: e.message ?? null,
     status: e.status ?? 'New',
     admin_notes: e.admin_notes ?? null,
