@@ -32,9 +32,7 @@ export default function Navbar() {
   return (
     <header className="fixed top-3 sm:top-5 left-0 right-0 z-50 px-3 sm:px-6 pointer-events-none flex justify-center">
       <div 
-        className={`pointer-events-auto w-full max-w-5xl bg-[#101C15]/95 backdrop-blur-xl border border-white/15 shadow-[0_12px_40px_-10px_rgba(0,0,0,0.7)] py-2.5 sm:py-3 px-4 sm:px-6 transition-all duration-300 ${
-          mobileMenuOpen ? 'rounded-3xl' : 'rounded-full'
-        }`}
+        className="pointer-events-auto w-full max-w-5xl bg-[#101C15]/95 backdrop-blur-xl border border-white/15 shadow-[0_12px_40px_-10px_rgba(0,0,0,0.7)] py-2.5 sm:py-3 px-4 sm:px-6 rounded-2xl md:rounded-full"
       >
         <div className="relative flex items-center justify-between">
           {/* Brand Logo (Left) */}
@@ -177,8 +175,14 @@ export default function Navbar() {
         </div>
 
         {/* Mobile Navigation Drawer */}
-        {mobileMenuOpen && (
-          <div className="md:hidden mt-3.5 pt-3.5 pb-2 border-t border-white/10 text-white space-y-3">
+        <div
+          className="md:hidden overflow-hidden transition-all duration-300 ease-in-out"
+          style={{
+            maxHeight: mobileMenuOpen ? '600px' : '0px',
+            opacity: mobileMenuOpen ? 1 : 0,
+          }}
+        >
+          <div className="mt-3.5 pt-3.5 pb-2 border-t border-white/10 text-white space-y-3">
             {/* Primary Nav Links */}
             <div className="grid grid-cols-2 gap-2">
               {navLinks.map((link) => {
@@ -265,10 +269,10 @@ export default function Navbar() {
               className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#C88B56] to-[#A86F3E] text-white font-bold text-xs uppercase tracking-wider font-sans flex items-center justify-center gap-2 shadow-lg active:scale-98 transition-all border border-[#E4B58A]/30"
             >
               <ClipboardList className="w-4 h-4" />
-              <span>{user ? 'My Client Portal' : 'Track Enquiry'}</span>
+              <span>Track Enquiry</span>
             </button>
           </div>
-        )}
+        </div>
       </div>
     </header>
   );
