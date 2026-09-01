@@ -5,6 +5,7 @@ import Navbar from './Navbar';
 import Footer from './Footer';
 import ProductCard from './ProductCard';
 import ProductImage from './ProductImage';
+import LightToggleImage, { getLightToggle } from './LightToggleImage';
 import ProductDetailModal from './ProductDetailModal';
 import EnquiryModal from './EnquiryModal';
 import AuthModal from './AuthModal';
@@ -230,7 +231,18 @@ export default function StoreCatalogue({
   }, [selectedCategory, selectedMaterial, selectedTier, selectedSpeed, selectedCollection, priceRange, searchQuery, hideCategoryFilter]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF8F5]">
+    <div className="relative min-h-screen flex flex-col bg-[#FAF8F5] overflow-hidden">
+      {/* Top decorative background art (behind all elements) */}
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-[46rem] z-0"
+        style={{
+          backgroundImage: "url('/backgrounds/catalogue-top.png')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center top',
+          opacity: 0.3,
+        }}
+      />
+      <div className="relative z-10 flex flex-col flex-1">
       <Navbar />
 
       <AuthModal />
@@ -635,21 +647,36 @@ export default function StoreCatalogue({
                         .replace(/artisanal gifts/gi, '')
                         .trim();
                       return (
-                        <button
+                        <div
                           key={product.id || product.sku}
-                          type="button"
+                          role="button"
+                          tabIndex={0}
                           onClick={() => setSelectedProductForDetail(product)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              setSelectedProductForDetail(product);
+                            }
+                          }}
                           aria-label={`View ${product.name}`}
-                          className="group w-full text-left bg-white rounded-2xl border border-[#EBE4D8] active:scale-[0.99] transition-all overflow-hidden"
+                          className="group w-full text-left bg-white rounded-2xl border border-[#EBE4D8] active:scale-[0.99] transition-all overflow-hidden cursor-pointer"
                         >
                           <div className="relative aspect-4/3 w-full overflow-hidden bg-[#F4EFEA]">
-                            <ProductImage
-                              product={product}
-                              type="hero"
-                              fill
-                              className="object-cover group-hover:scale-105 transition-transform duration-300"
-                              sizes="100vw"
-                            />
+                            {getLightToggle(product) ? (
+                              <LightToggleImage
+                                product={product}
+                                sizes="100vw"
+                                className="object-cover group-hover:scale-105 transition-transform duration-300"
+                              />
+                            ) : (
+                              <ProductImage
+                                product={product}
+                                type="hero"
+                                fill
+                                className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                sizes="100vw"
+                              />
+                            )}
                           </div>
                           <div className="px-4 py-3 flex items-start justify-between gap-3">
                             <div className="min-w-0">
@@ -674,7 +701,7 @@ export default function StoreCatalogue({
                               </div>
                             </div>
                           </div>
-                        </button>
+                        </div>
                       );
                     })}
                   </div>
@@ -686,21 +713,36 @@ export default function StoreCatalogue({
                     }`}
                   >
                     {filteredProducts.slice(0, visibleCount).map((product) => (
-                      <button
+                      <div
                         key={product.id || product.sku}
-                        type="button"
+                        role="button"
+                        tabIndex={0}
                         onClick={() => setSelectedProductForDetail(product)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            setSelectedProductForDetail(product);
+                          }
+                        }}
                         aria-label={`View ${product.name}`}
-                        className="group relative overflow-hidden rounded-xl bg-[#F4EFEA] border border-[#EBE4D8] active:scale-[0.98] transition-all aspect-square"
+                        className="group relative overflow-hidden rounded-xl bg-[#F4EFEA] border border-[#EBE4D8] active:scale-[0.98] transition-all aspect-square cursor-pointer"
                       >
-                        <ProductImage
-                          product={product}
-                          type="hero"
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-300"
-                          sizes={mobileColumns === 'three' ? '33vw' : '50vw'}
-                        />
-                      </button>
+                        {getLightToggle(product) ? (
+                          <LightToggleImage
+                            product={product}
+                            sizes={mobileColumns === 'three' ? '33vw' : '50vw'}
+                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        ) : (
+                          <ProductImage
+                            product={product}
+                            type="hero"
+                            fill
+                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                            sizes={mobileColumns === 'three' ? '33vw' : '50vw'}
+                          />
+                        )}
+                      </div>
                     ))}
                   </div>
                 )}
@@ -837,6 +879,7 @@ export default function StoreCatalogue({
       )}
 
       <Footer />
+      </div>
     </div>
   );
 }

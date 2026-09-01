@@ -300,7 +300,7 @@ export default function ProductDetailModal({
 
                   {product.min_order_qty && (
                     <div className="text-right">
-                      <span className="text-[10px] uppercase tracking-wider text-stone-400 font-semibold block font-sans">
+                      <span className="text-[13px] uppercase tracking-wider text-stone-400 font-semibold block font-sans">
                         Min. Order Qty
                       </span>
                       <span className="text-sm font-bold text-[#1F332B] bg-white px-3 py-1 rounded-lg border border-[#EBE4D8] inline-block mt-0.5 font-sans">
@@ -352,21 +352,21 @@ export default function ProductDetailModal({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-4 text-xs">
                   {product.specification?.dimensions && (
                     <div>
-                      <span className="text-stone-400 font-medium block text-[10px] uppercase tracking-wider font-sans">Specification</span>
+                      <span className="text-stone-400 font-medium block text-[13px] uppercase tracking-wider font-sans">Specification</span>
                       <span className="font-semibold text-stone-800 font-sans">{product.specification.dimensions}</span>
                     </div>
                   )}
 
                   {product.specification?.packaging && (
                     <div>
-                      <span className="text-stone-400 font-medium block text-[10px] uppercase tracking-wider font-sans">Packaging</span>
+                      <span className="text-stone-400 font-medium block text-[13px] uppercase tracking-wider font-sans">Packaging</span>
                       <span className="font-semibold text-stone-800 font-sans">{product.specification.packaging}</span>
                     </div>
                   )}
 
                   {product.primary_use_case && (
                     <div className="sm:col-span-2">
-                      <span className="text-stone-400 font-medium block text-[10px] uppercase tracking-wider font-sans">Ideal For</span>
+                      <span className="text-stone-400 font-medium block text-[13px] uppercase tracking-wider font-sans">Ideal For</span>
                       <span className="font-semibold text-[#1F332B] font-sans">{product.primary_use_case}</span>
                     </div>
                   )}

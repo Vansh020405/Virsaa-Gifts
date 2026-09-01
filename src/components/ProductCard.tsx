@@ -1,6 +1,8 @@
 'use client';
 
+import React from 'react';
 import ProductImage from './ProductImage';
+import LightToggleImage, { getLightToggle } from './LightToggleImage';
 import { Product } from '../lib/supabase/types';
 import { Sparkles, Clock } from 'lucide-react';
 
@@ -9,6 +11,37 @@ interface ProductCardProps {
   onEnquire?: (product: Product) => void;
   onSelectProduct?: (product: Product) => void;
   compact?: boolean;
+}
+
+// Renders the product image area; for light-toggle products it shows the
+// bulb icon and lets the user flip between the ON and OFF photographs.
+function CardImage({ product, compact }: {
+  product: Product;
+  compact?: boolean;
+}) {
+  const sizes = compact
+    ? '(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw'
+    : '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw';
+
+  if (getLightToggle(product)) {
+    return (
+      <LightToggleImage
+        product={product}
+        sizes={sizes}
+        className="object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
+      />
+    );
+  }
+
+  return (
+    <ProductImage
+      product={product}
+      type="hero"
+      fill
+      className="object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
+      sizes={sizes}
+    />
+  );
 }
 
 export default function ProductCard({
@@ -50,13 +83,7 @@ export default function ProductCard({
         {/* Rounded image with margin */}
         <div className="p-2">
           <div className="relative aspect-[16/11] w-full rounded-xl overflow-hidden bg-[#FAF8F5]">
-            <ProductImage
-              product={product}
-              type="hero"
-              fill
-              className="object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            />
+            <CardImage product={product} compact />
           </div>
         </div>
 
@@ -64,7 +91,7 @@ export default function ProductCard({
         <div className="px-3 pb-3 pt-0.5 flex flex-col flex-1">
           {/* Category + Tier */}
           <div className="flex items-center justify-between gap-1.5 mb-1">
-            <span className="text-[10px] uppercase tracking-wider font-bold text-[#C88B56] truncate font-sans">
+            <span className="text-[12px] uppercase tracking-wider font-bold text-[#C88B56] truncate font-sans">
               {categoryLabel}
             </span>
             <span
@@ -144,15 +171,9 @@ export default function ProductCard({
       className="group bg-white rounded-3xl border border-[#EBE4D8] hover:border-[#C88B56]/60 hover:shadow-xl transition-all duration-300 flex flex-col h-full cursor-pointer overflow-hidden"
     >
       {/* Clean image: rounded, inset margin, no overlays */}
-      <div className="p-2.5">
+        <div className="p-2.5">
         <div className="relative aspect-4/3 w-full rounded-2xl overflow-hidden bg-[#FAF8F5]">
-          <ProductImage
-            product={product}
-            type="hero"
-            fill
-            className="object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          />
+          <CardImage product={product} />
         </div>
       </div>
 
@@ -164,7 +185,7 @@ export default function ProductCard({
             {categoryLabel}
           </span>
           <span
-            className={`shrink-0 text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full border font-sans ${
+            className={`shrink-0 text-[12px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full border font-sans ${
               tierColors[product.tier] || 'text-[#1F332B] border-stone-200'
             }`}
           >
@@ -186,21 +207,21 @@ export default function ProductCard({
         {/* Price + Shipment */}
         <div className="flex items-end justify-between mt-2 gap-2">
           <div>
-            <span className="text-[10px] text-stone-400 uppercase font-medium font-sans">
+            <span className="text-[12px] text-stone-400 uppercase font-medium font-sans">
               Starting from
             </span>
             <div className="flex items-baseline gap-1.5">
               <span className="font-sans text-lg font-semibold text-[#1F332B] tracking-tight">
                 ₹{product.price.toLocaleString('en-IN')}
               </span>
-              <span className="text-[10px] text-stone-500 font-medium font-sans">
+              <span className="text-[12px] text-stone-500 font-medium font-sans">
                 + {product.gst_percent}% GST
               </span>
             </div>
           </div>
 
           {product.speed && (
-            <div className="flex items-center gap-1 text-[10px] text-stone-600 font-medium font-sans bg-[#FAF8F5] px-2 py-1 rounded-full border border-[#EBE4D8]">
+            <div className="flex items-center gap-1 text-[12px] text-stone-600 font-medium font-sans bg-[#FAF8F5] px-2 py-1 rounded-full border border-[#EBE4D8]">
               <Clock className="w-3 h-3 text-[#C88B56]" />
               {product.speed}
             </div>
@@ -208,7 +229,7 @@ export default function ProductCard({
         </div>
 
         {product.min_order_qty && (
-          <p className="text-[10px] text-stone-500 font-medium font-sans mt-1.5">
+          <p className="text-[12px] text-stone-500 font-medium font-sans mt-1.5">
             Min order: {product.min_order_qty.toLocaleString('en-IN')} pcs
           </p>
         )}
