@@ -1,14 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import EnquiryModal from '../../components/EnquiryModal';
-import { dbService } from '../../lib/supabase/db-service';
-import { getProductImageUrl } from '../../lib/supabase/storage';
 import { 
   Leaf, 
   Users, 
@@ -17,7 +15,8 @@ import {
   ChevronDown, 
   Sparkles,
   Award,
-  Globe2
+  Globe2,
+  Compass
 } from 'lucide-react';
 
 const values = [
@@ -73,6 +72,24 @@ const journey = [
   },
 ];
 
+const steps = [
+  {
+    step: '01',
+    title: 'Select & Customize',
+    desc: 'Pick curated keepsakes and share your branding requirements for custom digital 3D renders.',
+  },
+  {
+    step: '02',
+    title: 'Handcrafted Sample',
+    desc: 'Approve physical prototypes with laser etching, brass plaques, and plantable seed-paper inserts.',
+  },
+  {
+    step: '03',
+    title: 'Pan-India Delivery',
+    desc: 'Safe, premium plastic-free boxed dispatch straight to client suites and executive teams.',
+  },
+];
+
 const faqs = [
   {
     q: 'What is the typical minimum order quantity (MOQ)?',
@@ -96,42 +113,9 @@ const faqs = [
   },
 ];
 
-const FALLBACK_COLLAGE = [
-  'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1616046229478-9901c5536a45?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=800&q=80',
-];
-
 export default function AboutPage() {
   const [enquiryModalOpen, setEnquiryModalOpen] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
-  const [collageImages, setCollageImages] = useState<string[]>([]);
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const { products } = await dbService.getProducts({ limit: 5 });
-        if (cancelled) return;
-        const real = products
-          .filter((p) => p.images && p.images.length > 0)
-          .map((p) => getProductImageUrl(p, 'primary'))
-          .filter(Boolean);
-        setCollageImages(real.length > 0 ? real : FALLBACK_COLLAGE);
-      } catch {
-        if (!cancelled) setCollageImages(FALLBACK_COLLAGE);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const collage = collageImages.length === 5
-    ? collageImages
-    : [...collageImages, ...FALLBACK_COLLAGE].slice(0, 5);
 
   return (
     <div className="min-h-screen bg-[#FAF8F5] flex flex-col selection:bg-[#C88B56]/30 selection:text-[#12211B] relative">
@@ -377,85 +361,46 @@ export default function AboutPage() {
         </section>
 
         {/* ===================================================================== */}
-        {/* 5. CRAFT IN MOTION (REDESIGNED 5-PHOTO GALLERY WITH LUXURY FRAMES) */}
+        {/* 5. HOW GIFTING WITH VIRSAA WORKS */}
         {/* ===================================================================== */}
-        <section className="py-24 bg-moving-gradient-light relative overflow-hidden">
+        <section className="py-24 bg-[#FAF8F5] relative border-t border-[#E8DFC8]/60">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-2xl mx-auto mb-16">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#1F332B]/10 border border-[#1F332B]/20 text-[#1F332B] text-xs uppercase tracking-widest font-semibold font-sans mb-3">
-                <Sparkles className="w-3.5 h-3.5 text-[#C88B56]" />
-                <span>The Craft in Motion</span>
+              <div className="inline-flex items-center gap-2 text-xs uppercase tracking-widest font-bold text-[#C88B56] mb-3">
+                <Compass className="w-4 h-4" />
+                <span>Effortless Execution</span>
               </div>
               <h2 className="font-serif-luxury text-3xl sm:text-4xl lg:text-5xl font-normal text-[#1F332B]">
-                Made Slowly, Given Deliberately
+                How Gifting with Virsaa Works
               </h2>
-              <p className="text-stone-600 text-sm sm:text-base mt-2 font-sans">
-                A gallery showcase of botanical keepsakes, custom hampers, and artisan woodcraft.
+              <p className="text-stone-600 text-sm sm:text-base mt-3 font-sans">
+                From initial curation to executive unboxing in 3 seamless steps.
               </p>
             </div>
 
-            {/* Redesigned Luxury Framed Collage */}
-            <div className="space-y-6 sm:space-y-8">
-              {/* Row 1: 3-column framed gallery */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="frame-luxury-gold relative aspect-[4/3] md:aspect-[3/4] rounded-3xl overflow-hidden shadow-xl hover:-translate-y-1 transition-transform">
-                  <div className="relative w-full h-full rounded-2xl overflow-hidden border border-[#E4B58A]/30">
-                    <Image src={collage[0]} alt="Virsaa Keepsake 1" fill className="object-cover hover:scale-105 transition-transform duration-700" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#12211B]/75 via-transparent to-transparent" />
-                    <div className="absolute bottom-3.5 left-3.5 right-3.5 text-white">
-                      <span className="text-[10px] uppercase font-bold text-[#E4B58A]">Botanical Series</span>
-                      <p className="text-xs font-serif-luxury">Moss Terrarium Keepsake</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+              {steps.map((item, idx) => (
+                <div 
+                  key={item.step}
+                  className="relative p-8 rounded-3xl bg-white border border-[#E8DFC8] shadow-xs hover:shadow-xl hover:border-[#C88B56]/50 transition-all duration-300 flex flex-col group"
+                >
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="w-12 h-12 rounded-2xl bg-[#1F332B] text-[#E4B58A] flex items-center justify-center font-bold text-sm shadow-md group-hover:scale-105 transition-transform">
+                      {item.step}
                     </div>
+                    <span className="text-xs font-bold text-[#C88B56] uppercase tracking-wider font-sans">
+                      Step {idx + 1}
+                    </span>
                   </div>
-                </div>
 
-                <div className="frame-gallery relative aspect-[4/3] md:aspect-[3/4] rounded-3xl overflow-hidden shadow-xl hover:-translate-y-1 transition-transform">
-                  <div className="relative w-full h-full rounded-2xl overflow-hidden border border-[#C88B56]/30">
-                    <Image src={collage[1]} alt="Virsaa Keepsake 2" fill className="object-cover hover:scale-105 transition-transform duration-700" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-                    <div className="absolute bottom-3.5 left-3.5 right-3.5 text-white">
-                      <span className="text-[10px] uppercase font-bold text-[#E4B58A]">Curated Hamper</span>
-                      <p className="text-xs font-serif-luxury">Executive Gift Box Set</p>
-                    </div>
-                  </div>
+                  <h3 className="font-serif-luxury text-xl font-medium text-[#1F332B] mb-2 group-hover:text-[#C88B56] transition-colors">
+                    {item.title}
+                  </h3>
+                  <p className="text-stone-600 text-xs sm:text-sm leading-relaxed font-sans">
+                    {item.desc}
+                  </p>
                 </div>
-
-                <div className="frame-luxury-gold relative aspect-[4/3] md:aspect-[3/4] rounded-3xl overflow-hidden shadow-xl hover:-translate-y-1 transition-transform">
-                  <div className="relative w-full h-full rounded-2xl overflow-hidden border border-[#E4B58A]/30">
-                    <Image src={collage[2]} alt="Virsaa Keepsake 3" fill className="object-cover hover:scale-105 transition-transform duration-700" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#12211B]/75 via-transparent to-transparent" />
-                    <div className="absolute bottom-3.5 left-3.5 right-3.5 text-white">
-                      <span className="text-[10px] uppercase font-bold text-[#E4B58A]">Artisan Heritage</span>
-                      <p className="text-xs font-serif-luxury">Brass & Reclaimed Timber</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Row 2: 2-column wide framed showcase */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="frame-gallery relative aspect-[16/10] rounded-3xl overflow-hidden shadow-xl hover:-translate-y-1 transition-transform">
-                  <div className="relative w-full h-full rounded-2xl overflow-hidden border border-[#C88B56]/30">
-                    <Image src={collage[3]} alt="Virsaa Keepsake 4" fill className="object-cover hover:scale-105 transition-transform duration-700" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent" />
-                    <div className="absolute bottom-4 left-4 right-4 text-white">
-                      <span className="text-[10px] uppercase font-bold text-[#E4B58A]">Sustainable Packaging</span>
-                      <p className="text-sm font-serif-luxury">Zero-Plastic Seed Paper Presentation</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="frame-luxury-gold relative aspect-[16/10] rounded-3xl overflow-hidden shadow-xl hover:-translate-y-1 transition-transform">
-                  <div className="relative w-full h-full rounded-2xl overflow-hidden border border-[#E4B58A]/30">
-                    <Image src={collage[4]} alt="Virsaa Keepsake 5" fill className="object-cover hover:scale-105 transition-transform duration-700" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#12211B]/80 via-transparent to-transparent" />
-                    <div className="absolute bottom-4 left-4 right-4 text-white">
-                      <span className="text-[10px] uppercase font-bold text-[#E4B58A]">Festive & Corporate Suite</span>
-                      <p className="text-sm font-serif-luxury">Preserved Moss & Brass Tabletop Artifacts</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </section>

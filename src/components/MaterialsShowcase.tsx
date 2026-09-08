@@ -204,69 +204,97 @@ export default function MaterialsShowcase() {
           </p>
         </div>
 
-        {/* 5 Distinct Green Rounded Div Cards */}
-        <div className="space-y-10 sm:space-y-12">
-          {MATERIALS_DATA.map((mat, i) => {
-            const imageOnLeft = i % 2 === 0;
-            return (
-              <div
-                key={mat.id}
-                className="rounded-3xl bg-[#12211B] border border-[#C88B56]/30 p-6 sm:p-10 shadow-xl hover:shadow-2xl hover:border-[#E4B58A]/50 transition-all duration-300 relative overflow-hidden group"
-              >
-                {/* Ambient interior card glow */}
-                <div className="absolute top-0 right-0 w-80 h-80 bg-[#C88B56]/10 rounded-full blur-[100px] pointer-events-none" />
-                <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#2D4A3E]/20 rounded-full blur-[100px] pointer-events-none" />
+        {/* 4 Cards in 2x2 Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
+          {MATERIALS_DATA.slice(0, 4).map((mat, i) => (
+            <div
+              key={mat.id}
+              className="rounded-3xl bg-[#12211B] border border-[#C88B56]/30 p-5 sm:p-7 shadow-xl hover:shadow-2xl hover:border-[#E4B58A]/50 transition-all duration-300 relative overflow-hidden group"
+            >
+              <div className="absolute top-0 right-0 w-60 h-60 bg-[#C88B56]/10 rounded-full blur-[80px] pointer-events-none" />
 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center relative z-10">
-                  {/* Image Gallery Side */}
-                  <div
-                    className={`lg:col-span-5 w-full ${
-                      imageOnLeft ? 'lg:order-1' : 'lg:order-2'
-                    }`}
-                  >
-                    <MaterialGallery
-                      images={mat.images}
-                      name={mat.name}
-                      tactileFeel={mat.tactileFeel}
-                    />
+              <div className="relative z-10">
+                {/* Image */}
+                <div className="mb-4 rounded-2xl overflow-hidden border border-[#E4B58A]/20">
+                  <MaterialGallery
+                    images={mat.images}
+                    name={mat.name}
+                    tactileFeel={mat.tactileFeel}
+                  />
+                </div>
+
+                {/* Content */}
+                <span className="text-[10px] font-mono uppercase tracking-widest text-[#E4B58A] font-bold">
+                  Pillar 0{i + 1}
+                </span>
+                <h3 className="font-serif-luxury text-xl sm:text-2xl font-normal text-white mt-1">
+                  {mat.name}
+                </h3>
+                <p className="text-[#E4B58A]/90 text-xs italic mt-1 font-sans">
+                  {mat.subtitle}
+                </p>
+                <p className="text-stone-300 text-xs sm:text-sm leading-relaxed font-sans mt-3">
+                  {mat.description}
+                </p>
+
+                <div className="mt-4 p-3 rounded-xl bg-white/[0.06] border border-white/10">
+                  <div className="flex items-center gap-2 text-[#E4B58A] text-[11px] font-semibold tracking-wider font-sans mb-1">
+                    <Leaf className="w-3 h-3" />
+                    <span>Sustainability Impact</span>
                   </div>
-
-                  {/* Information Side */}
-                  <div
-                    className={`lg:col-span-7 space-y-4 text-white ${
-                      imageOnLeft ? 'lg:order-2' : 'lg:order-1'
-                    }`}
-                  >
-                    <div>
-                      <span className="text-[11px] font-mono uppercase tracking-widest text-[#E4B58A] font-bold">
-                        Pillar 0{i + 1}
-                      </span>
-                      <h3 className="font-serif-luxury text-2xl sm:text-3xl font-normal text-white mt-1">
-                        {mat.name}
-                      </h3>
-                      <p className="text-[#E4B58A]/90 text-xs sm:text-sm italic mt-1 font-sans">
-                        {mat.subtitle}
-                      </p>
-                    </div>
-
-                    <p className="text-stone-300 text-sm sm:text-base leading-relaxed font-sans">
-                      {mat.description}
-                    </p>
-
-                    <div className="p-4 rounded-2xl bg-white/[0.06] border border-white/10 backdrop-blur-md space-y-1.5">
-                      <div className="flex items-center gap-2 text-[#E4B58A] text-xs font-semibold tracking-wider font-sans">
-                        <Leaf className="w-3.5 h-3.5" />
-                        <span>Sustainability Impact</span>
-                      </div>
-                      <p className="text-xs sm:text-sm text-stone-200 font-medium font-sans">
-                        {mat.ecoFeature}
-                      </p>
-                    </div>
-                  </div>
+                  <p className="text-[11px] sm:text-xs text-stone-200 font-medium font-sans">
+                    {mat.ecoFeature}
+                  </p>
                 </div>
               </div>
-            );
-          })}
+            </div>
+          ))}
+        </div>
+
+        {/* 5th Emotional Card — Full Width */}
+        <div className="mt-6 sm:mt-8 rounded-3xl bg-[#1F332B] border border-[#C88B56]/30 p-6 sm:p-10 shadow-xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-[#C88B56]/10 rounded-full blur-[100px] pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-80 h-80 bg-[#2D4A3E]/20 rounded-full blur-[100px] pointer-events-none" />
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center relative z-10">
+            {/* Image Side */}
+            <div className="lg:col-span-5 w-full">
+              <MaterialGallery
+                images={MATERIALS_DATA[2].images}
+                name={MATERIALS_DATA[2].name}
+                tactileFeel={MATERIALS_DATA[2].tactileFeel}
+              />
+            </div>
+
+            {/* Content Side */}
+            <div className="lg:col-span-7 space-y-5 text-white">
+              <div>
+                <span className="text-[11px] font-mono uppercase tracking-widest text-[#E4B58A] font-bold">
+                  Pillar 05
+                </span>
+                <h3 className="font-serif-luxury text-2xl sm:text-3xl font-normal text-white mt-1">
+                  Emotional Connection
+                </h3>
+                <p className="text-[#E4B58A]/90 text-base sm:text-lg italic mt-2 font-serif-luxury">
+                  Every Gift Tells a Story
+                </p>
+              </div>
+
+              <p className="text-stone-300 text-sm sm:text-base leading-relaxed font-sans">
+                Behind every Virsaa piece is a master artisan, a reclaimed material, and a commitment to leaving the earth better than we found it. Your corporate gift becomes a living legacy.
+              </p>
+
+              <div className="p-4 rounded-2xl bg-white/[0.06] border border-white/10 backdrop-blur-md space-y-1.5">
+                <div className="flex items-center gap-2 text-[#E4B58A] text-xs font-semibold tracking-wider font-sans">
+                  <Leaf className="w-3.5 h-3.5" />
+                  <span>Meaningful Gifting</span>
+                </div>
+                <p className="text-xs sm:text-sm text-stone-200 font-medium font-sans">
+                  Cultural craftsmanship behind every piece, built to create a lasting emotional connection between giver and recipient.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>

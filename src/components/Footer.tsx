@@ -8,7 +8,7 @@ import FooterLogo from '../../Someone is already doing it..png';
 
 export default function Footer() {
   return (
-    <footer className="bg-[#12211B] text-stone-300">
+    <footer className="bg-[#12211B] text-stone-300 rounded-tl-[2.5rem] rounded-tr-[2.5rem]">
       {/* Main Footer Links */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="flex flex-col md:flex-row justify-between gap-8">
@@ -24,7 +24,7 @@ export default function Footer() {
               />
             </Link>
             <p className="text-sm text-stone-400 max-w-sm leading-relaxed">
-              Virsaa Gifts creates premium, personalized and sustainable gifts using wood, MDF, cork, bamboo and preserved moss décor. Combining Indian artisan craftsmanship, personalization, and emotional connection.
+             Combining Indian artisan craftsmanship, personalization, and emotional connection.
             </p>
             <p className="text-xs text-[#E4B58A] italic font-sans">
               “Gifts That Carry Your Story.”
@@ -48,7 +48,7 @@ export default function Footer() {
             <ul className="space-y-3 text-sm">
               <li className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-[#C88B56] shrink-0 mt-0.5" />
-                <span>House no 5160, gmada aerocity, mohali 140306</span>
+                <span>Gmada aerocity, Mohali, 140306</span>
               </li>
               <li className="flex items-center gap-2.5">
                 <Mail className="w-4 h-4 text-[#C88B56] shrink-0" />
@@ -65,9 +65,7 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="border-t border-[#233B31] mt-8 pt-5 flex flex-col sm:flex-row items-center justify-between text-xs text-stone-500 gap-4">
           <p>© {new Date().getFullYear()} Virsaa Gifts Private Limited. All rights reserved.</p>
-          <p>
-            Powered by <span className="text-[#C88B56] font-semibold">Foundrhub</span>
-          </p>
+          
         </div>
       </div>
     </footer>
