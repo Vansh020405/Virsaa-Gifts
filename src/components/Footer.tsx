@@ -6,9 +6,9 @@ import Link from 'next/link';
 import { Mail, Phone, MapPin, ShieldCheck, Leaf } from 'lucide-react';
 import FooterLogo from '../../Someone is already doing it..png';
 
-export default function Footer() {
+export default function Footer({ flat = false }: { flat?: boolean }) {
   return (
-    <footer className="bg-[#12211B] text-stone-300 rounded-tl-[2.5rem] rounded-tr-[2.5rem]">
+    <footer className={`bg-[#12211B] text-stone-300 ${flat ? '' : 'rounded-tl-[2.5rem] rounded-tr-[2.5rem]'}`}>
       {/* Main Footer Links */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="flex flex-col md:flex-row justify-between gap-8">

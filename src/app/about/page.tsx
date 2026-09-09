@@ -482,7 +482,7 @@ export default function AboutPage() {
         </section>
       </main>
 
-      <Footer />
+      <Footer flat />
 
       <EnquiryModal
         isOpen={enquiryModalOpen}

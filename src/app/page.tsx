@@ -89,7 +89,7 @@ export default function HomePage() {
       {/* ========================================================================= */}
       {/* 1. CINEMATIC HERO SECTION (FULL SCREEN) */}
       {/* ========================================================================= */}
-      <section className="relative min-h-screen h-screen flex items-center justify-center overflow-hidden text-white pt-20 pb-12">
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden text-white pt-24 pb-16">
         {/* Background Video with Rich Emerald Forest Vignette covering 100% full screen */}
         <div className="absolute inset-0 z-0 w-full h-full">
           <video
@@ -135,11 +135,21 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1 }}
-            className="font-playfair text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-medium tracking-tight leading-[1.1] text-gold-gradient hero-text-shadow max-w-4xl"
+            className="font-playfair text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-medium tracking-tight leading-[1.2] text-gold-gradient hero-text-shadow max-w-4xl"
           >
-            Designed to Impress, <br />
-            <span className="italic">Made to Remember</span>
+            Gifts That Carry<br />
+            <span className="italic">Your Story</span>
           </motion.h1>
+          <motion.p
+  initial={{ opacity: 0, y: 20 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.8, delay: 0.25 }}
+  className="mt-6 sm:mt-7 text-base sm:text-lg md:text-xl text-[#E8DCC8] hero-text-shadow max-w-2xl"
+>
+  Thoughtfully handcrafted and personalised to make every moment worth remembering.
+</motion.p>
+
+
 
          
           
@@ -290,7 +300,7 @@ export default function HomePage() {
             <div className="lg:col-span-6 relative">
               {/* Outer Golden Accents & Gallery Matting Frame */}
               <div className="frame-luxury-gold relative rounded-3xl overflow-hidden animate-float-slow">
-                <div className="relative w-full min-h-[350px] sm:min-h-[420px] rounded-2xl overflow-hidden border border-[#E4B58A]/30">
+                <div className="relative w-full aspect-square rounded-2xl overflow-hidden border border-[#E4B58A]/30">
                   <Image
                     src="/image.png"
                     alt="Master Artisan Crafting Virsaa Keepsakes"
