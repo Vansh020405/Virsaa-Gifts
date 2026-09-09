@@ -135,7 +135,7 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1 }}
-            className="font-playfair text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-medium tracking-tight leading-[1.2] text-gold-gradient hero-text-shadow max-w-4xl"
+            className="font-playfair text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-medium tracking-tight leading-[1.2] text-gold-gradient-light hero-text-shadow max-w-4xl"
           >
             Gifts That Carry<br />
             <span className="italic">Your Story</span>
