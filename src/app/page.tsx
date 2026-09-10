@@ -126,7 +126,7 @@ export default function HomePage() {
               width={1700}
               height={1900}
               priority
-              className="h-14 sm:h-20 w-auto object-contain mx-auto"
+              className="h-28 sm:h-32 md:h-40 w-auto object-contain mx-auto"
             />
           </motion.div>
 
